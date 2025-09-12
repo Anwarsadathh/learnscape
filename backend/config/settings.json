@@ -1,0 +1,10 @@
+{
+  "siteName": "LearnScape",
+  "adminEmail": "admin@learnscape.com",
+  "emailNotifications": true,
+  "systemNotifications": false,
+  "maintenanceMode": false,
+  "maintenanceMessage": "We are currently performing maintenance. Please check back soon.",
+  "version": "1.0.0",
+  "lastUpdated": "2025-09-11T11:04:08.484Z"
+}

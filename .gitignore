@@ -1,0 +1,31 @@
+﻿# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies  
+node_modules/
+*/node_modules/
+
+# Next.js (Frontend)
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backend uploads (keep structure, ignore files)
+backend/uploads/**/*
+!backend/uploads/**/.gitkeep
+
+# IDE
+.vscode/
+.DS_Store
+
+# Database
+*.db
+*.sqlite
