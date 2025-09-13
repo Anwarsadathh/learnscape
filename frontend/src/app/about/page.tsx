@@ -8,6 +8,8 @@ import {
   Users,
   Building,
   Trophy,
+  ChevronUp,
+  ChevronDown,
   GraduationCap,
   Briefcase,
   Heart,
@@ -22,9 +24,133 @@ import {
   Mail
 } from 'lucide-react';
 
-const AboutPage = () => {
-  const [activeYear, setActiveYear] = useState(2025);
-  const [countUp, setCountUp] = useState({
+// ✅ FIXED - Added proper TypeScript interfaces
+interface TeamMember {
+  name: string;
+  role: string;
+  image: string;
+  description: string;
+  featured: boolean;
+}
+
+interface TeamMemberCardProps {
+  member: TeamMember;
+}
+
+// ✅ FIXED - Replaced 'any' with proper interface
+const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Truncate description for mobile (first 80 characters)
+  const shortDescription = member.description.length > 80 
+    ? member.description.substring(0, 80) + '...' 
+    : member.description;
+
+  return (
+    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center hover:shadow-xl transition-all group">
+      {/* Member Image */}
+      <div className="relative mb-3 sm:mb-4">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 p-0.5 sm:p-1">
+          <div className="w-full h-full rounded-full overflow-hidden bg-white relative">
+            <Image 
+              src={member.image}
+              alt={`${member.name} - ${member.role}`}
+              width={112}
+              height={112}
+              className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                const fallback = target.parentElement?.querySelector('.fallback-placeholder') as HTMLElement;
+                if (target && fallback) {
+                  target.style.display = 'none';
+                  fallback.style.display = 'flex';
+                }
+              }}
+            />
+            {/* Fallback placeholder */}
+            <div className="fallback-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 hidden">
+              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Member Info */}
+      <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 leading-tight">
+        {member.name}
+      </h3>
+      <p className="text-xs sm:text-sm text-blue-600 font-semibold mb-2 sm:mb-3">
+        {member.role}
+      </p>
+      
+      {/* Description with Read More */}
+      <div className="mb-3 sm:mb-4">
+        <p className="text-xs text-gray-600 leading-relaxed">
+          {isExpanded ? member.description : shortDescription}
+        </p>
+        
+        {/* Read More/Less Button - Only show if description is long */}
+        {member.description.length > 80 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            {isExpanded ? (
+              <>
+                <span>Read Less</span>
+                <ChevronUp className="w-3 h-3" />
+              </>
+            ) : (
+              <>
+                <span>Read More</span>
+                <ChevronDown className="w-3 h-3" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
+      
+      {/* Contact Button */}
+      <button className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-blue-700 rounded-lg text-xs font-medium hover:shadow-md transition-all group-hover:scale-105 border border-blue-100">
+        <Mail className="w-3 h-3" />
+        <span className="hidden sm:inline">Connect</span>
+        <span className="sm:hidden">Contact</span>
+      </button>
+    </div>
+  );
+};
+
+// ✅ ADDED - More TypeScript interfaces for better type safety
+interface TimelineEvent {
+  year: number;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+interface StatItem {
+  number: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+interface ValueItem {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+interface CountUpState {
+  colleges: number;
+  courses: number;
+  admissions: number;
+  placements: number;
+}
+
+const AboutPage: React.FC = () => {
+  const [activeYear, setActiveYear] = useState<number>(2025);
+  const [countUp, setCountUp] = useState<CountUpState>({
     colleges: 0,
     courses: 0,
     admissions: 0,
@@ -37,7 +163,7 @@ const AboutPage = () => {
     const steps = 60;
     const interval = duration / steps;
     
-    const targets = {
+    const targets: CountUpState = {
       colleges: 500,
       courses: 1000,
       admissions: 5000,
@@ -61,11 +187,11 @@ const AboutPage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const timeline = [
+  const timeline: TimelineEvent[] = [
     {
       year: 2022,
       title: 'The Beginning',
-      description: 'Started with nothing but vision and courage. People doubted - &quot;too young, too early.&quot; But we believed.',
+      description: 'Started with nothing but vision and courage. People doubted - "too young, too early." But we believed.',
       icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'from-pink-500 to-red-500'
     },
@@ -79,58 +205,20 @@ const AboutPage = () => {
     {
       year: 2025,
       title: 'Standing Tall',
-      description: '500+ colleges, 1000+ courses, 5000+ admissions, and India&apos;s fastest-growing education ecosystem.',
+      description: '500+ colleges, 1000+ courses, 5000+ admissions, and India\'s fastest-growing education ecosystem.',
       icon: <Award className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: 'from-green-500 to-emerald-500'
     }
   ];
 
-  const leadership = [
-    {
-      name: 'Kevin C Philipose',
-      role: 'Founder & CEO',
-      image: '/about/ceo.JPG',
-      description: 'Visionary leader driving the mission and growth of Learn Scape.',
-      featured: true
-    },
-      {
-    name: 'Shibin Chacko Abraham',
-    role: 'Managing Director',
-    image: '/about/Shibin.JPG',
-    description: 'A dedicated professional with a strong career in the education sector. Consistently delivers excellence with passion and commitment.',
-    featured: false
-  },
-    {
-      name: 'Amit Patel',
-      role: 'Director',
-      image: '/director.jpg',
-      description: 'Technology and innovation leader driving digital transformation.',
-      featured: false
-    },
-    {
-      name: 'Sarah Khan',
-      role: 'Digital Marketing Head',
-      image: '/marketing.jpg',
-      description: 'Brand building and digital presence specialist with proven track record.',
-      featured: false
-    },
-    {
-      name: 'Ravi Nair',
-      role: 'Senior Sales Manager',
-      image: '/sales.jpg',
-      description: 'Partnership and revenue growth strategist with extensive network.',
-      featured: false
-    }
-  ];
-
-  const stats = [
+  const stats: StatItem[] = [
     { number: countUp.colleges + '+', label: 'College Partners', icon: <Building className="w-4 h-4 sm:w-6 sm:h-6" /> },
     { number: countUp.courses + '+', label: 'Courses Available', icon: <BookOpen className="w-4 h-4 sm:w-6 sm:h-6" /> },
     { number: countUp.admissions + '+', label: 'Successful Admissions', icon: <GraduationCap className="w-4 h-4 sm:w-6 sm:h-6" /> },
     { number: countUp.placements + '+', label: 'Students Placed', icon: <Briefcase className="w-4 h-4 sm:w-6 sm:h-6" /> }
   ];
 
-  const values = [
+  const values: ValueItem[] = [
     {
       icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5" />,
       title: 'Student First',
@@ -153,8 +241,37 @@ const AboutPage = () => {
     }
   ];
 
-  const teamMembers = leadership.filter(leader => !leader.featured);
-
+  // ✅ FIXED - Added proper typing for team members
+  const teamMembers: TeamMember[] = [
+    {
+      name: 'Shibin Chacko Abraham',
+      role: 'Managing Director',
+      image: '/about/Shibin.JPG',
+      description: 'A dedicated professional with a strong career in the education sector. Consistently delivers excellence with passion and commitment. Plays a key role in driving Learn Scape\'s growth and success. Known for his performance, dedication, and strategic support. Contributes to shaping a stronger future for the organization.',
+      featured: false
+    },
+    {
+      name: 'Mohammad Rishad',
+      role: 'Digital Marketing Executive',
+      image: '/about/Rishad.jpg',
+      description: 'An experienced professional in digital marketing. Specializes in designing and managing social media platforms. Brings creativity and precision to every campaign. Supports Learn Scape\'s growth through digital engagement. Plays a key role in strengthening the brand\'s online presence.',
+      featured: false
+    },
+    {
+      name: 'Sarah Khan',
+      role: 'Digital Marketing Head',
+      image: '/marketing.jpg',
+      description: 'Brand building and digital presence specialist with proven track record. Leads comprehensive marketing strategies and digital transformation initiatives. Expert in content creation, social media management, and online brand positioning.',
+      featured: false
+    },
+    {
+      name: 'Ravi Nair',
+      role: 'Senior Sales Manager',
+      image: '/sales.jpg',
+      description: 'Partnership and revenue growth strategist with extensive network. Specializes in client relationship management and business development. Drives sales performance and strategic partnerships across multiple sectors.',
+      featured: false
+    }
+  ];
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       {/* Animated Background */}
@@ -350,59 +467,22 @@ const AboutPage = () => {
         </div>
       </div>
 
-     {/* Team Section - FIXED TYPESCRIPT ERRORS */}
-<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-  <div className="text-center mb-8 sm:mb-12">
-    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Our Leadership Team</h2>
-    <p className="text-slate-400 text-sm sm:text-base lg:text-lg">Experienced professionals driving our mission</p>
-  </div>
-  
-  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-    {teamMembers.map((member, index) => (
-      <div key={index} className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 text-center hover:shadow-xl transition-all group">
-        {/* Member Image - FIXED TypeScript Errors */}
-        <div className="relative mb-3 sm:mb-4">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 p-1">
-            <div className="w-full h-full rounded-full overflow-hidden bg-white relative">
-              <Image 
-                src={member.image}
-                alt={`${member.name} - ${member.role}`}
-                width={128}
-                height={128}
-                className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  // TypeScript-safe error handling
-                  const target = e.currentTarget as HTMLImageElement;
-                  const fallback = target.parentElement?.querySelector('.fallback-placeholder') as HTMLElement;
-                  
-                  if (target && fallback) {
-                    target.style.display = 'none';
-                    fallback.style.display = 'flex';
-                  }
-                }}
-              />
-              {/* Fallback placeholder - hidden by default */}
-              <div className="fallback-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 hidden">
-                <Users className="w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-gray-400" />
-              </div>
-            </div>
-          </div>
+   {/* Team Section - Updated with proper typing */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Our Leadership Team</h2>
+          <p className="text-slate-400 text-sm sm:text-base lg:text-lg">Experienced professionals driving our mission</p>
         </div>
         
-        {/* Member Info */}
-        <h3 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-        <p className="text-xs sm:text-sm lg:text-base text-blue-600 font-semibold mb-2">{member.role}</p>
-        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-3">{member.description}</p>
-        
-        {/* Contact Button */}
-        <button className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 rounded-lg text-xs sm:text-sm font-medium hover:shadow-md transition-all group-hover:scale-105">
-          <Mail className="w-3 h-3" />
-          Connect
-        </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {teamMembers.map((member, index) => (
+            <TeamMemberCard 
+              key={index}
+              member={member}
+            />
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
 
 {/* Awards & Recognition Section - IMPROVED DESIGN */}
 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
