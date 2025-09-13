@@ -466,23 +466,24 @@ const AboutPage: React.FC = () => {
           </div>
         </div>
       </div>
+{/* Team Section - UPDATED for mobile 2 cards per row */}
+<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+  <div className="text-center mb-8 sm:mb-12">
+    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Our Leadership Team</h2>
+    <p className="text-slate-400 text-sm sm:text-base lg:text-lg">Experienced professionals driving our mission</p>
+  </div>
+  
+  {/* ✅ UPDATED - Changed from grid-cols-1 to grid-cols-2 for mobile */}
+  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+    {teamMembers.map((member, index) => (
+      <TeamMemberCard 
+        key={index}
+        member={member}
+      />
+    ))}
+  </div>
+</div>
 
-   {/* Team Section - Updated with proper typing */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Our Leadership Team</h2>
-          <p className="text-slate-400 text-sm sm:text-base lg:text-lg">Experienced professionals driving our mission</p>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {teamMembers.map((member, index) => (
-            <TeamMemberCard 
-              key={index}
-              member={member}
-            />
-          ))}
-        </div>
-      </div>
 
 {/* Awards & Recognition Section - IMPROVED DESIGN */}
 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
