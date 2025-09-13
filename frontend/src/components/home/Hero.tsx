@@ -245,16 +245,16 @@ const Hero = () => {
             <span className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Premier Education Platform</span>
           </div>
 
-          {/* Main Heading - Smaller on Mobile */}
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-            <span className="block text-white mb-1 sm:mb-2">Discover Your</span>
-            <span className="relative inline-block">
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-50"></span>
-              <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Perfect College
-              </span>
-            </span>
-          </h1>
+        {/* Main Heading - Bigger on Mobile */}
+<h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+  <span className="block text-white mb-1 sm:mb-2">Discover Your</span>
+  <span className="relative inline-block">
+    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-50"></span>
+    <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      Perfect College
+    </span>
+  </span>
+</h1>
 
           {/* Animated Tag Line - Smaller on Mobile */}
           <p className="text-sm sm:text-lg text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
