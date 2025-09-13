@@ -13,13 +13,13 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ['lucide-react'],
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'learnscapeedu.com'],
   },
   async rewrites() {
     return [
       { 
         source: '/api/:path*', 
-        destination: 'http://localhost:5000/api/:path*' 
+        destination: 'http://localhost:6667/api/:path*'
       },
     ];
   },
@@ -28,12 +28,6 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  // Completely disable the development indicator
-  devIndicators: {
-    appIsrStatus: false,
-    buildActivity: false,
-    buildActivityPosition: 'bottom-right' as const,
   },
 };
 
