@@ -65,7 +65,7 @@ const CollegeDetailPage = () => {
   useEffect(() => {
     const fetchCollegeDetails = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api/api';
         const response = await fetch(`${API_URL}/colleges/${params.id}`);
         const data = await response.json();
         
@@ -138,7 +138,7 @@ const CollegeDetailPage = () => {
       <div className="relative h-[50vh] sm:h-[55vh] lg:h-[70vh] xl:h-[75vh] overflow-hidden">
         {college.image ? (
           <Image
-            src={`http://localhost:5000${college.image}`}
+            src={`https://learnscapeedu.com/api${college.image}`}
             alt={college.name}
             fill
             className="object-cover"

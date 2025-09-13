@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   console.log(`[Middleware] Processing: ${pathname}`);
 
   // Get backend URL - expecting it to end with /api
-  const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
   // Remove /api suffix for base URL operations
   const backendRoot = backendBaseUrl.replace(/\/api$/, '');
 

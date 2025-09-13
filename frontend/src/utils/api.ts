@@ -1,7 +1,7 @@
 // frontend/src/utils/api.ts
 // Alternative version with generic types for better type safety
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
 
 export const apiConfig = {
   // Use this for fetch calls in your components

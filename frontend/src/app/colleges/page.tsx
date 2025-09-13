@@ -96,7 +96,7 @@ function CollegesContent() {
   const fetchColleges = useCallback(async (page: number = 1) => {
     try {
       setLoading(true);
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api/api';
       
       // Build query parameters
       const params = new URLSearchParams({
@@ -567,7 +567,7 @@ function CollegesContent() {
                     <div className="relative h-48 overflow-hidden">
                       {college.image ? (
                         <Image
-                          src={`http://localhost:5000${college.image}`}
+                          src={`https://learnscapeedu.com/api${college.image}`}
                           alt={college.name}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-700"

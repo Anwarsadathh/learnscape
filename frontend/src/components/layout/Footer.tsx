@@ -44,7 +44,7 @@ export default function Footer() {
   useEffect(() => {
     const fetchColleges = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
         const response = await fetch(`${API_URL}/colleges`);
         
         if (!response.ok) {
