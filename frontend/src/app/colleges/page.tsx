@@ -96,8 +96,7 @@ function CollegesContent() {
   const fetchColleges = useCallback(async (page: number = 1) => {
     try {
       setLoading(true);
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api/api';
-      
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
       // Build query parameters
       const params = new URLSearchParams({
         page: page.toString(),
@@ -566,12 +565,13 @@ function CollegesContent() {
                     {/* Image Section */}
                     <div className="relative h-48 overflow-hidden">
                       {college.image ? (
-                        <Image
-                          src={`https://learnscapeedu.com/api${college.image}`}
-                          alt={college.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
+                       <Image
+  src={`https://learnscapeedu.com${college.image}`}
+  alt={college.name}
+  fill
+  className="object-cover group-hover:scale-110 transition-transform duration-700"
+/>
+
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center">
                           <GraduationCap className="w-16 h-16 text-white/80" />
