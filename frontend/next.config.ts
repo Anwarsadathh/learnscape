@@ -14,15 +14,19 @@ const nextConfig: NextConfig = {
   transpilePackages: ['lucide-react'],
   images: {
     domains: ['localhost', 'learnscapeedu.com'],
-  },
-  async rewrites() {
-    return [
-      { 
-        source: '/api/:path*', 
-        destination: 'http://localhost:6667/api/:path*'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'learnscapeedu.com',
       },
-    ];
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '6667',
+      },
+    ],
   },
+  // ✅ REMOVE THE REWRITES - They're causing conflicts in production
   eslint: {
     ignoreDuringBuilds: true,
   },
