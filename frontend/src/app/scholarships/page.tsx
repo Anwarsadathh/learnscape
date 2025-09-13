@@ -305,7 +305,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   setErrorMessage('');
   
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
     
     // Create FormData for file upload
     const submitData = new FormData();
@@ -400,7 +400,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const verifyPayment = async (paymentResponse: RazorpayResponse) => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
       const response = await fetch(`${API_URL}/scholarships/verify-payment`, {
         method: 'POST',
         headers: {

@@ -18,7 +18,7 @@ export default function Home() {
     async function checkMaintenance() {
       try {
         // Use the backend URL from environment variable
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || 'https://learnscapeedu.com';
         const response = await fetch(`${backendUrl}/api/admin/settings/maintenance`);
         
         if (response.ok) {

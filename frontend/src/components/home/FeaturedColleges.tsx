@@ -49,7 +49,7 @@ const FeaturedColleges = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState<{id: string, name: string} | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
 
   useEffect(() => {
     const fetchColleges = async () => {
@@ -257,7 +257,7 @@ const FeaturedColleges = () => {
                               <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex-shrink-0">
                                 {college.image ? (
                                   <Image
-                                    src={`http://localhost:5000${college.image}`}
+                                    src={`https://learnscapeedu.com${college.image}`}
                                     alt={college.name}
                                     fill
                                     className="object-cover group-hover:scale-110 transition-transform duration-700"

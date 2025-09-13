@@ -478,7 +478,7 @@ const CollegesManagementPage = () => {
                           {college.image && (
                             <div className="w-12 h-12 relative rounded-lg overflow-hidden">
                               <Image
-                                src={`http://localhost:5000${college.image}`}
+                                src={`https://learnscapeedu.com${college.image}`}
                                 alt={college.name}
                                 fill
                                 className="object-cover"
@@ -672,7 +672,7 @@ const CollegesManagementPage = () => {
                             <h3 className="text-lg font-semibold text-white mb-4">College Image</h3>
                             <div className="w-full h-64 relative rounded-lg overflow-hidden">
                               <Image
-                                src={`http://localhost:5000${selectedCollege.image}`}
+                                src={`https://learnscapeedu.com${selectedCollege.image}`}
                                 alt={selectedCollege.name}
                                 fill
                                 className="object-cover"

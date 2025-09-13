@@ -47,7 +47,7 @@ useEffect(() => {
   const delayedSearch = setTimeout(async () => {
     setIsLoadingSuggestions(true);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
       const response = await fetch(`${API_URL}/search/suggestions?q=${encodeURIComponent(searchQuery.trim())}`);
       
       // Check if the response is OK
