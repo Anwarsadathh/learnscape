@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Sparkles, ArrowRight, TrendingUp, MapPin, GraduationCap, X } from 'lucide-react';
+import { Search, Sparkles, ArrowRight, TrendingUp, MapPin,Globe, GraduationCap, X } from 'lucide-react';
 
 interface SearchSuggestion {
   id: string;
@@ -400,32 +400,52 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* CTA Buttons - More Visible Career Icon */}
-<div className="flex flex-row gap-3 justify-center items-center mb-8 sm:mb-12">
-  <Link
-    href="/colleges"
-    className="group relative flex-1 max-w-[160px] px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-xs sm:text-sm overflow-hidden transition-all hover:shadow-2xl hover:shadow-blue-500/30 transform hover:scale-[1.02]"
-  >
-    <span className="relative z-10 flex items-center justify-center gap-1.5">
-      Explore Colleges
-      <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-    </span>
-  </Link>
-  
-  <a
-    href="https://skillprofile.in/"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="flex-1 max-w-[160px] px-4 py-2.5 bg-slate-800/50 backdrop-blur-sm text-white rounded-xl font-semibold border border-slate-700 hover:bg-slate-700/50 hover:border-slate-600 transition-all"
-  >
-    <span className="flex items-center justify-center gap-1.5">
-      <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4 text-slate-300 flex-shrink-0" />
-      <span className="text-[11px] sm:text-sm whitespace-nowrap">
-        Career Assessment
+      {/* CTA Buttons - Medium Size on Laptop */}
+<div className="flex flex-col gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
+  {/* Top Row - Main Actions */}
+  <div className="flex flex-row gap-3 sm:gap-4 justify-center items-center w-full">
+    <Link
+      href="/colleges"
+      className="group relative flex-1 max-w-[160px] sm:max-w-[180px] lg:max-w-[190px] px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 lg:py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold text-xs sm:text-sm lg:text-sm overflow-hidden transition-all hover:shadow-lg hover:shadow-blue-500/25 transform hover:scale-[1.02]"
+    >
+      <span className="relative z-10 flex items-center justify-center gap-1.5">
+        Explore Colleges
+        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 lg:w-4 lg:h-4 group-hover:translate-x-1 transition-transform" />
       </span>
-    </span>
-  </a>
+    </Link>
+    
+    <Link
+      href="/language-academy"
+      className="group relative flex-1 max-w-[160px] sm:max-w-[180px] lg:max-w-[190px] px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 lg:py-3.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold text-xs sm:text-sm lg:text-sm overflow-hidden transition-all hover:shadow-lg hover:shadow-purple-500/25 transform hover:scale-[1.02]"
+    >
+      <span className="relative z-10 flex items-center justify-center gap-1.5">
+        <Globe className="w-3 h-3 sm:w-4 sm:h-4 lg:w-4 lg:h-4 flex-shrink-0" />
+        <span className="text-[10px] sm:text-sm lg:text-sm whitespace-nowrap leading-tight">
+          Language Academy
+        </span>
+      </span>
+    </Link>
+  </div>
+
+  {/* Bottom Row - Career Assessment */}
+  <div className="flex justify-center w-full">
+    <a
+      href="https://skillprofile.in/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="max-w-[320px] sm:max-w-[360px] lg:max-w-[380px] w-full px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 lg:py-3.5 bg-slate-800/50 backdrop-blur-sm text-white rounded-xl font-semibold text-xs sm:text-sm lg:text-sm border border-slate-700 hover:bg-slate-700/50 hover:border-slate-600 transition-all"
+    >
+      <span className="flex items-center justify-center gap-1.5">
+        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-4 lg:h-4 text-slate-300 flex-shrink-0" />
+        <span className="whitespace-nowrap">
+          Career Assessment
+        </span>
+      </span>
+    </a>
+  </div>
 </div>
+
+
 
 
           {/* Trust Badges - Compact on Mobile */}

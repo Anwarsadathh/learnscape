@@ -7,7 +7,6 @@ import Services from '@/components/home/Services';
 import FeaturedColleges from '@/components/home/FeaturedColleges';
 import Statistics from '@/components/home/Statistics';
 import Testimonials from '@/components/home/Testimonials';
-import LanguageAcademy from '@/components/home/LanguageAcademy'; // New component
 import CallToAction from '@/components/home/CallToAction';
 
 export default function Home() {
@@ -55,7 +54,6 @@ export default function Home() {
       <Statistics />
       <FeaturedColleges />
       <Services />
-      <LanguageAcademy /> {/* New Language Academy Section */}
       <Testimonials />
       <CallToAction />
     </div>

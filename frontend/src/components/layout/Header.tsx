@@ -162,6 +162,18 @@ export default function Header() {
               }`}>
                 Scholarships
               </Link>
+<Link href="/language-academy" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+  isActivePath('/language-academy')
+    ? isScrolled 
+      ? 'text-[#173974] bg-blue-50' 
+      : 'text-blue-300 bg-white/20'
+    : isScrolled 
+      ? 'text-gray-700 hover:text-[#173974] hover:bg-blue-50' 
+      : 'text-white/90 hover:text-white hover:bg-white/10'
+}`}>
+  Language Academy
+</Link>
+
             </nav>
 
             {/* Enhanced Desktop CTA Button */}
@@ -273,7 +285,18 @@ export default function Header() {
                     }`}></div>
                     Scholarships
                   </Link>
-                  
+<Link href="/language-academy" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+  isActivePath('/language-academy')
+    ? isScrolled 
+      ? 'text-[#173974] bg-blue-50' 
+      : 'text-blue-300 bg-white/20'
+    : isScrolled 
+      ? 'text-gray-700 hover:text-[#173974] hover:bg-blue-50' 
+      : 'text-white/90 hover:text-white hover:bg-white/10'
+}`}>
+  Language Academy
+</Link>
+
                   <Link 
                     href="/terms" 
                     onClick={() => setIsMenuOpen(false)} 
