@@ -98,7 +98,7 @@ const LanguageAcademy = () => {
   };
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = "919876543210";
+    const phoneNumber = "918606004306";
     const message = encodeURIComponent("Hi! I'm interested in LearnScape Language Academy courses. Please share more details.");
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };

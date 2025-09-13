@@ -404,47 +404,49 @@ const FeaturedColleges = () => {
               </div>
             </div>
 
-            {/* Progress indicators */}
-            {totalSlides > 1 && (
-              <div className="flex justify-center items-center mt-8 gap-2">
-                {Array.from({ length: totalSlides }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`relative transition-all duration-500 ${
-                      currentSlide === index 
-                        ? 'h-2 w-10 bg-gradient-to-r from-[#173974] to-purple-600 rounded-full shadow-lg' 
-                        : 'h-2 w-2 bg-gray-300 hover:bg-gray-400 rounded-full'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  >
-                    {currentSlide === index && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#173974] to-purple-600 rounded-full animate-pulse"></div>
-                    )}
-                  </button>
-                ))}
-                
-                <div className="ml-3 text-xs text-gray-500 font-mono font-bold">
-                  {String(currentSlide + 1).padStart(2, '0')}/{String(totalSlides).padStart(2, '0')}
-                </div>
-              </div>
-            )}
+        {/* Progress indicators - STANDARD COLOR DOTS */}
+{totalSlides > 1 && (
+  <div className="flex justify-center items-center mt-8 gap-2">
+    {Array.from({ length: totalSlides }).map((_, index) => (
+      <button
+        key={index}
+        onClick={() => goToSlide(index)}
+        className={`relative transition-all duration-500 ${
+          currentSlide === index 
+            ? 'h-2 w-10 bg-blue-600 rounded-full shadow-lg' // Active dot - blue
+            : 'h-2 w-2 bg-gray-400 hover:bg-gray-500 rounded-full' // Inactive dots - gray
+        }`}
+        aria-label={`Go to slide ${index + 1}`}
+      >
+        {currentSlide === index && (
+          <div className="absolute inset-0 bg-gray-800 rounded-full animate-pulse"></div>
+        )}
+      </button>
+    ))}
+    
+    <div className="ml-3 text-xs text-gray-600 font-mono font-bold">
+      {String(currentSlide + 1).padStart(2, '0')}/{String(totalSlides).padStart(2, '0')}
+    </div>
+  </div>
+)}
+
 
            
           </div>
         )}
 
-        {/* CTA Section */}
-        <div className="text-center mt-10 sm:mt-12">
-          <Link
-            href="/colleges"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#173974] via-blue-600 to-purple-600 text-white rounded-2xl font-bold text-base hover:shadow-2xl hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] group border border-blue-500/20 relative overflow-hidden"
-          >
-            <span className="relative z-10">Explore All Colleges</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          </Link>
-        </div>
+        {/* CTA Section - SMALLER BUTTON */}
+<div className="text-center mt-10 sm:mt-12">
+  <Link
+    href="/colleges"
+    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#173974] via-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-xl hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] group border border-blue-500/20 relative overflow-hidden"
+  >
+    <span className="relative z-10">Explore All Colleges</span>
+    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+  </Link>
+</div>
+
       </div>
 
       {/* Enquiry Modal */}

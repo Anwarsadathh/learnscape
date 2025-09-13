@@ -256,10 +256,10 @@ const AboutPage: React.FC = () => {
       featured: false
     },
     {
-      name: 'Sarah Khan',
-      role: 'Digital Marketing Head',
+      name: 'Anurag Prasad',
+      role: 'Senior Sales Executive',
       image: '/marketing.jpg',
-      description: 'Brand building and digital presence specialist with proven track record. Leads comprehensive marketing strategies and digital transformation initiatives. Expert in content creation, social media management, and online brand positioning.',
+      description: 'A passionate professional with expertise in sales and client relations.Contributes innovative and strategic ideas to drive company growth.Dedicated to developing strong sales channels and opportunities.Known for his commitment, energy, and results-driven approach.Plays a vital role in expanding Learn Scape’s reach and success.',
       featured: false
     },
     {
