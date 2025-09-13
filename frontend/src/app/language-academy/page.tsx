@@ -81,12 +81,7 @@ const LanguageAcademyPage = () => {
     { icon: GraduationCap, text: "100% Placement Support", desc: "Job placement & career guidance" }
   ];
 
-  const stats = [
-    { number: "5000+", label: "Students Trained", color: "text-white" },
-    { number: "95%", label: "Success Rate", color: "text-white" },
-    { number: "50+", label: "Countries Reached", color: "text-white" },
-    { number: "10+", label: "Years Experience", color: "text-white" }
-  ];
+
 
   // Auto-advance functionality for mobile carousel
   useEffect(() => {
@@ -165,15 +160,7 @@ const LanguageAcademyPage = () => {
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                <div className={`text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}>{stat.number}</div>
-                <div className="text-slate-300 text-sm">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      
         </div>
       </section>
 
