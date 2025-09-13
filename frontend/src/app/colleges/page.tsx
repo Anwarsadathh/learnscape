@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -53,7 +53,23 @@ interface Course {
   fees: string;
 }
 
-const CollegesPage = () => {
+// Loading component for Suspense fallback
+function CollegesLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="text-center">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-slate-700 rounded-full"></div>
+          <div className="w-20 h-20 border-4 border-blue-500 rounded-full animate-spin border-t-transparent absolute top-0"></div>
+        </div>
+        <p className="mt-4 text-slate-400 font-medium">Loading colleges...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component content
+function CollegesContent() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -152,10 +168,11 @@ const CollegesPage = () => {
     }
   };
 
-const handlePageClick = (page: number) => {
-  fetchColleges(page);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
+  const handlePageClick = (page: number) => {
+    fetchColleges(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pages = [];
@@ -275,7 +292,6 @@ const handlePageClick = (page: number) => {
           {/* Subtitle with pagination info */}
           <p className="text-base sm:text-lg text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
             Discover {totalColleges}+ premier institutions across India
-          
           </p>
 
           {/* Enhanced Search Bar - Same as Hero */}
@@ -880,6 +896,13 @@ const handlePageClick = (page: number) => {
       )}
     </section>
   );
-};
+}
 
-export default CollegesPage;
+// Main exported component with Suspense wrapper
+export default function CollegesPage() {
+  return (
+    <Suspense fallback={<CollegesLoading />}>
+      <CollegesContent />
+    </Suspense>
+  );
+}
