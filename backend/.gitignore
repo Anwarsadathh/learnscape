@@ -17,6 +17,13 @@ yarn-error.log*
 *.db
 *.sqlite
 
+# ===== UPLOAD FILES - EXCLUDE FROM GIT =====
+# Ignore all files in uploads but keep directories
+uploads/**/*
+
+# Keep .gitkeep files to maintain directory structure
+!uploads/.gitkeep
+!uploads/*/.gitkeep
 
 # ===== COMMON FILES TO IGNORE =====
 # OS generated files
@@ -51,7 +58,3 @@ pids/
 *.pid
 *.seed
 *.pid.lock
-
-# Package manager
-package-lock.json.bak
-yarn.lock
