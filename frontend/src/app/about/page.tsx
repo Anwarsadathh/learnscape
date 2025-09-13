@@ -37,20 +37,19 @@ interface TeamMemberCardProps {
   member: TeamMember;
 }
 
-// ✅ FIXED - Replaced 'any' with proper interface
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Truncate description for mobile (first 80 characters)
-  const shortDescription = member.description.length > 80 
-    ? member.description.substring(0, 80) + '...' 
+  // Truncate description for mobile (first 60 characters for 2-card layout)
+  const shortDescription = member.description.length > 60 
+    ? member.description.substring(0, 60) + '...' 
     : member.description;
 
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center hover:shadow-xl transition-all group">
-      {/* Member Image */}
-      <div className="relative mb-3 sm:mb-4">
-        <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 p-0.5 sm:p-1">
+    <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 text-center hover:shadow-xl transition-all group">
+      {/* Member Image - Smaller on mobile for 2-card layout */}
+      <div className="relative mb-2 sm:mb-4">
+        <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-28 lg:h-28 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 p-0.5 sm:p-1">
           <div className="w-full h-full rounded-full overflow-hidden bg-white relative">
             <Image 
               src={member.image}
@@ -67,58 +66,57 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
                 }
               }}
             />
-            {/* Fallback placeholder */}
             <div className="fallback-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 hidden">
-              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+              <Users className="w-6 h-6 sm:w-10 sm:h-10 text-gray-400" />
             </div>
           </div>
         </div>
       </div>
       
-      {/* Member Info */}
-      <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 leading-tight">
+      {/* Member Info - Smaller text for mobile */}
+      <h3 className="text-xs sm:text-base font-bold text-gray-900 mb-1 leading-tight">
         {member.name}
       </h3>
-      <p className="text-xs sm:text-sm text-blue-600 font-semibold mb-2 sm:mb-3">
+      <p className="text-[10px] sm:text-sm text-blue-600 font-semibold mb-2 sm:mb-3">
         {member.role}
       </p>
       
       {/* Description with Read More */}
-      <div className="mb-3 sm:mb-4">
-        <p className="text-xs text-gray-600 leading-relaxed">
+      <div className="mb-2 sm:mb-4">
+        <p className="text-[10px] sm:text-xs text-gray-600 leading-relaxed">
           {isExpanded ? member.description : shortDescription}
         </p>
         
-        {/* Read More/Less Button - Only show if description is long */}
-        {member.description.length > 80 && (
+        {/* Read More/Less Button */}
+        {member.description.length > 60 && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            className="inline-flex items-center gap-1 mt-1 sm:mt-2 text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             {isExpanded ? (
               <>
-                <span>Read Less</span>
-                <ChevronUp className="w-3 h-3" />
+                <span>Less</span>
+                <ChevronUp className="w-2 h-2 sm:w-3 sm:h-3" />
               </>
             ) : (
               <>
-                <span>Read More</span>
-                <ChevronDown className="w-3 h-3" />
+                <span>More</span>
+                <ChevronDown className="w-2 h-2 sm:w-3 sm:h-3" />
               </>
             )}
           </button>
         )}
       </div>
       
-      {/* Contact Button */}
-      <button className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-blue-700 rounded-lg text-xs font-medium hover:shadow-md transition-all group-hover:scale-105 border border-blue-100">
-        <Mail className="w-3 h-3" />
-        <span className="hidden sm:inline">Connect</span>
-        <span className="sm:hidden">Contact</span>
+      {/* Contact Button - Smaller on mobile */}
+      <button className="inline-flex items-center gap-1 px-2 py-1 sm:px-4 sm:py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-blue-700 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium hover:shadow-md transition-all group-hover:scale-105 border border-blue-100">
+        <Mail className="w-2 h-2 sm:w-3 sm:h-3" />
+        <span>Contact</span>
       </button>
     </div>
   );
 };
+
 
 // ✅ ADDED - More TypeScript interfaces for better type safety
 interface TimelineEvent {
