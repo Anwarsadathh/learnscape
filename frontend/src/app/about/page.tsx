@@ -251,12 +251,12 @@ const AboutPage: React.FC = () => {
       featured: false
     },
     {
-      name: 'Mohammad Rishad',
-      role: 'Digital Marketing Executive',
-      image: '/about/Rishad.jpg',
-      description: 'An experienced professional in digital marketing. Specializes in designing and managing social media platforms. Brings creativity and precision to every campaign. Supports Learn Scape\'s growth through digital engagement. Plays a key role in strengthening the brand\'s online presence.',
-      featured: false
-    },
+  name: 'Anurag Prasad',
+  role: 'Marketing Director',
+  image: '/about/anu.jpg',
+  description: 'A passionate marketing professional with 4 years of experience in the education industry. Specializes in developing innovative strategies that drive growth and visibility. Brings creativity and dedication to every campaign and initiative. Focused on strengthening Learn Scape\'s brand and market presence. Plays a vital role in shaping the company\'s success story.',
+  featured: true
+},
     {
       name: 'Lakshmi rajesh',
       role: 'Senior Sales Manager',
@@ -265,12 +265,12 @@ const AboutPage: React.FC = () => {
       featured: false
     },
    {
-  name: 'Anurag Prasad',
-  role: 'Marketing Director',
-  image: '/about/anu.jpg',
-  description: 'A passionate marketing professional with 4 years of experience in the education industry. Specializes in developing innovative strategies that drive growth and visibility. Brings creativity and dedication to every campaign and initiative. Focused on strengthening Learn Scape\'s brand and market presence. Plays a vital role in shaping the company\'s success story.',
-  featured: true
-}
+      name: 'Mohammad Rishad',
+      role: 'Digital Marketing Executive',
+      image: '/about/Rishad.jpg',
+      description: 'An experienced professional in digital marketing. Specializes in designing and managing social media platforms. Brings creativity and precision to every campaign. Supports Learn Scape\'s growth through digital engagement. Plays a key role in strengthening the brand\'s online presence.',
+      featured: false
+    }
 
   ];
   return (
