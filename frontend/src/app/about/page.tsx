@@ -258,19 +258,20 @@ const AboutPage: React.FC = () => {
       featured: false
     },
     {
-      name: 'Anurag Prasad',
+      name: 'Lakshmi rajesh',
       role: 'Senior Sales Manager',
-      image: '/about/anu.jpg',
+      image: '/about/lak.jpg',
       description: 'A passionate professional with expertise in sales and client relations.Contributes innovative and strategic ideas to drive company growth.Dedicated to developing strong sales channels and opportunities.Known for his commitment, energy, and results-driven approach.Plays a vital role in expanding Learn Scape’s reach and success.',
       featured: false
     },
-    {
-      name: 'Ravi Nair',
-      role: 'Senior Sales Manager',
-      image: '/sales.jpg',
-      description: 'Partnership and revenue growth strategist with extensive network. Specializes in client relationship management and business development. Drives sales performance and strategic partnerships across multiple sectors.',
-      featured: false
-    }
+   {
+  name: 'Anurag Prasad',
+  role: 'Marketing Director',
+  image: '/about/anu.jpg',
+  description: 'A passionate marketing professional with 4 years of experience in the education industry. Specializes in developing innovative strategies that drive growth and visibility. Brings creativity and dedication to every campaign and initiative. Focused on strengthening Learn Scape\'s brand and market presence. Plays a vital role in shaping the company\'s success story.',
+  featured: true
+}
+
   ];
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">

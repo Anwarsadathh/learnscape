@@ -81,37 +81,34 @@ const CallToAction = () => {
             })}
           </div>
 
-          {/* UPDATED CTA Buttons - Modal Integration */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6 sm:mb-8">
-            {/* Primary CTA - Opens Modal */}
-            <button
-              onClick={handleConsultationClick}
-              className="group relative w-full max-w-xs sm:w-auto px-6 py-3 bg-gradient-to-r from-[#173974] via-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm overflow-hidden transition-all hover:shadow-xl hover:shadow-blue-500/25 transform hover:scale-[1.02] border border-blue-500/20"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Book Free Consultation
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-              
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-            </button>
+          {/* UPDATED CTA Buttons - Single Color for Consultation Button */}
+<div className="flex flex-row gap-3 justify-center items-center mb-6 sm:mb-8">
+  {/* Primary CTA - Opens Modal - Single Blue Color */}
+  <button
+    onClick={handleConsultationClick}
+    className="group relative flex-1 max-w-[160px] sm:max-w-xs px-4 sm:px-6 py-3 bg-[#173974] hover:bg-blue-700 text-white rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all hover:shadow-xl hover:shadow-blue-500/25 transform hover:scale-[1.02] border border-blue-500/20"
+  >
+    <span className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2">
+      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+      <span className="truncate">Book Free Consultation</span>
+      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform hidden sm:inline" />
+    </span>
+  </button>
 
-            {/* Secondary CTA - Opens WhatsApp */}
-            <button 
-              onClick={handleWhatsAppClick}
-              className="group relative w-full max-w-xs sm:w-auto px-6 py-3 bg-white text-gray-900 rounded-xl font-semibold text-sm border border-gray-200 hover:border-[#173974]/30 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                <MessageCircle className="w-4 h-4 text-[#173974]" />
-                Chat with Expert
-              </span>
-              
-              {/* Hover gradient effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#173974]/5 via-purple-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-          </div>
+  {/* Secondary CTA - Opens WhatsApp */}
+  <button 
+    onClick={handleWhatsAppClick}
+    className="group relative flex-1 max-w-[160px] sm:max-w-xs px-4 sm:px-6 py-3 bg-white text-gray-900 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm border border-gray-200 hover:border-[#173974]/30 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] overflow-hidden"
+  >
+    <span className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2">
+      <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#173974] flex-shrink-0" />
+      <span className="truncate">Chat with Expert</span>
+    </span>
+    
+    {/* Hover gradient effect */}
+    <div className="absolute inset-0 bg-gradient-to-r from-[#173974]/5 via-purple-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  </button>
+</div>
 
           {/* Compact Trust Indicators */}
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
