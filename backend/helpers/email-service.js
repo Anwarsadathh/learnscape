@@ -149,14 +149,14 @@ const emailService = {
     }
   },
 
-  // Scholarship success email template
-  getScholarshipSuccessHTML(scholarship) {
-    const formattedDate = new Date().toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    return `
+  // Scholarship success email template (updated with actual logo)
+getScholarshipSuccessHTML(scholarship) {
+  const formattedDate = new Date().toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,103 +186,322 @@ const emailService = {
             text-align: center;
             color: white;
         }
-        .success-badge {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
             border-radius: 50%;
             margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255,255,255,0); }
+        }
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            max-width: 50px;
+            filter: brightness(0) invert(1);
+            object-fit: contain;
         }
         .header h1 { 
             font-size: 22px; 
             font-weight: 800; 
             margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+        .header p { 
+            font-size: 11px; 
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .content { padding: 25px 20px; }
+        .greeting {
+            font-size: 16px;
+            font-weight: 700;
+            color: #173974;
+            margin-bottom: 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .greeting::before,
+        .greeting::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #173974, transparent);
+            max-width: 50px;
+        }
+        .message {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #4b5563;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
         .celebration-box {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border-radius: 12px;
             padding: 15px;
             margin: 20px 0;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(16,185,129,0.25);
+        }
+        .celebration-box::before {
+            content: '✨';
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .celebration-box::after {
+            content: '🎊';
+            position: absolute;
+            bottom: -5px;
+            right: 10px;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .celebration-box h3 {
             color: white;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .celebration-box p {
+            color: rgba(255,255,255,0.95);
+            font-size: 10px;
+            font-weight: 500;
         }
         .details-card {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 15px;
             margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .details-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #173974, #7c3aed);
+        }
+        .details-card h3 {
+            font-size: 11px;
+            font-weight: 700;
+            color: #173974;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .detail-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 8px 0;
-            font-size: 11px;
+            border-bottom: 1px solid rgba(226,232,240,0.5);
+            font-size: 10px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 10px;
+            text-align: right;
         }
         .status-badge {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             padding: 3px 8px;
             border-radius: 10px;
             font-size: 8px;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+        }
+        .contact-info {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #fbbf24;
+        }
+        .contact-info h4 {
+            color: #78350f;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .contact-info p {
+            color: #92400e;
+            font-size: 9px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .contact-info strong {
+            font-weight: 700;
         }
         .footer {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
             padding: 20px;
             text-align: center;
-            font-size: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-brand {
+            color: #173974;
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 5px;
+            letter-spacing: -0.3px;
+        }
+        .footer p {
             color: #64748b;
+            font-size: 9px;
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+        .footer-meta {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 8px;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+        /* Mobile Responsive */
+        @media (max-width: 500px) {
+            .container { margin: 0; border-radius: 0; }
+            .header, .content, .footer { padding: 20px 15px; }
+            .header h1 { font-size: 20px; }
+            .detail-row { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 2px; 
+            }
+            .detail-value { text-align: left; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="success-badge">🎓</div>
+            <div class="logo-container">
+                <img src="${process.env.WEBSITE_URL || 'https://learnscapeedu.com'}/logo.png" alt="LearnScape Logo" />
+            </div>
             <h1>Application Successful!</h1>
-            <p>ID: ${scholarship.applicationId}</p>
+            <p>Scholarship ID: ${scholarship.applicationId}</p>
         </div>
         
         <div class="content">
+            <div class="greeting">Congratulations, ${scholarship.applicantName}!</div>
+            
+            <div class="message">
+                Your scholarship application has been successfully submitted. Our expert team is reviewing your profile and will contact you within 24-48 hours.
+            </div>
+            
             <div class="celebration-box">
                 <h3>Payment Confirmed ✓</h3>
-                <p>Application fee processed successfully</p>
+                <p>Application fee of ₹1 processed successfully</p>
             </div>
             
             <div class="details-card">
-                <h3>Application Details</h3>
+                <h3>📋 Application Details</h3>
                 <div class="detail-row">
-                    <span>Name:</span>
-                    <span>${scholarship.applicantName}</span>
+                    <span class="detail-label">Application ID</span>
+                    <span class="detail-value">${scholarship.applicationId}</span>
                 </div>
                 <div class="detail-row">
-                    <span>Course:</span>
-                    <span>${scholarship.courseInterested}</span>
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">${scholarship.applicantName}</span>
                 </div>
                 <div class="detail-row">
-                    <span>Status:</span>
-                    <span class="status-badge">Under Review</span>
+                    <span class="detail-label">Course</span>
+                    <span class="detail-value">${scholarship.courseInterested}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">${scholarship.email}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Mobile</span>
+                    <span class="detail-value">+91 ${scholarship.mobile}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value">
+                        <span class="status-badge">Under Review</span>
+                    </span>
                 </div>
             </div>
             
-            <p>Our team will review your application and contact you within 24-48 hours.</p>
+            <div class="contact-info">
+                <h4>Need Help?</h4>
+                <p><strong>📧</strong> scholarships@learnscapeedu.com</p>
+                <p><strong>📞</strong> +91 860 600 4306</p>
+                <p><strong>⏱️</strong> Response within 24 hours</p>
+            </div>
         </div>
         
         <div class="footer">
-            <p><strong>LearnScape Education</strong></p>
-            <p>📧 scholarships@learnscapeedu.com | 📞 +91 860 600 4306</p>
+            <div class="footer-brand">LearnScape Education</div>
+            <p>Empowering students to achieve their dreams</p>
+            <div class="footer-meta">
+                Application ID: ${scholarship.applicationId}<br>
+                Submitted: ${formattedDate}<br>
+                This is an automated confirmation email
+            </div>
         </div>
     </div>
 </body>
 </html>
     `;
-  },
+},
+
 
   // Payment failed email template
   getScholarshipPaymentFailedHTML(scholarship) {
@@ -477,9 +696,9 @@ const emailService = {
     `;
   },
 
-  // Enquiry confirmation email template
-  getEnquiryConfirmationHTML(enquiry) {
-    return `
+  // Enquiry confirmation email template (updated with actual logo)
+getEnquiryConfirmationHTML(enquiry) {
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -489,9 +708,11 @@ const emailService = {
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; 
             background: #f0f2f5;
             color: #1a1a1a;
+            font-size: 13px;
+            line-height: 1.4;
         }
         .container { 
             max-width: 500px; 
@@ -499,90 +720,282 @@ const emailService = {
             background: white; 
             border-radius: 16px; 
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(23,57,116,0.15);
         }
         .header { 
-            background: linear-gradient(135deg, #173974, #2563eb);
+            background: linear-gradient(135deg, #173974 0%, #2563eb 100%);
             padding: 25px;
             text-align: center;
             color: white;
+            position: relative;
+            overflow: hidden;
         }
-        .thank-you-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.03) 10px,
+                rgba(255,255,255,0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        .header-content { position: relative; z-index: 1; }
+        
+        .logo-container {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
             border-radius: 50%;
             margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            animation: thankYouPulse 2s ease-in-out infinite;
         }
-        .content { padding: 25px; }
+        @keyframes thankYouPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+        }
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            max-width: 46px;
+            filter: brightness(0) invert(1);
+            object-fit: contain;
+        }
+        .header h1 { 
+            font-size: 22px; 
+            font-weight: 800; 
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+        .header p { 
+            font-size: 11px; 
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .content { 
+            padding: 25px; 
+        }
+        .greeting {
+            font-size: 16px;
+            font-weight: 700;
+            color: #173974;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .message {
+            font-size: 12px;
+            line-height: 1.6;
+            color: #4b5563;
+            text-align: center;
+            margin-bottom: 20px;
+        }
         .info-card {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 15px;
             margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #173974, #2563eb);
+        }
+        .info-card h3 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #173974;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .info-row {
             display: flex;
             justify-content: space-between;
             padding: 5px 0;
-            font-size: 12px;
+            font-size: 11px;
+            border-bottom: 1px solid rgba(226,232,240,0.5);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .info-value {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 11px;
+            text-align: right;
         }
         .next-steps {
-            background: #dbeafe;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-radius: 12px;
             padding: 15px;
             margin: 20px 0;
+            border: 1px solid #93c5fd;
+        }
+        .next-steps h3 {
+            color: #1e40af;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .next-steps ul {
+            padding-left: 20px;
+            margin: 0;
+            font-size: 11px;
+            color: #1e40af;
+        }
+        .next-steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .next-steps li::marker {
+            color: #3b82f6;
+        }
+        .contact-info {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #fbbf24;
+        }
+        .contact-info p {
+            color: #92400e;
+            font-size: 10px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .contact-info strong {
+            font-weight: 700;
+            color: #78350f;
         }
         .footer { 
-            background: #f8fafc; 
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
             padding: 20px; 
             text-align: center; 
-            font-size: 11px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-brand {
+            color: #173974;
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 5px;
+            letter-spacing: -0.3px;
+        }
+        .footer p {
             color: #64748b;
+            font-size: 9px;
+            line-height: 1.5;
+            margin-bottom: 3px;
+        }
+        .footer-meta {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 8px;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+        /* Mobile Responsive */
+        @media (max-width: 500px) {
+            .container { margin: 10px; border-radius: 12px; }
+            .header, .content, .footer { padding: 20px 15px; }
+            .header h1 { font-size: 20px; }
+            .info-row { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 2px; 
+                padding: 8px 0;
+            }
+            .info-value { text-align: left; }
+            .logo-container {
+                width: 60px;
+                height: 60px;
+            }
+            .logo-container img {
+                max-width: 40px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="thank-you-icon">🙏</div>
-            <h1>Thank You!</h1>
-            <p>We've received your enquiry</p>
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="${process.env.WEBSITE_URL || 'https://learnscapeedu.com'}/logo.png" alt="LearnScape Logo" />
+                </div>
+                <h1>Thank You!</h1>
+                <p>We've received your enquiry</p>
+            </div>
         </div>
         
         <div class="content">
-            <p>Dear <strong>${enquiry.name}</strong>,</p>
-            <br>
-            <p>Thank you for your interest in ${enquiry.collegeName || 'our educational services'}. We have received your enquiry and our expert counselors will contact you soon.</p>
+            <div class="greeting">Dear ${enquiry.name},</div>
+            
+            <div class="message">
+                Thank you for your interest in ${enquiry.collegeName || 'our educational services'}. We have received your enquiry and our expert counselors will contact you soon.
+            </div>
             
             <div class="info-card">
-                <h3>Your Enquiry Details:</h3>
+                <h3>📋 Your Enquiry Details</h3>
                 <div class="info-row">
-                    <span>College:</span>
-                    <span>${enquiry.collegeName || 'General Enquiry'}</span>
+                    <span class="info-label">College</span>
+                    <span class="info-value">${enquiry.collegeName || 'General Enquiry'}</span>
                 </div>
                 <div class="info-row">
-                    <span>Course:</span>
-                    <span>${enquiry.courseName || 'Not specified'}</span>
+                    <span class="info-label">Course</span>
+                    <span class="info-value">${enquiry.courseName || 'Not specified'}</span>
                 </div>
                 <div class="info-row">
-                    <span>Mobile:</span>
-                    <span>+91 ${enquiry.mobile}</span>
+                    <span class="info-label">Mobile</span>
+                    <span class="info-value">+91 ${enquiry.mobile}</span>
                 </div>
                 <div class="info-row">
-                    <span>Email:</span>
-                    <span>${enquiry.email}</span>
+                    <span class="info-label">Email</span>
+                    <span class="info-value">${enquiry.email}</span>
                 </div>
             </div>
             
             <div class="next-steps">
                 <h3>What happens next?</h3>
-                <ul style="padding-left: 20px; margin-top: 10px; font-size: 12px;">
+                <ul>
                     <li>Our counselor will call you within 24 hours</li>
                     <li>Get personalized course and career guidance</li>
                     <li>Receive admission assistance and support</li>
@@ -590,19 +1003,28 @@ const emailService = {
                 </ul>
             </div>
             
-            <p style="font-size: 12px; color: #64748b;">If you have any urgent queries, please call us at <strong>+91 860 600 4306</strong>.</p>
+            <div class="contact-info">
+                <p><strong>📞</strong> For urgent queries: +91 860 600 4306</p>
+                <p><strong>📧</strong> Email: info@learnscapeedu.com</p>
+                <p><strong>⏱️</strong> Response within 24 hours</p>
+            </div>
         </div>
         
         <div class="footer">
-            <p><strong>LearnScape Education</strong></p>
-            <p>📧 info@learnscapeedu.com | 📞 +91 860 600 4306</p>
+            <div class="footer-brand">LearnScape Education</div>
             <p>🌐 www.learnscapeedu.com</p>
+            <p>Empowering students to achieve their dreams</p>
+            <div class="footer-meta">
+                Enquiry received: ${new Date().toLocaleString('en-IN')}<br>
+                This is an automated confirmation email
+            </div>
         </div>
     </div>
 </body>
 </html>
     `;
-  },
+},
+
 
   // Admin notification email template
   getAdminNotificationHTML(enquiry) {
