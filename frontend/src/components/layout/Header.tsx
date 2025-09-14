@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, Phone, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronDown, Phone,Globe, Sparkles } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -212,105 +212,111 @@ export default function Header() {
               <div className="bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl mt-4 p-6 border border-slate-700/50 mx-2 animate-in slide-in-from-top duration-300">
                 <nav className="space-y-1">
                   <Link 
-                    href="/" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
-                      isActivePath('/') ? 'bg-blue-400 scale-150' : 'bg-blue-400'
-                    }`}></div>
-                    Home
-                  </Link>
-                  
-                  <Link 
-                    href="/colleges" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/colleges') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <Sparkles className={`w-4 h-4 text-purple-400 group-hover:rotate-12 transition-transform ${
-                      isActivePath('/colleges') ? 'rotate-12' : ''
-                    }`} />
-                    All Colleges & Universities
-                  </Link>
-                  
-                  <Link 
-                    href="/about" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/about') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
-                      isActivePath('/about') ? 'bg-green-400 scale-150' : 'bg-green-400'
-                    }`}></div>
-                    About
-                  </Link>
-                  
-                  <Link 
-                    href="/contact" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/contact') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
-                      isActivePath('/contact') ? 'bg-yellow-400 scale-150' : 'bg-yellow-400'
-                    }`}></div>
-                    Contact
-                  </Link>
+  href="/" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
+    isActivePath('/') ? 'bg-blue-400 scale-150' : 'bg-blue-400'
+  }`}></div>
+  Home
+</Link>
 
-                  <Link 
-                    href="/scholarships" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/scholarships') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
-                      isActivePath('/scholarships') ? 'bg-orange-400 scale-150' : 'bg-orange-400'
-                    }`}></div>
-                    Scholarships
-                  </Link>
-<Link href="/language-academy" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-  isActivePath('/language-academy')
-    ? isScrolled 
-      ? 'text-[#173974] bg-blue-50' 
-      : 'text-blue-300 bg-white/20'
-    : isScrolled 
-      ? 'text-gray-700 hover:text-[#173974] hover:bg-blue-50' 
-      : 'text-white/90 hover:text-white hover:bg-white/10'
-}`}>
+<Link 
+  href="/colleges" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/colleges') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <Sparkles className={`w-4 h-4 text-purple-400 group-hover:rotate-12 transition-transform ${
+    isActivePath('/colleges') ? 'rotate-12' : ''
+  }`} />
+  All Colleges & Universities
+</Link>
+
+{/* Language Academy Link - Added Here */}
+<Link 
+  href="/language-academy" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/language-academy') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <Globe className={`w-4 h-4 text-indigo-400 group-hover:rotate-12 transition-transform ${
+    isActivePath('/language-academy') ? 'rotate-12' : ''
+  }`} />
   Language Academy
 </Link>
 
-                  <Link 
-                    href="/terms" 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
-                      isActivePath('/terms') 
-                        ? 'text-blue-300 bg-white/20 border border-white/30' 
-                        : 'text-white hover:text-blue-300 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
-                      isActivePath('/terms') ? 'bg-red-400 scale-150' : 'bg-red-400'
-                    }`}></div>
-                    Terms & Conditions
-                  </Link>
+<Link 
+  href="/about" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/about') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
+    isActivePath('/about') ? 'bg-green-400 scale-150' : 'bg-green-400'
+  }`}></div>
+  About
+</Link>
+
+<Link 
+  href="/contact" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/contact') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
+    isActivePath('/contact') ? 'bg-yellow-400 scale-150' : 'bg-yellow-400'
+  }`}></div>
+  Contact
+</Link>
+
+<Link 
+  href="/scholarships" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/scholarships') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
+    isActivePath('/scholarships') ? 'bg-orange-400 scale-150' : 'bg-orange-400'
+  }`}></div>
+  Scholarships
+</Link>
+
+<Link 
+  href="/terms" 
+  onClick={() => setIsMenuOpen(false)} 
+  className={`flex items-center gap-3 font-medium py-3 px-4 rounded-xl transition-all duration-300 group ${
+    isActivePath('/terms') 
+      ? 'text-blue-300 bg-white/20 border border-white/30' 
+      : 'text-white hover:text-blue-300 hover:bg-white/10'
+  }`}
+>
+  <div className={`w-2 h-2 rounded-full group-hover:scale-150 transition-transform ${
+    isActivePath('/terms') ? 'bg-red-400 scale-150' : 'bg-red-400'
+  }`}></div>
+  Terms & Conditions
+</Link>
+
                   
                   {/* Enhanced Mobile CTA */}
                   <div className="pt-4 border-t border-slate-600/50">
