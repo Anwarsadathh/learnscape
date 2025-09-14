@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+
 import { 
   Sparkles,
   Eye,
@@ -257,8 +259,8 @@ const AboutPage: React.FC = () => {
     },
     {
       name: 'Anurag Prasad',
-      role: 'Senior Sales Executive',
-      image: '/marketing.jpg',
+      role: 'Senior Sales Manager',
+      image: '/about/anu.jpg',
       description: 'A passionate professional with expertise in sales and client relations.Contributes innovative and strategic ideas to drive company growth.Dedicated to developing strong sales channels and opportunities.Known for his commitment, energy, and results-driven approach.Plays a vital role in expanding Learn Scape’s reach and success.',
       featured: false
     },
@@ -674,24 +676,31 @@ const AboutPage: React.FC = () => {
       </div>
 
       {/* Call to Action */}
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 text-center">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4">
-            Join India&apos;s Education Revolution
-          </h2>
-          <p className="text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg">
-            Be part of the ecosystem that&apos;s transforming education and creating success stories every day.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl font-semibold text-sm sm:text-base hover:shadow-lg transition-all">
-              Explore Colleges
-            </button>
-            <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white/20 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/30 hover:bg-white/30 transition-all text-sm sm:text-base">
-              Partner With Us
-            </button>
-          </div>
-        </div>
-      </div>
+<div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
+  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 text-center">
+    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4">
+      Join India&apos;s Education Revolution
+    </h2>
+    <p className="text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg">
+      Be part of the ecosystem that&apos;s transforming education and creating success stories every day.
+    </p>
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+      <Link 
+        href="/colleges"
+        className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl font-semibold text-sm sm:text-base hover:shadow-lg transition-all"
+      >
+        Explore Colleges
+      </Link>
+      <Link 
+        href="/contact"
+        className="px-6 sm:px-8 py-3 sm:py-4 bg-white/20 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/30 hover:bg-white/30 transition-all text-sm sm:text-base"
+      >
+        Partner With Us
+      </Link>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 };

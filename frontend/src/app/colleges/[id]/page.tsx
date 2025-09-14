@@ -460,7 +460,7 @@ const CollegeDetailPage = () => {
                     </div>
                     <div className="flex items-center gap-3 text-slate-300">
                       <Mail className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-base">info@college.edu</span>
+                      <span className="text-base">learnscapeinfo@gmail.com</span>
                     </div>
                   </div>
                 </div>

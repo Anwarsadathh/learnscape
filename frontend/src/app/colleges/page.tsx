@@ -252,7 +252,7 @@ function CollegesContent() {
   };
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
+    <section className="relative min-h-[80vh] sm:min-h-[85vh] lg:min-h-[85vh] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
       {/* Animated Background Elements - Same as Hero */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
@@ -268,78 +268,77 @@ function CollegesContent() {
         }}
       ></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24 w-full">
         
-        {/* Enhanced Hero-Style Header */}
-        <div className="text-center mb-12">
-          {/* Premium Badge - Same as Hero */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Premier Colleges Platform</span>
+   <div className="text-center mb-8 sm:mb-12">
+  {/* Premium Badge - Same as Hero */}
+  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm mb-4 sm:mb-6">
+    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+    <span className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Premier Colleges Platform</span>
+  </div>
+
+  {/* Main Heading - Same Size as Hero */}
+  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+    <span className="block text-white mb-1 sm:mb-2">Explore Top</span>
+    <span className="relative inline-block">
+      <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-50"></span>
+      <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+        Colleges & Universities
+      </span>
+    </span>
+  </h1>
+
+  {/* Subtitle with pagination info - Smaller on mobile */}
+  <p className="text-sm sm:text-lg text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+    Discover {totalColleges}+ premier institutions across India
+  </p>
+
+  {/* Enhanced Search Bar - Same as Hero with compact mobile */}
+  <div className="max-w-2xl mx-auto mb-6 sm:mb-8">
+    <div className="relative group">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+      <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-800 p-2">
+        <div className="flex items-center gap-3">
+          <div className="pl-4 flex items-center gap-2 text-slate-400">
+            <Search className="w-4 h-4" />
           </div>
-
-          {/* Main Heading - Same Size as Hero */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
-            <span className="block text-white mb-2">Explore Top</span>
-            <span className="relative inline-block">
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-50"></span>
-              <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Colleges &amp; Universities
-              </span>
-            </span>
-          </h1>
-
-          {/* Subtitle with pagination info */}
-          <p className="text-base sm:text-lg text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Discover {totalColleges}+ premier institutions across India
-          </p>
-
-          {/* Enhanced Search Bar - Same as Hero */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-800 p-2">
-                <div className="flex items-center gap-3">
-                  <div className="pl-4 flex items-center gap-2 text-slate-400">
-                    <Search className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search colleges, courses, locations..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none py-3"
-                  />
-                  <button 
-                    onClick={() => fetchColleges(1)}
-                    className="px-3 sm:px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
-                  >
-                    <Search className="w-4 h-4 sm:hidden" />
-                    <span className="hidden sm:inline">Search</span>
-                    <Search className="w-4 h-4 hidden sm:inline" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Search Tags - Same as Hero */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {['Engineering', 'Medical', 'MBA', 'Design', 'Law'].map((stream) => (
-                <button
-                  key={stream}
-                  onClick={() => handleStreamChange(stream, !selectedStreams.includes(stream))}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                    selectedStreams.includes(stream)
-                      ? 'text-white bg-slate-700/50 border border-slate-600'
-                      : 'text-slate-300 bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:bg-slate-700/50 hover:text-white hover:border-slate-600'
-                  }`}
-                >
-                  {stream}
-                </button>
-              ))}
-            </div>
-          </div>
+          <input
+            type="text"
+            placeholder="Search colleges, courses, locations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none py-2.5 sm:py-3"
+          />
+          <button 
+            onClick={() => fetchColleges(1)}
+            className="px-3 sm:px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+          >
+            <Search className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline">Search</span>
+            <Search className="w-4 h-4 hidden sm:inline" />
+          </button>
         </div>
+      </div>
+    </div>
+    
+    {/* Quick Search Tags - Same as Hero with compact mobile */}
+    <div className="flex flex-wrap justify-center gap-2 mt-3 sm:mt-4">
+      {['Engineering', 'Medical', 'MBA', 'Design', 'Law'].map((stream) => (
+        <button
+          key={stream}
+          onClick={() => handleStreamChange(stream, !selectedStreams.includes(stream))}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            selectedStreams.includes(stream)
+              ? 'text-white bg-slate-700/50 border border-slate-600'
+              : 'text-slate-300 bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:bg-slate-700/50 hover:text-white hover:border-slate-600'
+          }`}
+        >
+          {stream}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
 
         {/* Enhanced Toolbar with Dark Theme */}
         <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-4 mb-8">
