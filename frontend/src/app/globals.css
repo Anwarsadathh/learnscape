@@ -108,24 +108,4 @@ html {
   overflow-anchor: none;
 }
 
-/* Smooth animations without blocking scroll */
-@media (prefers-reduced-motion: no-preference) {
-  .animate-pulse, .animate-bounce, .animate-spin {
-    animation-duration: 0.5s;
-    animation-iteration-count: infinite;
-  }
-}
 
-/* Reduce motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}

@@ -180,7 +180,25 @@ const [storedPaymentDetails, setStoredPaymentDetails] = useState<PaymentDetails 
       setFormData(prev => ({ ...prev, sourceCode }));
     }
   }, []);
-
+ // ✅ ADD THIS NEW useEffect HERE - Recovery of pending payment
+  useEffect(() => {
+    const pending = localStorage.getItem('pendingPayment');
+    if (pending) {
+      try {
+        const { details, formData: saved } = JSON.parse(pending);
+        setStoredPaymentDetails(details);
+        setFormData(saved);
+        setPaymentPending(true);
+        setCurrentStep(4);
+        // Clear the stored data after recovery
+        localStorage.removeItem('pendingPayment');
+      } catch (error) {
+        console.error('Error recovering pending payment:', error);
+        localStorage.removeItem('pendingPayment');
+      }
+    }
+  }, []); // Empty dependency array - runs once on mount
+  
   const validateStep = (step: number): boolean => {
     const newErrors: FormErrors = {};
     
@@ -288,16 +306,17 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
 
 
-// Update handleSubmit to store payment details
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   
   // If payment is pending, trigger payment instead of submitting again
-  if (submitStatus === 'success' && paymentPending && storedPaymentDetails) {
-    await initiatePayment(storedPaymentDetails);
-    return;
-  }
-  
+ if (paymentPending && storedPaymentDetails) {
+  localStorage.setItem('pendingPayment', JSON.stringify({
+    details: storedPaymentDetails,
+    formData: formData
+  }));
+}
+
   if (!validateStep(4)) return;
   
   setIsSubmitting(true);
@@ -329,20 +348,18 @@ const handleSubmit = async (e: React.FormEvent) => {
     const data = await response.json();
     
     if (response.ok && data.success) {
-      setSubmitStatus('success');
-      
-      // If payment is required, initiate payment
+      // If payment is required, set payment pending state
       if (data.paymentRequired && data.paymentDetails) {
         setPaymentPending(true);
-        setStoredPaymentDetails(data.paymentDetails); // ✅ Store payment details
+        setStoredPaymentDetails(data.paymentDetails);
+        // DON'T set submitStatus to 'success' yet - only after payment
+        setSubmitStatus('idle'); // Keep it idle until payment completes
         
-        // Show different message for continuing vs new application
-        if (data.continueExisting) {
-          setErrorMessage('');
-        }
-        
+        // Initiate payment immediately
         await initiatePayment(data.paymentDetails);
       } else {
+        // Only set success if no payment required
+        setSubmitStatus('success');
         setTimeout(() => {
           router.push('/scholarships/success');
         }, 2000);
@@ -354,7 +371,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     console.error('Submission error:', error);
     setSubmitStatus('error');
     
-    // Handle specific error messages
     const errorMsg = error instanceof Error ? error.message : 'Failed to submit application. Please try again.';
     
     if (errorMsg.includes('already exists and payment is completed')) {
@@ -367,7 +383,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
-  const initiatePayment = async (paymentDetails: PaymentDetails) => {
+ const initiatePayment = async (paymentDetails: PaymentDetails) => {
+  try {
     const options = {
       key: paymentDetails.key,
       amount: paymentDetails.amount,
@@ -388,44 +405,49 @@ const handleSubmit = async (e: React.FormEvent) => {
       },
       modal: {
         ondismiss: () => {
-          setPaymentPending(false);
-          setErrorMessage('Payment cancelled');
+          // Keep payment pending true if user cancels
+          setErrorMessage('Payment cancelled. Click "Complete Payment" to try again.');
         }
       }
     };
 
     const razorpay = new window.Razorpay(options);
     razorpay.open();
-  };
+  } catch (error) {
+    console.error('Payment initiation error:', error);
+    setErrorMessage('Failed to initiate payment. Please try again.');
+  }
+};
 
   const verifyPayment = async (paymentResponse: RazorpayResponse) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
-      const response = await fetch(`${API_URL}/scholarships/verify-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(paymentResponse),
-      });
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
+    const response = await fetch(`${API_URL}/scholarships/verify-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(paymentResponse),
+    });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        setPaymentPending(false);
-        setSubmitStatus('success');
-        setTimeout(() => {
-          router.push('/scholarships/success');
-        }, 2000);
-      } else {
-        throw new Error('Payment verification failed');
-      }
-    } catch (error) {
-      console.error('Payment verification error:', error);
+    const data = await response.json();
+    
+    if (data.success) {
       setPaymentPending(false);
-      setErrorMessage('Payment verification failed. Please contact support.');
+      setSubmitStatus('success'); // NOW set success after payment completes
+      setTimeout(() => {
+        router.push('/scholarships/success');
+      }, 2000);
+    } else {
+      throw new Error('Payment verification failed');
     }
-  };
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    setPaymentPending(false);
+    setSubmitStatus('error'); // Set error status
+    setErrorMessage('Payment verification failed. Please contact support.');
+  }
+};
 
   // Beautiful Premium Step Indicator
   const renderStepIndicator = () => (
@@ -1357,22 +1379,34 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
             )}
-
-          {/* Success Message - REPLACE THIS BLOCK */}
-{submitStatus === 'success' && (
+{/* Success/Payment Pending Message */}
+{submitStatus === 'success' && !paymentPending && (
   <div className="bg-green-50 border border-green-200 rounded-xl p-4">
     <div className="flex items-start gap-3">
       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mt-0.5" />
       <div>
         <h4 className="text-sm sm:text-base font-semibold text-green-900 mb-1">
-          {paymentPending 
-            ? 'Application Ready for Payment!' 
-            : 'Application Submitted Successfully!'}
+          Application Submitted Successfully!
         </h4>
         <p className="text-green-800 text-xs sm:text-sm">
-          {paymentPending 
-            ? 'Please complete the payment to finalize your application.'
-            : 'You will receive a confirmation email within 24 hours.'}
+          You will receive a confirmation email within 24 hours.
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Payment Pending Message */}
+{paymentPending && (
+  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+    <div className="flex items-start gap-3">
+      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mt-0.5" />
+      <div>
+        <h4 className="text-sm sm:text-base font-semibold text-yellow-900 mb-1">
+          Payment Required
+        </h4>
+        <p className="text-yellow-800 text-xs sm:text-sm">
+          Please complete the payment to finalize your scholarship application.
         </p>
       </div>
     </div>
@@ -1480,8 +1514,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     ))}
   </div>
 
-  {/* REPLACE THIS BUTTON BLOCK */}
- {currentStep < totalSteps ? (
+  
+{currentStep < totalSteps ? (
   <button
     type="button"
     onClick={handleNext}
@@ -1493,9 +1527,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   </button>
 ) : (
   <button
-    type={submitStatus === 'success' && paymentPending ? "button" : "submit"}
-    onClick={submitStatus === 'success' && paymentPending ? async () => {
-      // Retry payment with stored payment details
+    type={paymentPending ? "button" : "submit"}
+    onClick={paymentPending ? async () => {
       if (storedPaymentDetails) {
         await initiatePayment(storedPaymentDetails);
       }
@@ -1506,24 +1539,20 @@ const handleSubmit = async (e: React.FormEvent) => {
     {isSubmitting ? (
       <>
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span className="hidden sm:inline">{submitStatus === 'success' && paymentPending ? 'Processing...' : 'Submitting...'}</span>
-        <span className="sm:hidden">{submitStatus === 'success' && paymentPending ? 'Process...' : 'Submit...'}</span>
+        <span className="hidden sm:inline">Processing...</span>
+        <span className="sm:hidden">Process...</span>
+      </>
+    ) : paymentPending ? (
+      <>
+        <span className="hidden sm:inline">Complete Payment</span>
+        <span className="sm:hidden">Pay Now</span>
+        <CreditCard className="w-4 h-4" />
       </>
     ) : (
       <>
-        {submitStatus === 'success' && paymentPending ? (
-          <>
-            <span className="hidden sm:inline">Complete Payment</span>
-            <span className="sm:hidden">Pay Now</span>
-            <CreditCard className="w-4 h-4" />
-          </>
-        ) : (
-          <>
-            <span className="hidden sm:inline">Submit Application</span>
-            <span className="sm:hidden">Submit</span>
-            <Award className="w-4 h-4" />
-          </>
-        )}
+        <span className="hidden sm:inline">Submit Application</span>
+        <span className="sm:hidden">Submit</span>
+        <Award className="w-4 h-4" />
       </>
     )}
   </button>
