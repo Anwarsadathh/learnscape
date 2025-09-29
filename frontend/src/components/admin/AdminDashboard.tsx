@@ -44,9 +44,11 @@ const AdminDashboard = () => {
  // In your AdminDashboard.tsx component
 const fetchStats = async () => {
   try {
-    const response = await fetch('/api/admin/dashboard/stats', {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE}/admin/dashboard/stats`, {
       cache: 'no-store'
     });
+
     const data = await response.json();
     
     // LOG THE RECEIVED DATA
@@ -72,11 +74,13 @@ const fetchStats = async () => {
 
 
   // Fetch recent activities
-  const fetchActivities = async () => {
-    try {
-      const response = await fetch('/api/admin/dashboard/activities?limit=8', {
-        cache: 'no-store'
-      });
+ const fetchActivities = async () => {
+  try {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE}/admin/dashboard/activities?limit=8`, {
+      cache: 'no-store'
+    });
+
       const data = await response.json();
       
       if (data.success) {

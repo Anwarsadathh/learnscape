@@ -1,7 +1,7 @@
 {
   "siteName": "LearnScape",
   "adminEmail": "admin@learnscape.com",
-  "emailNotifications": true,
+  "emailNotifications": false,
   "systemNotifications": false,
   "maintenanceMode": false,
   "maintenanceMessage": "We are currently performing maintenance. Please check back soon.",

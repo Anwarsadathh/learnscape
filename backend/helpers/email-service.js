@@ -106,6 +106,68 @@ const emailService = {
       return { success: false, error: error.message };
     }
   },
+// ✅ NEW: Send scholarship approved email
+async sendScholarshipApproved(scholarshipData) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'LearnScape Scholarships <scholarships@learnscapeedu.com>',
+      to: [scholarshipData.email],
+      subject: `🎉 Congratulations! Your Scholarship Application Approved - ${scholarshipData.applicationId}`,
+      html: this.getScholarshipApprovedHTML(scholarshipData),
+    });
+    if (error) {
+      console.error('❌ Error sending scholarship approved email:', error);
+      return { success: false, error };
+    }
+    console.log('✅ Scholarship approved email sent to:', scholarshipData.email);
+    return { success: true, data };
+  } catch (error) {
+    console.error('❌ Scholarship approved email error:', error);
+    return { success: false, error: error.message };
+  }
+},
+
+// ✅ NEW: Send scholarship rejected email
+async sendScholarshipRejected(scholarshipData) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'LearnScape Scholarships <scholarships@learnscapeedu.com>',
+      to: [scholarshipData.email],
+      subject: `📋 Update on Your Scholarship Application - ${scholarshipData.applicationId}`,
+      html: this.getScholarshipRejectedHTML(scholarshipData),
+    });
+    if (error) {
+      console.error('❌ Error sending scholarship rejected email:', error);
+      return { success: false, error };
+    }
+    console.log('✅ Scholarship rejected email sent to:', scholarshipData.email);
+    return { success: true, data };
+  } catch (error) {
+    console.error('❌ Scholarship rejected email error:', error);
+    return { success: false, error: error.message };
+  }
+},
+
+// ✅ NEW: Send scholarship processing email
+async sendScholarshipProcessing(scholarshipData) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'LearnScape Scholarships <scholarships@learnscapeedu.com>',
+      to: [scholarshipData.email],
+      subject: `📝 Your Scholarship Application is Under Review - ${scholarshipData.applicationId}`,
+      html: this.getScholarshipProcessingHTML(scholarshipData),
+    });
+    if (error) {
+      console.error('❌ Error sending scholarship processing email:', error);
+      return { success: false, error };
+    }
+    console.log('✅ Scholarship processing email sent to:', scholarshipData.email);
+    return { success: true, data };
+  } catch (error) {
+    console.error('❌ Scholarship processing email error:', error);
+    return { success: false, error: error.message };
+  }
+},
 
   // Send contact confirmation email to user
   async sendContactConfirmation(contactData) {
@@ -148,6 +210,293 @@ const emailService = {
       return { success: false, error: error.message };
     }
   },
+// ✅ Scholarship approved email template
+getScholarshipApprovedHTML(scholarship) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Approved - LearnScape</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 20px auto; 
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+        .celebration { font-size: 40px; margin-bottom: 10px; }
+        .content { padding: 25px; }
+        .approved-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border: 1px solid #34d399;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .next-steps {
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer { 
+            background: #f8fafc; 
+            padding: 20px; 
+            text-align: center; 
+            font-size: 11px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="celebration">🎉</div>
+            <h1>Scholarship Approved!</h1>
+            <p>Congratulations ${scholarship.applicantName}</p>
+        </div>
+        
+        <div class="content">
+            <div class="approved-box">
+                <h2 style="color: #065f46; margin-bottom: 10px;">✅ Application Approved</h2>
+                <p style="color: #047857;">Your scholarship application has been successfully approved by our review team.</p>
+            </div>
+            
+            <p><strong>Application ID:</strong> ${scholarship.applicationId}</p>
+            <p><strong>Course:</strong> ${scholarship.courseInterested}</p>
+            
+            <div class="next-steps">
+                <h3 style="color: #0369a1; margin-bottom: 10px;">What happens next?</h3>
+                <ul style="padding-left: 20px; color: #0c4a6e;">
+                    <li>Our counselor will contact you within 24 hours</li>
+                    <li>Complete the admission process guidance</li>
+                    <li>Receive scholarship benefits and support</li>
+                </ul>
+            </div>
+            
+            ${scholarship.adminNotes ? `<div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 12px; margin: 15px 0;">
+                <strong>Admin Note:</strong> ${scholarship.adminNotes}
+            </div>` : ''}
+        </div>
+        
+        <div class="footer">
+            <p><strong>LearnScape Scholarships</strong></p>
+            <p>📧 learnscapeinfo@gmail.com | 📞 +91 860 600 4306</p>
+        </div>
+    </div>
+</body>
+</html>`;
+},
+
+// ✅ Scholarship rejected email template
+getScholarshipRejectedHTML(scholarship) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Application Update - LearnScape</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 20px auto; 
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #64748b, #475569);
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+        .content { padding: 25px; }
+        .status-box {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .reapply-section {
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer { 
+            background: #f8fafc; 
+            padding: 20px; 
+            text-align: center; 
+            font-size: 11px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Application Update</h1>
+            <p>Thank you for your interest, ${scholarship.applicantName}</p>
+        </div>
+        
+        <div class="content">
+            <div class="status-box">
+                <h3 style="color: #dc2626; margin-bottom: 10px;">Application Status Update</h3>
+                <p style="color: #7f1d1d;">After careful review, we are unable to approve your scholarship application at this time.</p>
+            </div>
+            
+            <p><strong>Application ID:</strong> ${scholarship.applicationId}</p>
+            
+            ${scholarship.adminNotes ? `<div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 12px; margin: 15px 0;">
+                <strong>Review Notes:</strong> ${scholarship.adminNotes}
+            </div>` : ''}
+            
+            <div class="reapply-section">
+                <h3 style="color: #0369a1; margin-bottom: 10px;">Don't Give Up!</h3>
+                <p style="color: #0c4a6e; margin-bottom: 10px;">You can reapply for future scholarship opportunities.</p>
+                <ul style="padding-left: 20px; color: #0c4a6e;">
+                    <li>Check our website for new scholarship programs</li>
+                    <li>Improve your profile based on feedback</li>
+                    <li>Contact our counselors for guidance</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>LearnScape Scholarships</strong></p>
+            <p>📧 learnscapeinfo@gmail.com | 📞 +91 860 600 4306</p>
+        </div>
+    </div>
+</body>
+</html>`;
+},
+
+// ✅ Scholarship processing email template
+getScholarshipProcessingHTML(scholarship) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Under Review - LearnScape</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 20px auto; 
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+        .content { padding: 25px; }
+        .review-box {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .timeline {
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer { 
+            background: #f8fafc; 
+            padding: 20px; 
+            text-align: center; 
+            font-size: 11px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-size: 30px; margin-bottom: 10px;">📝</div>
+            <h1>Under Review</h1>
+            <p>Your application is being processed</p>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong>${scholarship.applicantName}</strong>,</p>
+            
+            <div class="review-box">
+                <h3 style="color: #92400e; margin-bottom: 10px;">⏳ Application Under Review</h3>
+                <p style="color: #a16207;">Our expert team is carefully reviewing your scholarship application.</p>
+            </div>
+            
+            <p><strong>Application ID:</strong> ${scholarship.applicationId}</p>
+            <p><strong>Course:</strong> ${scholarship.courseInterested}</p>
+            
+            <div class="timeline">
+                <h3 style="color: #0369a1; margin-bottom: 10px;">Review Process</h3>
+                <ul style="padding-left: 20px; color: #0c4a6e;">
+                    <li>✅ Application received and payment confirmed</li>
+                    <li>🔄 Currently: Expert review in progress</li>
+                    <li>⏱️ Expected completion: Within 3-5 business days</li>
+                    <li>📧 You'll be notified of the decision</li>
+                </ul>
+            </div>
+            
+            ${scholarship.adminNotes ? `<div style="background: #e0f2fe; border: 1px solid #0284c7; border-radius: 8px; padding: 12px; margin: 15px 0;">
+                <strong>Review Update:</strong> ${scholarship.adminNotes}
+            </div>` : ''}
+        </div>
+        
+        <div class="footer">
+            <p><strong>LearnScape Scholarships</strong></p>
+            <p>📧 learnscapeinfo@gmail.com | 📞 +91 860 600 4306</p>
+        </div>
+    </div>
+</body>
+</html>`;
+},
 
   // Scholarship success email template (updated with actual logo)
 getScholarshipSuccessHTML(scholarship) {
@@ -598,7 +947,7 @@ getScholarshipSuccessHTML(scholarship) {
         
         <div class="footer">
             <p><strong>LearnScape Support</strong></p>
-            <p>📧 scholarships@learnscapeedu.com | 📞 +91 860 600 4306</p>
+            <p>📧 learnscapeinfo@gmail.com | 📞 +91 860 600 4306</p>
         </div>
     </div>
 </body>
@@ -688,7 +1037,7 @@ getScholarshipSuccessHTML(scholarship) {
         
         <div class="footer">
             <p><strong>LearnScape Support</strong></p>
-            <p>📧 scholarships@learnscapeedu.com | 📞 +91 860 600 4306</p>
+            <p>📧 learnscapeinfo@gmail.com | 📞 +91 860 600 4306</p>
         </div>
     </div>
 </body>

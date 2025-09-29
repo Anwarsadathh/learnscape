@@ -371,6 +371,7 @@ router.get('/:id', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const db = require('../../config/connection');
+    const emailService = require('../../helpers/email-service'); // ✅ Import email service
     
     const scholarshipId = req.params.id;
     if (!ObjectId.isValid(scholarshipId)) {
@@ -395,6 +396,7 @@ router.put('/:id/status', async (req, res) => {
     }
 
     const { status, adminNotes } = req.body;
+    const oldStatus = currentScholarship.status;
 
     const updateData = {
       status: status || currentScholarship.status,
@@ -403,14 +405,62 @@ router.put('/:id/status', async (req, res) => {
       updatedAt: new Date()
     };
 
+    // Update the scholarship in database
     const result = await db.get().collection('scholarships')
       .updateOne({ _id: new ObjectId(scholarshipId) }, { $set: updateData });
+
+    if (result.modifiedCount > 0) {
+      console.log(`✅ Scholarship status updated: ${oldStatus} → ${status}`);
+
+      // ✅ NEW: Send email notification based on status change
+      const updatedScholarship = { ...currentScholarship, ...updateData };
+      
+      try {
+        let emailSent = false;
+
+        switch (status?.toLowerCase()) {
+          case 'approved':
+            console.log('📧 Sending approval email...');
+            const approvalResult = await emailService.sendScholarshipApproved(updatedScholarship);
+            emailSent = approvalResult.success;
+            break;
+
+          case 'rejected':
+            console.log('📧 Sending rejection email...');
+            const rejectionResult = await emailService.sendScholarshipRejected(updatedScholarship);
+            emailSent = rejectionResult.success;
+            break;
+
+          case 'processing':
+            console.log('📧 Sending under review email...');
+            const processingResult = await emailService.sendScholarshipProcessing(updatedScholarship);
+            emailSent = processingResult.success;
+            break;
+
+          case 'payment_failed':
+            console.log('📧 Sending payment failed email...');
+            const paymentFailedResult = await emailService.sendScholarshipPaymentFailed(updatedScholarship);
+            emailSent = paymentFailedResult.success;
+            break;
+
+          default:
+            console.log(`ℹ️ No email template for status: ${status}`);
+        }
+
+        console.log(`📧 Email notification sent: ${emailSent ? 'Success' : 'Failed'}`);
+
+      } catch (emailError) {
+        console.error('❌ Error sending status email:', emailError);
+        // Don't fail the status update if email fails
+      }
+    }
 
     res.json({
       success: true,
       message: 'Scholarship application status updated successfully',
       modifiedCount: result.modifiedCount
     });
+
   } catch (error) {
     console.error('Error updating scholarship application status:', error);
     res.status(500).json({
@@ -420,6 +470,7 @@ router.put('/:id/status', async (req, res) => {
     });
   }
 });
+
 
 // Delete scholarship application
 router.delete('/:id', async (req, res) => {
