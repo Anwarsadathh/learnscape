@@ -44,7 +44,7 @@ const AdminDashboard = () => {
  // In your AdminDashboard.tsx component
 const fetchStats = async () => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
     const response = await fetch(`${API_BASE}/admin/dashboard/stats`, {
       cache: 'no-store'
     });
@@ -76,7 +76,7 @@ const fetchStats = async () => {
   // Fetch recent activities
  const fetchActivities = async () => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
     const response = await fetch(`${API_BASE}/admin/dashboard/activities?limit=8`, {
       cache: 'no-store'
     });

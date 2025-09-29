@@ -123,7 +123,7 @@ const ScholarshipManagementPage = () => {
         ...(referralCode && { referralCode }) // ✅ Added referral code filter
       });
 
-    const response = await fetch(`http://localhost:5000/api/admin/scholarships?${queryParams}`, {
+    const response = await fetch(`https://learnscapeedu.com/api/admin/scholarships?${queryParams}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
@@ -163,7 +163,7 @@ const ScholarshipManagementPage = () => {
 
   const updateStatus = async (applicationId: string, newStatus: string, adminNotes?: string) => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
     const response = await fetch(`${API_BASE}/admin/scholarships/${applicationId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
