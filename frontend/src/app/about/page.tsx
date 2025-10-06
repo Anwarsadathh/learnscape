@@ -244,10 +244,17 @@ const AboutPage: React.FC = () => {
   // ✅ FIXED - Added proper typing for team members
   const teamMembers: TeamMember[] = [
     {
-      name: 'Shibin Chacko Abraham',
+      name: 'Vivek S',
       role: 'Managing Director',
-      image: '/about/Shibin.JPG',
+      image: '/about/vivek.jpg',
       description: 'A dedicated professional with a strong career in the education sector. Consistently delivers excellence with passion and commitment. Plays a key role in driving Learn Scape\'s growth and success. Known for his performance, dedication, and strategic support. Contributes to shaping a stronger future for the organization.',
+      featured: false
+    },
+      {
+      name: 'Shibin Chacko Abraham',
+      role: 'Director',
+      image: '/about/Shibin.JPG',
+      description: 'An experienced professional who plays a key role in managing the organization’s day-to-day operations. With years of expertise in the education sector, he ensures that Learn Scape runs efficiently while maintaining its commitment to quality and growth.',
       featured: false
     },
     {
@@ -264,13 +271,7 @@ const AboutPage: React.FC = () => {
       description: 'A passionate professional with expertise in sales and client relations.Contributes innovative and strategic ideas to drive company growth.Dedicated to developing strong sales channels and opportunities.Known for his commitment, energy, and results-driven approach.Plays a vital role in expanding Learn Scape’s reach and success.',
       featured: false
     },
-   {
-      name: 'Mohammad Rishad',
-      role: 'Digital Marketing Executive',
-      image: '/about/Rishad.jpg',
-      description: 'An experienced professional in digital marketing. Specializes in designing and managing social media platforms. Brings creativity and precision to every campaign. Supports Learn Scape\'s growth through digital engagement. Plays a key role in strengthening the brand\'s online presence.',
-      featured: false
-    }
+ 
 
   ];
   return (
