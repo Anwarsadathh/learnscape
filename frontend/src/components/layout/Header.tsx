@@ -64,9 +64,7 @@ export default function Header() {
                   height={42}
                   className="object-contain group-hover:scale-105 transition-all duration-300"
                   priority
-                  style={{ 
-                    filter: isScrolled ? 'none' : 'brightness(0) invert(1)'
-                  }} 
+                
                 />
                 {!isScrolled && (
                   <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
