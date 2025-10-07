@@ -6,7 +6,7 @@ import { MessageSquare, X, Send, Loader2, Shield, Sparkles, Bot, User } from 'lu
 type Role = 'user' | 'assistant';
 type Msg = { role: Role; content: string };
 
-const BASE_API = process.env.NODE_ENV === 'development' ? 'https://learnscapeedu.com' : '';
+const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com';
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
