@@ -45,7 +45,7 @@ export default function ChatWidget() {
     abortRef.current = new AbortController();
 
     try {
-      const res = await fetch(`${BASE_API}/api/ai/chat`, {
+     const res = await fetch(`${BASE_API}/ai/chat`, {
         method: 'POST',
         signal: abortRef.current.signal,
         headers: { 'Content-Type': 'application/json' },
