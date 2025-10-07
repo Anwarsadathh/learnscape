@@ -265,17 +265,7 @@ export default function Footer() {
     </Link>
   </div>
   
-  <div className="text-xs text-slate-400">
-    Powered By{' '}
-    <Link 
-      href="https://whatisnext.in" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
-    >
-      WhatIsNext
-    </Link>
-  </div>
+ 
 </div>
 
         </div>

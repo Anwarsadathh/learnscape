@@ -142,6 +142,9 @@ try {
   app.use('/api/contact', require('./routes/contact')); 
   app.use('/api/scholarships', require('./routes/scholarships'));
 app.use('/api/admin/scholarships', require('./routes/admin/scholarships'));
+// After other routes registration
+app.use('/api/ai', require('./routes/ai'));
+
   // Web routes
   app.use('/admin', require('./routes/admin'));
   app.use('/', require('./routes/index'));

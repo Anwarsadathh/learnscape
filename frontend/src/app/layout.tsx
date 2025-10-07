@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
 import LayoutWrapper from '../components/layout/LayoutWrapper'
+import ChatWidget from '@/components/chat/ChatWidget';
 
 const inter = Inter({ subsets: ['latin'] })
 const poppins = Poppins({ 
@@ -95,6 +96,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.className} ${poppins.variable}`}>
       <body className="min-h-screen bg-white">
         <LayoutWrapper>{children}</LayoutWrapper>
+          <ChatWidget />
       </body>
     </html>
   )
