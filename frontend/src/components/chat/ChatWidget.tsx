@@ -8,37 +8,41 @@ type Msg = { role: Role; content: string };
 
 const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com';
 
-// Enhanced markdown formatter with better spacing
+// Enhanced markdown formatter with proper numbered list handling
 function formatMessage(text: string) {
   if (!text) return text;
   
   let formatted = text;
   
-  // Handle ### headers - smaller, with spacing
+  // Handle ### headers with numbers (like "### 2.") - make them start on new line
+  formatted = formatted.replace(/###\s*(\d+)\.\s*(.+?)(\n|$)/g, '<div class="font-semibold text-[11px] sm:text-xs text-green-300 mt-3 mb-1.5 leading-tight">$1. $2</div>');
+  
+  // Handle other ### headers
   formatted = formatted.replace(/###\s*(.+?)(\n|$)/g, '<div class="font-semibold text-[11px] sm:text-xs text-green-300 mt-3 mb-1.5 leading-tight">$1</div>');
   
-  // Handle ** bold text ** - lighter weight
+  // Handle ** bold text **
   formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<span class="font-medium text-slate-50">$1</span>');
   
-  // Handle bullet points with dash - better spacing
+  // Handle bullet points with dash
   formatted = formatted.replace(/^[\s]*-[\s]+(.+)$/gm, '<div class="flex gap-1.5 sm:gap-2 my-1 leading-snug"><span class="text-green-400 flex-shrink-0 text-xs">•</span><span class="flex-1">$1</span></div>');
   
-  // Handle numbered lists
-  formatted = formatted.replace(/^[\s]*(\d+)\.[\s]+(.+)$/gm, '<div class="flex gap-1.5 sm:gap-2 my-1 leading-snug"><span class="text-green-400 flex-shrink-0 font-medium text-xs">$1.</span><span class="flex-1">$2</span></div>');
+  // Handle standalone numbered lists (not headers)
+  formatted = formatted.replace(/^[\s]*(\d+)\.[\s]+(?!.*<div)/gm, '<div class="flex gap-1.5 sm:gap-2 my-1 leading-snug"><span class="text-green-400 flex-shrink-0 font-medium text-xs">$1.</span><span class="flex-1">');
   
-  // Convert double line breaks to paragraphs with spacing
+  // Convert double line breaks to div breaks
   formatted = formatted.replace(/\n\n/g, '</div><div class="my-2">');
   
-  // Convert single line breaks to space with line break
+  // Convert single line breaks to <br/>
   formatted = formatted.replace(/\n/g, '<br class="leading-relaxed"/>');
   
-  // Wrap in div
+  // Wrap in div if needed
   if (!formatted.startsWith('<div')) {
     formatted = `<div class="leading-relaxed">${formatted}</div>`;
   }
   
   return formatted;
 }
+
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);

@@ -13,22 +13,36 @@ const USDINR = Number(process.env.USD_INR_RATE || 88.8);
 const INR_BUDGET = Number(process.env.AI_BUDGET_INR_MONTH || 2000);
 
 // GPT‑4o mini INR per 1M tokens
-const INR_PER_M_INPUT  = 0.15 * USDINR;  // ≈ 13.3 @ 88.8
-const INR_PER_M_OUTPUT = 0.60 * USDINR;  // ≈ 53.3 @ 88.8
+const INR_PER_M_INPUT  = 0.15 * USDINR;
+const INR_PER_M_OUTPUT = 0.60 * USDINR;
 
 let monthKey = new Date().toISOString().slice(0,7);
 let spendINR = 0;
 
 const charsToTokens = (s='') => Math.max(1, Math.ceil(s.length / 4));
 
-const SYSTEM = `You are LearnScape's college counselor with access to real-time information. Answer concisely with bullet points, grounded in Indian colleges, locations, fees, and scholarships.
+// UPDATED SYSTEM PROMPT WITH BETTER FORMATTING
+const SYSTEM = `You are LearnScape's college counselor with access to real-time information. Answer concisely, grounded in Indian colleges, locations, fees, and scholarships.
+
+IMPORTANT FORMATTING RULES:
+1. When listing numbered items, format like this:
+   1. First point here
+   
+   2. Second point here
+   
+   3. Third point here
+
+2. Use bullet points with dash: - Point here
+3. Use **bold** for important terms like course names, durations, eligibility
+4. Add a blank line between different sections
+5. Keep paragraphs short (2-3 sentences max)
 
 IMPORTANT GUIDELINES:
-1. When asked about fees, courses, or college information - ALWAYS search and provide specific, accurate information
-2. Never say "verify on LearnScape" or "check the website" - you have access to this information
-3. Provide detailed fee structures when asked (tuition, hostel, other charges)
-4. Give specific course details, eligibility, duration, and admission process
-5. Use data from LearnScape website (https://learnscapeedu.com) and other reliable sources
+1. When asked about fees, courses, or college information - provide specific, accurate information
+2. Never say "verify on LearnScape" or "check the website"
+3. Provide detailed fee structures (tuition, hostel, other charges)
+4. Give specific course details: eligibility, duration, admission process
+5. Use data from LearnScape website and reliable sources
 
 CONTACT INFORMATION:
 - Email: learnscapeinfo@gmail.com
@@ -36,7 +50,7 @@ CONTACT INFORMATION:
 - Head Office: 799 4086 809
 - Office Address: Learn scape edu, Onattu jose centre, Chingavanam P.O, Kottayam, Pin: 686531
 
-Keep answers informative but concise. Always provide actionable, specific information.`;
+Keep answers informative but concise. Always provide actionable information.`;
 
 // Contact detection keywords
 const CONTACT_KEYWORDS = [
@@ -97,7 +111,6 @@ async function searchLearnScapeWebsite(query) {
     const $ = cheerio.load(response.data);
     let content = '';
     
-    // Extract relevant content from the page
     $('h1, h2, h3, p, li').each((i, elem) => {
       const text = $(elem).text().trim();
       if (text && text.length > 10) {
@@ -105,7 +118,7 @@ async function searchLearnScapeWebsite(query) {
       }
     });
     
-    return content.slice(0, 2000); // Limit to 2000 chars
+    return content.slice(0, 2000);
   } catch (error) {
     console.error('LearnScape scrape error:', error.message);
     return null;
@@ -115,7 +128,6 @@ async function searchLearnScapeWebsite(query) {
 // Search for fee information from various sources
 async function searchFeeInformation(collegeName, course = '') {
   try {
-    // Try to fetch from LearnScape API if available
     const apiUrl = `https://learnscapeedu.com/api/colleges/search?q=${encodeURIComponent(collegeName)}`;
     
     try {
@@ -127,7 +139,6 @@ async function searchFeeInformation(collegeName, course = '') {
       console.log('API fetch failed, trying web scraping');
     }
     
-    // Fallback: scrape the colleges page
     const collegeData = await searchLearnScapeWebsite(collegeName);
     return collegeData;
     
@@ -182,7 +193,6 @@ router.post('/chat', async (req, res) => {
     if (detectFeeQuery(message) || message.toLowerCase().includes('college')) {
       res.write(`data: 🔍 Searching for latest information...\n\n`);
       
-      // Extract college name from message (simple extraction)
       const collegeMatch = message.match(/(?:about|for|in|at)\s+([A-Z][A-Za-z\s]+(?:College|University|Institute|IIT|NIT|AIIMS|IIM))/i);
       const collegeName = collegeMatch ? collegeMatch[1].trim() : '';
       
@@ -192,7 +202,6 @@ router.post('/chat', async (req, res) => {
           additionalContext = `\n\nREAL-TIME DATA FROM LEARNSCAPE:\n${collegeInfo}`;
         }
       } else {
-        // General search on LearnScape
         const webContent = await searchLearnScapeWebsite(message);
         if (webContent) {
           additionalContext = `\n\nINFORMATION FROM LEARNSCAPE WEBSITE:\n${webContent}`;
@@ -202,7 +211,6 @@ router.post('/chat', async (req, res) => {
       res.write(`data: \n\n`);
     }
 
-    // Estimate input tokens
     const histText = history.map(h => `${h.role}: ${h.content}`).join('\n');
     const estimatedIn = charsToTokens(SYSTEM) + charsToTokens(histText) + charsToTokens(message) + charsToTokens(additionalContext);
     const remainingINR = INR_BUDGET - spendINR;
@@ -237,7 +245,6 @@ router.post('/chat', async (req, res) => {
       }
     }
 
-    // Add source reference
     if (additionalContext) {
       res.write(`data: \n\n📚 Source: https://learnscapeedu.com\n\n`);
     }
