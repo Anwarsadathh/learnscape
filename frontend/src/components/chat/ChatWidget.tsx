@@ -8,34 +8,31 @@ type Msg = { role: Role; content: string };
 
 const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com';
 
-// Enhanced markdown formatter
+// Enhanced markdown parser function
 function formatMessage(text: string) {
-  if (!text) return text;
+  if (!text) return '';
   
   let formatted = text;
   
-  // Handle ### headers - convert to bold with spacing
-  formatted = formatted.replace(/###\s*(.+?)(\n|$)/g, '<div class="font-bold text-sm text-green-300 mt-2 mb-1">$1</div>');
+  // First, normalize line breaks
+  formatted = formatted.trim();
   
-  // Handle ** bold text **
-  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-slate-100">$1</strong>');
+  // Headers: ### text -> bold with proper spacing
+  formatted = formatted.replace(/###\s+(.+?)(\n|$)/g, '<div class="font-bold text-[13px] sm:text-sm mt-3 mb-2 text-green-300">$1</div>');
   
-  // Handle bullet points with dash
-  formatted = formatted.replace(/^[\s]*-[\s]+(.+)$/gm, '<div class="flex gap-2 my-0.5"><span class="text-green-400 flex-shrink-0">•</span><span>$1</span></div>');
+  // Bold text: **text** or __text__
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-green-200">$1</strong>');
+  formatted = formatted.replace(/__(.+?)__/g, '<strong class="font-semibold text-green-200">$1</strong>');
   
-  // Handle numbered lists
-  formatted = formatted.replace(/^[\s]*(\d+)\.[\s]+(.+)$/gm, '<div class="flex gap-2 my-0.5"><span class="text-green-400 flex-shrink-0 font-semibold">$1.</span><span>$2</span></div>');
+  // Bullet points with proper indentation
+  formatted = formatted.replace(/^[\-\•]\s+(.+)$/gm, '<div class="flex gap-2 my-1.5 pl-1"><span class="text-green-400 text-sm mt-0.5">•</span><span class="flex-1">$1</span></div>');
   
-  // Convert double line breaks to paragraphs
-  formatted = formatted.replace(/\n\n/g, '</p><p class="my-2">');
+  // Numbered lists with proper indentation
+  formatted = formatted.replace(/^\d+\.\s+(.+)$/gm, '<div class="flex gap-2 my-1.5 pl-1"><span class="text-green-400 text-sm font-semibold mt-0.5">→</span><span class="flex-1">$1</span></div>');
   
-  // Convert single line breaks to <br/>
-  formatted = formatted.replace(/\n/g, '<br/>');
-  
-  // Wrap in paragraph if not already wrapped
-  if (!formatted.startsWith('<div') && !formatted.startsWith('<p>')) {
-    formatted = `<p>${formatted}</p>`;
-  }
+  // Convert remaining line breaks to proper spacing
+  formatted = formatted.replace(/\n\n+/g, '<div class="my-2"></div>');
+  formatted = formatted.replace(/\n/g, '<br class="leading-relaxed"/>');
   
   return formatted;
 }
@@ -145,6 +142,7 @@ export default function ChatWidget() {
 
   return (
     <>
+      {/* Local keyframes and styles */}
       <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
@@ -178,16 +176,36 @@ export default function ChatWidget() {
         .typing-dot:nth-child(2) { animation-delay: .15s }
         .typing-dot:nth-child(3) { animation-delay: .30s }
         .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); background-size: 1000px 100%; animation: shimmer 2.4s infinite }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
         
-        /* Markdown formatting */
-        .msg-content p { margin: 0; }
-        .msg-content strong { font-weight: 600; color: #f1f5f9; }
-        .msg-content br { display: block; content: ""; margin: 0.125rem 0; }
-        .msg-content div { line-height: 1.5; }
+        /* Enhanced markdown formatting styles */
+        .message-content {
+          line-height: 1.6;
+        }
+        .message-content strong {
+          font-weight: 600;
+          color: #d1fae5;
+        }
+        .message-content br {
+          display: block;
+          content: "";
+          line-height: 1.4;
+        }
+        .message-content > div {
+          line-height: 1.5;
+        }
+        .message-content .flex {
+          align-items: flex-start;
+        }
       `}</style>
 
+      {/* Launcher button */}
       <button
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-5 right-5 z-50 rounded-full px-4 py-2.5 text-white shadow-2xl flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/25"
@@ -200,6 +218,7 @@ export default function ChatWidget() {
         <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse" />
       </button>
 
+      {/* Chat panel */}
       {open && (
         <div className="panel-enter fixed bottom-16 sm:bottom-20 right-3 sm:right-5 z-50 w-[95vw] sm:w-[85vw] max-w-sm rounded-2xl overflow-hidden shadow-2xl">
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -220,6 +239,7 @@ export default function ChatWidget() {
             />
           </div>
 
+          {/* Header */}
           <div
             className="px-3 sm:px-4 py-2.5 sm:py-3 text-white flex items-center justify-between relative overflow-hidden border-b border-slate-800/50"
             style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(51,65,85,0.95) 100%)', backdropFilter: 'blur(12px)' }}
@@ -245,11 +265,13 @@ export default function ChatWidget() {
             </button>
           </div>
 
+          {/* Messages with formatted content */}
           <div
             className="h-[60vh] sm:h-72 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 relative hide-scrollbar"
             style={{ background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)' }}
             ref={boxRef}
           >
+            {/* Background effects */}
             <div className="absolute bottom-0 left-1/2 w-[250%] h-40 pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.35), rgba(16,185,129,0.25), rgba(6,182,212,0.15), transparent)',
@@ -275,6 +297,7 @@ export default function ChatWidget() {
               }}
             />
 
+            {/* Messages with formatted markdown */}
             {msgs.map((m, i) => (
               <div key={i} className={`message-enter flex gap-1.5 sm:gap-2 items-start ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} relative z-10`}>
                 {m.role === 'assistant' ? (
@@ -305,8 +328,9 @@ export default function ChatWidget() {
                   </div>
                 )}
 
+                {/* Message bubble with enhanced formatted HTML */}
                 <div
-                  className={`max-w-[74%] px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm border msg-content
+                  className={`max-w-[78%] px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-2xl text-[12px] sm:text-[13px] leading-relaxed shadow-sm border message-content
                     ${m.role === 'user'
                       ? 'bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-tr-sm ml-auto border-green-500/30'
                       : 'bg-slate-800/80 text-gray-100 border-slate-700/50 rounded-tl-sm ml-0 backdrop-blur-sm'
@@ -316,6 +340,7 @@ export default function ChatWidget() {
               </div>
             ))}
 
+            {/* Typing indicator */}
             {loading && isTyping && (
               <div className="message-enter flex gap-1.5 sm:gap-2 relative z-10">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-400 to-emerald-500">
@@ -338,6 +363,7 @@ export default function ChatWidget() {
             )}
           </div>
 
+          {/* Input area */}
           <div className="p-2.5 sm:p-3 border-t border-slate-800/50" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
             <div className="flex items-end gap-1.5 sm:gap-2">
               <div className="flex-1">
