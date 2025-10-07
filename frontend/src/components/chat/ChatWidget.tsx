@@ -8,29 +8,32 @@ type Msg = { role: Role; content: string };
 
 const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com';
 
-// Enhanced markdown formatter with proper numbered list handling
+// Enhanced markdown formatter that handles numbered lists better
 function formatMessage(text: string) {
   if (!text) return text;
   
   let formatted = text;
   
-  // Handle ### headers with numbers (like "### 2.") - make them start on new line
-  formatted = formatted.replace(/###\s*(\d+)\.\s*(.+?)(\n|$)/g, '<div class="font-semibold text-[11px] sm:text-xs text-green-300 mt-3 mb-1.5 leading-tight">$1. $2</div>');
+  // First, normalize line breaks
+  formatted = formatted.replace(/\r\n/g, '\n');
   
-  // Handle other ### headers
+  // Handle numbered lists at start of lines with proper spacing
+  // Pattern: "1. Text" or "2. Text" etc at the start of a line
+  formatted = formatted.replace(/^(\d+)\.\s+(.+?)(?=\n|$)/gm, (match, num, content) => {
+    return `<div class="numbered-item mt-3 mb-2"><span class="inline-block text-green-400 font-semibold text-xs mr-1.5">${num}.</span><span class="inline">${content}</span></div>`;
+  });
+  
+  // Handle ### headers (should be rare now with numbered lists handled)
   formatted = formatted.replace(/###\s*(.+?)(\n|$)/g, '<div class="font-semibold text-[11px] sm:text-xs text-green-300 mt-3 mb-1.5 leading-tight">$1</div>');
   
   // Handle ** bold text **
-  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<span class="font-medium text-slate-50">$1</span>');
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-medium text-slate-50">$1</strong>');
   
   // Handle bullet points with dash
   formatted = formatted.replace(/^[\s]*-[\s]+(.+)$/gm, '<div class="flex gap-1.5 sm:gap-2 my-1 leading-snug"><span class="text-green-400 flex-shrink-0 text-xs">•</span><span class="flex-1">$1</span></div>');
   
-  // Handle standalone numbered lists (not headers)
-  formatted = formatted.replace(/^[\s]*(\d+)\.[\s]+(?!.*<div)/gm, '<div class="flex gap-1.5 sm:gap-2 my-1 leading-snug"><span class="text-green-400 flex-shrink-0 font-medium text-xs">$1.</span><span class="flex-1">');
-  
-  // Convert double line breaks to div breaks
-  formatted = formatted.replace(/\n\n/g, '</div><div class="my-2">');
+  // Convert remaining double line breaks to spacing
+  formatted = formatted.replace(/\n\n+/g, '<div class="h-2"></div>');
   
   // Convert single line breaks to <br/>
   formatted = formatted.replace(/\n/g, '<br class="leading-relaxed"/>');
@@ -42,6 +45,7 @@ function formatMessage(text: string) {
   
   return formatted;
 }
+
 
 
 export default function ChatWidget() {
@@ -149,52 +153,65 @@ export default function ChatWidget() {
 
   return (
     <>
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
-        @keyframes bounceDot { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
-        @keyframes shimmer { 0% { background-position: -1000px 0 } 100% { background-position: 1000px 0 } }
-        @keyframes pulse-glow { 0%, 100% { opacity: 0.2 } 50% { opacity: 0.3 } }
-        @keyframes wave-blend { 
-          0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
-          50% { transform: translateX(-40%) translateY(-30px) scale(1.15); opacity: 0.65; }
-          100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
-        }
-        @keyframes rotate-blend { 
-          0% { transform: rotate(0deg); opacity: 0.4; }
-          50% { opacity: 0.6; }
-          100% { transform: rotate(360deg); opacity: 0.4; }
-        }
-        @keyframes float-green {
-          0% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
-          50% { transform: translate(-45%, -15px) scale(1.1); opacity: 0.6; }
-          100% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
-        }
-        @keyframes shade-orb {
-          0% { margin-top: 0; }
-          100% { margin-top: calc(100% - 24px); }
-        }
-        .message-enter { animation: fadeIn .25s ease-out }
-        .panel-enter { animation: slideUp .45s cubic-bezier(.16,1,.3,1) }
-        .typing-dot { width: 6px; height: 6px; border-radius: 9999px; background: #9ca3af; animation: bounceDot 1.2s infinite }
-        .typing-dot:nth-child(2) { animation-delay: .15s }
-        .typing-dot:nth-child(3) { animation-delay: .30s }
-        .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); background-size: 1000px 100%; animation: shimmer 2.4s infinite }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Better text formatting */
-        .msg-content { 
-          line-height: 1.6; 
-          font-size: 11px;
-        }
-        @media (min-width: 640px) {
-          .msg-content { font-size: 12px; }
-        }
-        .msg-content div { line-height: 1.6; }
-        .msg-content span { line-height: 1.6; }
-        .msg-content br { display: block; content: ""; margin: 0.2rem 0; line-height: 1.6; }
-      `}</style>
+    <style>{`
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes bounceDot { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+  @keyframes shimmer { 0% { background-position: -1000px 0 } 100% { background-position: 1000px 0 } }
+  @keyframes pulse-glow { 0%, 100% { opacity: 0.2 } 50% { opacity: 0.3 } }
+  @keyframes wave-blend { 
+    0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
+    50% { transform: translateX(-40%) translateY(-30px) scale(1.15); opacity: 0.65; }
+    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
+  }
+  @keyframes rotate-blend { 
+    0% { transform: rotate(0deg); opacity: 0.4; }
+    50% { opacity: 0.6; }
+    100% { transform: rotate(360deg); opacity: 0.4; }
+  }
+  @keyframes float-green {
+    0% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
+    50% { transform: translate(-45%, -15px) scale(1.1); opacity: 0.6; }
+    100% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
+  }
+  @keyframes shade-orb {
+    0% { margin-top: 0; }
+    100% { margin-top: calc(100% - 24px); }
+  }
+  .message-enter { animation: fadeIn .25s ease-out }
+  .panel-enter { animation: slideUp .45s cubic-bezier(.16,1,.3,1) }
+  .typing-dot { width: 6px; height: 6px; border-radius: 9999px; background: #9ca3af; animation: bounceDot 1.2s infinite }
+  .typing-dot:nth-child(2) { animation-delay: .15s }
+  .typing-dot:nth-child(3) { animation-delay: .30s }
+  .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); background-size: 1000px 100%; animation: shimmer 2.4s infinite }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  /* Better text formatting */
+  .msg-content { 
+    line-height: 1.6; 
+    font-size: 11px;
+  }
+  @media (min-width: 640px) {
+    .msg-content { font-size: 12px; }
+  }
+  .msg-content div { line-height: 1.6; }
+  .msg-content span { line-height: 1.6; }
+  .msg-content br { display: block; content: ""; margin: 0.2rem 0; line-height: 1.6; }
+  .msg-content strong { font-weight: 600; color: #f1f5f9; }
+  
+  /* Numbered item styling with proper spacing */
+  .msg-content .numbered-item {
+    display: block;
+    line-height: 1.5;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .msg-content .numbered-item:first-child {
+    margin-top: 0;
+  }
+`}</style>
+
 
       <button
         onClick={() => setOpen(o => !o)}
