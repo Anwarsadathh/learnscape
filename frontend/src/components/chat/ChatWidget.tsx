@@ -8,6 +8,30 @@ type Msg = { role: Role; content: string };
 
 const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com';
 
+// Simple markdown parser function
+function formatMessage(text: string) {
+  if (!text) return '';
+  
+  let formatted = text;
+  
+  // Remove ### headers and make them bold
+  formatted = formatted.replace(/###\s+(.+)/g, '<strong class="block text-sm mb-1 mt-2">$1</strong>');
+  
+  // Bold text **text**
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  
+  // Bullet points - (dash with space)
+  formatted = formatted.replace(/^- (.+)$/gm, '<span class="flex gap-2 my-1"><span class="text-green-400">•</span><span>$1</span></span>');
+  
+  // Numbered lists
+  formatted = formatted.replace(/^\d+\.\s+(.+)$/gm, '<span class="flex gap-2 my-1"><span class="text-green-400">→</span><span>$1</span></span>');
+  
+  // Line breaks
+  formatted = formatted.replace(/\n/g, '<br/>');
+  
+  return formatted;
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([
@@ -45,7 +69,7 @@ export default function ChatWidget() {
     abortRef.current = new AbortController();
 
     try {
-     const res = await fetch(`${BASE_API}/ai/chat`, {
+      const res = await fetch(`${BASE_API}/ai/chat`, {
         method: 'POST',
         signal: abortRef.current.signal,
         headers: { 'Content-Type': 'application/json' },
@@ -113,7 +137,7 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Local keyframes for the shade + shimmer + motion */}
+      {/* Local keyframes - same as before */}
       <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
@@ -147,7 +171,6 @@ export default function ChatWidget() {
           0% { margin-top: 0; }
           100% { margin-top: calc(100% - 24px); }
         }
-        /* Hide scrollbar */
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -155,9 +178,20 @@ export default function ChatWidget() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        
+        /* Markdown formatting styles */
+        .message-content strong {
+          font-weight: 700;
+          color: #e2e8f0;
+        }
+        .message-content br {
+          display: block;
+          content: "";
+          margin: 0.25rem 0;
+        }
       `}</style>
 
-      {/* Compact launcher */}
+      {/* Launcher button - same as before */}
       <button
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-5 right-5 z-50 rounded-full px-4 py-2.5 text-white shadow-2xl flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/25"
@@ -170,12 +204,10 @@ export default function ChatWidget() {
         <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse" />
       </button>
 
-      {/* Panel with Hero-inspired animated shade - BIGGER ON MOBILE */}
+      {/* Chat panel - same structure */}
       {open && (
         <div className="panel-enter fixed bottom-16 sm:bottom-20 right-3 sm:right-5 z-50 w-[95vw] sm:w-[85vw] max-w-sm rounded-2xl overflow-hidden shadow-2xl">
-          {/* Hero-style Animated Background Elements */}
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-            {/* Animated blur circles like Hero */}
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" 
               style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}
             />
@@ -185,8 +217,6 @@ export default function ChatWidget() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"
               style={{ animation: 'pulse-glow 4s ease-in-out infinite 2s' }}
             />
-            
-            {/* Grid Pattern Overlay like Hero */}
             <div 
               className="absolute inset-0 opacity-20"
               style={{
@@ -195,7 +225,7 @@ export default function ChatWidget() {
             />
           </div>
 
-          {/* Header - SMALLER FONT ON MOBILE */}
+          {/* Header */}
           <div
             className="px-3 sm:px-4 py-2.5 sm:py-3 text-white flex items-center justify-between relative overflow-hidden border-b border-slate-800/50"
             style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(51,65,85,0.95) 100%)', backdropFilter: 'blur(12px)' }}
@@ -221,13 +251,13 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {/* Messages - BIGGER HEIGHT, SMALLER FONT ON MOBILE */}
+          {/* Messages with formatted content */}
           <div
             className="h-[60vh] sm:h-72 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 relative hide-scrollbar"
             style={{ background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)' }}
             ref={boxRef}
           >
-            {/* Enhanced Animated Green Blend Wave */}
+            {/* Background effects */}
             <div className="absolute bottom-0 left-1/2 w-[250%] h-40 pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.35), rgba(16,185,129,0.25), rgba(6,182,212,0.15), transparent)',
@@ -236,8 +266,6 @@ export default function ChatWidget() {
                 mixBlendMode: 'screen'
               }}
             />
-            
-            {/* Enhanced Rotating Green Accent */}
             <div className="absolute bottom-8 right-8 w-32 h-32 pointer-events-none"
               style={{
                 background: 'conic-gradient(from 0deg, transparent, rgba(34,197,94,0.45), rgba(16,185,129,0.35), transparent)',
@@ -246,8 +274,6 @@ export default function ChatWidget() {
                 mixBlendMode: 'screen'
               }}
             />
-
-            {/* Additional Green Floating Orb */}
             <div className="absolute top-1/3 left-1/2 w-28 h-28 pointer-events-none"
               style={{
                 background: 'radial-gradient(circle, rgba(34,197,94,0.4), rgba(16,185,129,0.25), transparent)',
@@ -257,55 +283,50 @@ export default function ChatWidget() {
               }}
             />
 
-           {msgs.map((m, i) => (
-  <div key={i} className={`message-enter flex gap-1.5 sm:gap-2 items-start ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} relative z-10`}>
-    {m.role === 'assistant' ? (
-      // Animated shade, icon, label column for AI bot messages - SMALLER ON MOBILE
-      <div className="relative flex flex-col items-center min-w-[36px] sm:min-w-[44px] md:min-w-[54px] select-none mr-0.5 sm:mr-1 md:mr-2">
-        {/* Animated vertical bar with green accent */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-0 w-1.5 sm:w-2 md:w-2.5 h-full rounded-full"
-          style={{
-            background: 'linear-gradient(180deg, #22c55e 5%, #10b981 60%, #06b6d4 80%, #0f172a 100%)',
-            boxShadow: '0 0 25px 0 rgba(34,197,94,0.4), 0 6px 32px 0 rgba(16,185,129,0.25)',
-          }}>
-          <div
-            className="w-full h-5 sm:h-6 rounded-full"
-            style={{
-              background: 'radial-gradient(circle at 50% 0, #22c55e 0%, transparent 80%)',
-              animation: 'shade-orb 3s infinite linear'
-            }}
-          />
-        </div>
-        {/* AI icon on bar - Green gradient - SMALLER ON MOBILE */}
-        <div className="relative z-10 mt-0.5 sm:mt-1 md:mt-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg mb-0.5">
-          <Bot className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
-        </div>
-        {/* AI Label - Green - SMALLER ON MOBILE */}
-        <span className="relative z-10 text-[9px] sm:text-[10px] md:text-xs text-green-300 font-bold px-0.5 sm:px-1 py-0.5 rounded-full bg-slate-800/60 border border-green-500/40 mt-0">
-          AI
-        </span>
-      </div>
-    ) : (
-      // user icon - Green gradient - SMALLER ON MOBILE
-      <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 mb-0.5">
-        <User className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
-      </div>
-    )}
+            {/* Messages with formatted markdown */}
+            {msgs.map((m, i) => (
+              <div key={i} className={`message-enter flex gap-1.5 sm:gap-2 items-start ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} relative z-10`}>
+                {m.role === 'assistant' ? (
+                  <div className="relative flex flex-col items-center min-w-[36px] sm:min-w-[44px] md:min-w-[54px] select-none mr-0.5 sm:mr-1 md:mr-2">
+                    <div className="absolute left-1/2 -translate-x-1/2 top-0 w-1.5 sm:w-2 md:w-2.5 h-full rounded-full"
+                      style={{
+                        background: 'linear-gradient(180deg, #22c55e 5%, #10b981 60%, #06b6d4 80%, #0f172a 100%)',
+                        boxShadow: '0 0 25px 0 rgba(34,197,94,0.4), 0 6px 32px 0 rgba(16,185,129,0.25)',
+                      }}>
+                      <div
+                        className="w-full h-5 sm:h-6 rounded-full"
+                        style={{
+                          background: 'radial-gradient(circle at 50% 0, #22c55e 0%, transparent 80%)',
+                          animation: 'shade-orb 3s infinite linear'
+                        }}
+                      />
+                    </div>
+                    <div className="relative z-10 mt-0.5 sm:mt-1 md:mt-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg mb-0.5">
+                      <Bot className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
+                    </div>
+                    <span className="relative z-10 text-[9px] sm:text-[10px] md:text-xs text-green-300 font-bold px-0.5 sm:px-1 py-0.5 rounded-full bg-slate-800/60 border border-green-500/40 mt-0">
+                      AI
+                    </span>
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 mb-0.5">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                )}
 
-    {/* Bubble content - SMALLER FONT ON MOBILE */}
-    <div
-      className={`max-w-[74%] px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm border
-        ${m.role === 'user'
-          ? 'bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-tr-sm ml-auto border-green-500/30'
-          : 'bg-slate-800/80 text-gray-100 border-slate-700/50 rounded-tl-sm ml-0 backdrop-blur-sm'
-      }`}
-      style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-    >
-      {m.content}
-    </div>
-  </div>
-))}
+                {/* Message bubble with formatted HTML */}
+                <div
+                  className={`max-w-[74%] px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm border message-content
+                    ${m.role === 'user'
+                      ? 'bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-tr-sm ml-auto border-green-500/30'
+                      : 'bg-slate-800/80 text-gray-100 border-slate-700/50 rounded-tl-sm ml-0 backdrop-blur-sm'
+                  }`}
+                  dangerouslySetInnerHTML={{ __html: formatMessage(m.content) }}
+                />
+              </div>
+            ))}
 
+            {/* Typing indicator */}
             {loading && isTyping && (
               <div className="message-enter flex gap-1.5 sm:gap-2 relative z-10">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-400 to-emerald-500">
@@ -328,7 +349,7 @@ export default function ChatWidget() {
             )}
           </div>
 
-          {/* Composer - SMALLER ON MOBILE */}
+          {/* Input area - same as before */}
           <div className="p-2.5 sm:p-3 border-t border-slate-800/50" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
             <div className="flex items-end gap-1.5 sm:gap-2">
               <div className="flex-1">
