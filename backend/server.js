@@ -22,6 +22,9 @@ const maintenanceMode = require('./middleware/maintenance');
 
 const app = express();
 
+// ✅ FIX: Enable trust proxy BEFORE rate limiter
+app.set('trust proxy', 1);
+
 // View engine setup
 const hbs = handlebars.create({
   extname: '.hbs',
@@ -46,44 +49,52 @@ app.use(helmet({
 }));
 app.use(compression());
 
-// Rate limiting
+// ✅ FIX: Updated rate limiting with proper configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  // ✅ Add this to handle proxy properly
+  skip: (req) => {
+    // Skip rate limiting for localhost during development
+    return req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+  }
 });
 app.use('/api/', limiter);
 
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? ['https://learnscapeedu.com']
-  : ['http://localhost:3000', 'http://localhost:3001', 'https://learnscapeedu.com'];
+  ? ['https://learnscapeedu.com', 'https://www.learnscapeedu.com']
+  : ['http://localhost:3000', 'http://localhost:3001', 'https://learnscapeedu.com', 'https://www.learnscapeedu.com'];
 
-// CORS configuration - More permissive for development
+// CORS configuration
 const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: '*',  // ✅ Allow all headers for development
+  allowedHeaders: '*',
   exposedHeaders: ['Content-Disposition', 'X-Total-Count']
 };
 
 app.use(cors(corsOptions));
-
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Session configuration
+// ✅ FIX: Session configuration with trust proxy
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
@@ -112,7 +123,7 @@ app.use((req, res, next) => {
 // PAGE VIEW TRACKING MIDDLEWARE
 app.use(trackPageView);
 
-// **MAINTENANCE MODE MIDDLEWARE - ADD BEFORE ROUTES**
+// MAINTENANCE MODE MIDDLEWARE - ADD BEFORE ROUTES
 app.use(maintenanceMode);
 
 // Make database available to all requests
@@ -134,24 +145,25 @@ try {
   app.use('/api/admin/settings', require('./routes/admin/settings'));
   app.use('/api/admin/dashboard', require('./routes/admin/dashboard'));
   app.use('/api/admin/colleges', require('./routes/admin/colleges'));
+  app.use('/api/admin/scholarships', require('./routes/admin/scholarships'));
+  
+  // ✅ AI route BEFORE other public routes
+  app.use('/api/ai', require('./routes/ai'));
   
   // Public API routes (blocked during maintenance)
   app.use('/api/search', require('./routes/search'));
   app.use('/api/colleges', require('./routes/colleges'));
-  app.use('/api', require('./routes/api'));
   app.use('/api/contact', require('./routes/contact')); 
   app.use('/api/scholarships', require('./routes/scholarships'));
-app.use('/api/admin/scholarships', require('./routes/admin/scholarships'));
-// After other routes registration
-app.use('/api/ai', require('./routes/ai'));
-
+  app.use('/api', require('./routes/api'));
+  
   // Web routes
   app.use('/admin', require('./routes/admin'));
   app.use('/', require('./routes/index'));
   
-  console.log('All routes loaded successfully');
+  console.log('✅ All routes loaded successfully');
 } catch (error) {
-  console.error('Error loading routes:', error.message);
+  console.error('❌ Error loading routes:', error.message);
 }
 
 // API 404 handler
@@ -231,17 +243,17 @@ const logStartupStats = async () => {
 // Connect to database first, then start server
 db.connect((err) => {
   if (err) {
-    console.error('Database connection failed:', err);
+    console.error('❌ Database connection failed:', err);
     process.exit(1);
   } else {
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
     
     // Log startup statistics after database connection
-    setTimeout(logStartupStats, 1000); // Wait 1 second for connection to stabilize
+    setTimeout(logStartupStats, 1000);
     
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   }
 });
