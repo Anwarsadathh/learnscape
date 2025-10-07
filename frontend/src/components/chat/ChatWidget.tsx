@@ -170,9 +170,9 @@ export default function ChatWidget() {
         <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse" />
       </button>
 
-      {/* Panel with Hero-inspired animated shade */}
+      {/* Panel with Hero-inspired animated shade - BIGGER ON MOBILE */}
       {open && (
-        <div className="panel-enter fixed bottom-20 right-5 z-50 w-[85vw] max-w-sm rounded-2xl overflow-hidden shadow-2xl">
+        <div className="panel-enter fixed bottom-16 sm:bottom-20 right-3 sm:right-5 z-50 w-[95vw] sm:w-[85vw] max-w-sm rounded-2xl overflow-hidden shadow-2xl">
           {/* Hero-style Animated Background Elements */}
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
             {/* Animated blur circles like Hero */}
@@ -195,20 +195,20 @@ export default function ChatWidget() {
             />
           </div>
 
-          {/* Header */}
+          {/* Header - SMALLER FONT ON MOBILE */}
           <div
-            className="px-4 py-3 text-white flex items-center justify-between relative overflow-hidden border-b border-slate-800/50"
+            className="px-3 sm:px-4 py-2.5 sm:py-3 text-white flex items-center justify-between relative overflow-hidden border-b border-slate-800/50"
             style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(51,65,85,0.95) 100%)', backdropFilter: 'blur(12px)' }}
           >
             <div className="absolute inset-0 shimmer-bg opacity-10" />
-            <div className="flex items-center gap-2.5 relative z-10">
-              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
-                <Sparkles className="w-4 h-4 text-blue-400" />
+            <div className="flex items-center gap-2 sm:gap-2.5 relative z-10">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
               </div>
               <div>
-                <span className="font-bold text-sm block">LearnScape AI</span>
-                <span className="text-[10px] text-slate-300 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                <span className="font-bold text-xs sm:text-sm block">LearnScape AI</span>
+                <span className="text-[9px] sm:text-[10px] text-slate-300 flex items-center gap-1">
+                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full animate-pulse" />
                   Online & Ready
                 </span>
               </div>
@@ -217,13 +217,13 @@ export default function ChatWidget() {
               onClick={() => setOpen(false)}
               className="opacity-80 hover:opacity-100 transition-all hover:rotate-90 duration-300 relative z-10"
             >
-              <X className="w-4 h-4 text-white" />
+              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
             </button>
           </div>
 
-          {/* Messages - With animated green blend and hidden scrollbar */}
+          {/* Messages - BIGGER HEIGHT, SMALLER FONT ON MOBILE */}
           <div
-            className="h-72 overflow-y-auto p-4 space-y-3 relative hide-scrollbar"
+            className="h-[60vh] sm:h-72 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 relative hide-scrollbar"
             style={{ background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)' }}
             ref={boxRef}
           >
@@ -258,43 +258,43 @@ export default function ChatWidget() {
             />
 
            {msgs.map((m, i) => (
-  <div key={i} className={`message-enter flex gap-2 items-start ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} relative z-10`}>
+  <div key={i} className={`message-enter flex gap-1.5 sm:gap-2 items-start ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} relative z-10`}>
     {m.role === 'assistant' ? (
-      // Animated shade, icon, label column for AI bot messages
-      <div className="relative flex flex-col items-center min-w-[44px] sm:min-w-[54px] select-none mr-1 sm:mr-2">
+      // Animated shade, icon, label column for AI bot messages - SMALLER ON MOBILE
+      <div className="relative flex flex-col items-center min-w-[36px] sm:min-w-[44px] md:min-w-[54px] select-none mr-0.5 sm:mr-1 md:mr-2">
         {/* Animated vertical bar with green accent */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-0 w-2 sm:w-2.5 h-full rounded-full"
+        <div className="absolute left-1/2 -translate-x-1/2 top-0 w-1.5 sm:w-2 md:w-2.5 h-full rounded-full"
           style={{
             background: 'linear-gradient(180deg, #22c55e 5%, #10b981 60%, #06b6d4 80%, #0f172a 100%)',
             boxShadow: '0 0 25px 0 rgba(34,197,94,0.4), 0 6px 32px 0 rgba(16,185,129,0.25)',
           }}>
           <div
-            className="w-full h-6 rounded-full"
+            className="w-full h-5 sm:h-6 rounded-full"
             style={{
               background: 'radial-gradient(circle at 50% 0, #22c55e 0%, transparent 80%)',
               animation: 'shade-orb 3s infinite linear'
             }}
           />
         </div>
-        {/* AI icon on bar - Green gradient */}
-        <div className="relative z-10 mt-1 sm:mt-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg mb-0.5">
-          <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+        {/* AI icon on bar - Green gradient - SMALLER ON MOBILE */}
+        <div className="relative z-10 mt-0.5 sm:mt-1 md:mt-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg mb-0.5">
+          <Bot className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
         </div>
-        {/* AI Label - Green */}
-        <span className="relative z-10 text-[10px] sm:text-xs text-green-300 font-bold px-1 py-0.5 rounded-full bg-slate-800/60 border border-green-500/40 mt-0">
+        {/* AI Label - Green - SMALLER ON MOBILE */}
+        <span className="relative z-10 text-[9px] sm:text-[10px] md:text-xs text-green-300 font-bold px-0.5 sm:px-1 py-0.5 rounded-full bg-slate-800/60 border border-green-500/40 mt-0">
           AI
         </span>
       </div>
     ) : (
-      // user icon - Green gradient
-      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 mb-0.5">
-        <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+      // user icon - Green gradient - SMALLER ON MOBILE
+      <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 mb-0.5">
+        <User className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
       </div>
     )}
 
-    {/* Bubble content */}
+    {/* Bubble content - SMALLER FONT ON MOBILE */}
     <div
-      className={`max-w-[74%] px-3 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm border
+      className={`max-w-[74%] px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm border
         ${m.role === 'user'
           ? 'bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-tr-sm ml-auto border-green-500/30'
           : 'bg-slate-800/80 text-gray-100 border-slate-700/50 rounded-tl-sm ml-0 backdrop-blur-sm'
@@ -307,11 +307,11 @@ export default function ChatWidget() {
 ))}
 
             {loading && isTyping && (
-              <div className="message-enter flex gap-2 relative z-10">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-400 to-emerald-500">
-                  <Bot className="w-3.5 h-3.5 text-white" />
+              <div className="message-enter flex gap-1.5 sm:gap-2 relative z-10">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-400 to-emerald-500">
+                  <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
                 </div>
-                <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 px-3 py-2.5 rounded-2xl rounded-tl-sm shadow-sm">
+                <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl rounded-tl-sm shadow-sm">
                   <div className="flex gap-1.5 items-center">
                     <div className="typing-dot" />
                     <div className="typing-dot" />
@@ -322,15 +322,15 @@ export default function ChatWidget() {
             )}
 
             {errorText && (
-              <div className="message-enter text-xs text-red-300 bg-red-950/50 backdrop-blur-sm border border-red-800/50 px-3 py-2 rounded-lg relative z-10">
+              <div className="message-enter text-[10px] sm:text-xs text-red-300 bg-red-950/50 backdrop-blur-sm border border-red-800/50 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg relative z-10">
                 {errorText}
               </div>
             )}
           </div>
 
-          {/* Composer */}
-          <div className="p-3 border-t border-slate-800/50" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
-            <div className="flex items-end gap-2">
+          {/* Composer - SMALLER ON MOBILE */}
+          <div className="p-2.5 sm:p-3 border-t border-slate-800/50" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
+            <div className="flex items-end gap-1.5 sm:gap-2">
               <div className="flex-1">
                 <input
                   value={input}
@@ -342,14 +342,14 @@ export default function ChatWidget() {
                     }
                   }}
                   placeholder="Type your question here..."
-                  className="w-full px-3 py-2 rounded-lg text-[13px] bg-slate-900/80 backdrop-blur-sm border border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
+                  className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-[13px] bg-slate-900/80 backdrop-blur-sm border border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
                   maxLength={600}
                 />
               </div>
               <button
                 onClick={send}
                 disabled={loading || !input.trim()}
-                className="px-3 py-2 rounded-lg text-white text-sm font-semibold flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+                className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-white text-xs sm:text-sm font-semibold flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
                 style={{
                   background:
                     loading || !input.trim()
@@ -358,16 +358,16 @@ export default function ChatWidget() {
                   boxShadow: loading || !input.trim() ? 'none' : '0 4px 16px rgba(34,197,94,0.5)',
                 }}
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {loading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
             </div>
-            <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-400">
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-3 h-3 text-green-400" />
+            <div className="mt-2 sm:mt-2.5 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-400" />
                 <span>Secure & private</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-green-400" />
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-400" />
                 <span className={input.length > 500 ? 'text-green-400 font-semibold' : ''}>{input.length}/600</span>
               </div>
             </div>
