@@ -316,10 +316,10 @@ const AboutPage: React.FC = () => {
         {/* Animated title with multiple effects */}
         <div className="mb-3 sm:mb-6">
           <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-6 leading-tight">
-  <span className="block text-white mb-1 sm:mb-2 text-[14px] sm:text-3xl">From Zero to</span>
+  <span className="block text-white mb-1 sm:mb-2 text-[16px] sm:text-3xl">From Zero to</span>
   <span className="relative inline-block">
     <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-lg sm:blur-2xl opacity-50"></span>
-    <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent text-[16px] sm:text-3xl lg:text-5xl leading-tight">
+    <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent text-[18px] sm:text-3xl lg:text-5xl leading-tight">
       INDIA&apos;S 1st Education Ecosystem
     </span>
   </span>
@@ -327,16 +327,14 @@ const AboutPage: React.FC = () => {
 
         </div>
 
-        {/* Content with staggered animations */}
        <div className="max-w-4xl mx-auto space-y-2 sm:space-y-4">
+  <p className="text-[12px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.4s'}}>
+    In 2022, we started with nothing but a vision and courage. People laughed, they doubted — <em>&quot;too young, too early.&quot;</em> But we believed. Step by step, we built trust, structure, and a name in the industry.
+  </p>
+  <p className="text-[12px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.6s'}}>
+    By 2024, the midnight dream turned into reality — the launch of Learn Scape. With experienced counsellors, strong management, and digital transformation, we broke barriers and set new standards in education.
+  </p>
 
-          <p className="text-[11px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.4s'}}>
-            In 2022, we started with nothing but a vision and courage. People laughed, they doubted — <em>&quot;too young, too early.&quot;</em> But we believed. Step by step, we built trust, structure, and a name in the industry.
-          </p>
-          <p className="text-[11px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.6s'}}>
-            By 2024, the midnight dream turned into reality — the launch of Learn Scape. With experienced counsellors, strong management, and digital transformation, we broke barriers and set new standards in education.
-          </p>
-          
           {/* Animated stats grid with hover effects */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 my-6 sm:my-8 animate-fade-in" style={{animationDelay: '0.8s'}}>
             {[
@@ -362,13 +360,13 @@ const AboutPage: React.FC = () => {
           </div>
           
           {/* Animated quote with glow effect */}
-        {/* Animated quote with glow effect */}
-<blockquote className="relative text-[10px] sm:text-sm lg:text-base font-medium text-white/90 italic border-l-2 sm:border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/10 to-purple-500/5 p-2 sm:p-3 lg:p-4 rounded-lg animate-fade-in overflow-hidden group" style={{animationDelay: '1s'}}>
+     <blockquote className="relative text-[11px] sm:text-sm lg:text-base font-medium text-white/90 italic border-l-2 sm:border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/10 to-purple-500/5 p-2 sm:p-3 lg:p-4 rounded-lg animate-fade-in overflow-hidden group" style={{animationDelay: '1s'}}>
   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500"></div>
   <span className="relative z-10">
     &quot;We started as dreamers. Today, we are India&apos;s fastest-growing education ecosystem. Tomorrow, we will be unstoppable.&quot;
   </span>
 </blockquote>
+
 
         </div>
       </div>
