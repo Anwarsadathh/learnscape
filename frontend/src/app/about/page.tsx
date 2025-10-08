@@ -282,126 +282,236 @@ const AboutPage: React.FC = () => {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse delay-700"></div>
       </div>
 
-      {/* Hero Section - Our Story - IMPROVED MOBILE ALIGNMENT */}
-      <div className="relative pt-16 sm:pt-20 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 border border-blue-500/20 text-center">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm mb-4 sm:mb-6">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400" />
-              <span className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider">Our Story</span>
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
-              <span className="block text-white mb-1 sm:mb-2">From Zero to</span>
-              <span className="relative inline-block">
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-xl sm:blur-2xl opacity-50"></span>
-                <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Education Ecosystem
-                </span>
-              </span>
-            </h1>
-            
-            <div className="max-w-4xl mx-auto">
-              <p className="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed mb-4 sm:mb-6">
-                In 2022, we started with nothing but a vision and courage. People laughed, they doubted — <em>&quot;too young, too early.&quot;</em> But we believed. Step by step, we built trust, structure, and a name in the industry.
-              </p>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed mb-6 sm:mb-8">
-                By 2024, the midnight dream turned into reality — the launch of Learn Scape. With experienced counsellors, strong management, and digital transformation, we broke barriers and set new standards in education.
-              </p>
-              
-              {/* IMPROVED MOBILE STATS GRID */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 my-6 sm:my-8">
-                <div className="flex flex-col items-center">
-                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-blue-400">500+</div>
-                  <div className="text-[10px] sm:text-xs text-slate-400 text-center">College Partners</div>
+     {/* Hero Section - Our Story - EXTREME ANIMATED DESIGN */}
+<div className="relative pt-6 sm:pt-6 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+  <div className="max-w-7xl mx-auto">
+    {/* Animated background elements */}
+    <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+      <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+    </div>
+
+    <div className="relative bg-gradient-to-br from-slate-900/80 via-slate-800/70 to-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-700/50 overflow-hidden shadow-2xl">
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-gradient-x"></div>
+      
+      {/* Animated particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1/4 left-1/4 animate-float"></div>
+        <div className="absolute w-1.5 h-1.5 bg-purple-400 rounded-full top-1/3 right-1/3 animate-float" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute w-2.5 h-2.5 bg-pink-400 rounded-full bottom-1/4 left-1/2 animate-float" style={{animationDelay: '1s'}}></div>
+        <div className="absolute w-1 h-1 bg-cyan-400 rounded-full top-2/3 right-1/4 animate-float" style={{animationDelay: '1.5s'}}></div>
+      </div>
+
+      <div className="relative z-10 p-3 sm:p-5 lg:p-8 text-center">
+
+        {/* Badge with shimmer effect */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm mb-4 sm:mb-6 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 animate-spin" style={{animationDuration: '3s'}} />
+          <span className="text-[10px] sm:text-xs font-semibold text-blue-300 uppercase tracking-wider">Our Story</span>
+        </div>
+        
+        {/* Animated title with multiple effects */}
+        <div className="mb-3 sm:mb-6">
+          <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight">
+            <span className="block text-white mb-1 sm:mb-2 text-[15px] sm:text-3xl animate-fade-in-down">
+              From Zero to
+            </span>
+          <span className="relative inline-block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+  {/* Glow effect only */}
+  <span className="absolute inset-0 bg-blue-500 blur-2xl opacity-30 animate-pulse"></span>
+  
+  {/* Main text in standard white */}
+  <span className="relative text-white text-[18px] sm:text-3xl lg:text-5xl font-bold drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]">
+    INDIA&apos;S 1st Education Ecosystem
+  </span>
+</span>
+
+          </h1>
+        </div>
+
+        {/* Content with staggered animations */}
+       <div className="max-w-4xl mx-auto space-y-2 sm:space-y-4">
+
+          <p className="text-[11px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.4s'}}>
+            In 2022, we started with nothing but a vision and courage. People laughed, they doubted — <em>&quot;too young, too early.&quot;</em> But we believed. Step by step, we built trust, structure, and a name in the industry.
+          </p>
+          <p className="text-[11px] sm:text-base lg:text-lg text-slate-300 leading-relaxed animate-fade-in" style={{animationDelay: '0.6s'}}>
+            By 2024, the midnight dream turned into reality — the launch of Learn Scape. With experienced counsellors, strong management, and digital transformation, we broke barriers and set new standards in education.
+          </p>
+          
+          {/* Animated stats grid with hover effects */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 my-6 sm:my-8 animate-fade-in" style={{animationDelay: '0.8s'}}>
+            {[
+              { value: '500+', label: 'College Partners', color: 'blue', delay: '0s' },
+              { value: '1000+', label: 'Courses', color: 'purple', delay: '0.1s' },
+              { value: '5000+', label: 'Admissions', color: 'green', delay: '0.2s' },
+              { value: '1000+', label: 'Students Placed', color: 'yellow', delay: '0.3s' },
+              { value: '10+', label: 'Sub-offices in Kerala', color: 'pink', delay: '0.4s' }
+            ].map((stat, idx) => (
+              <div 
+                key={idx}
+                className={`flex flex-col items-center p-2 sm:p-3 rounded-lg bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-${stat.color}-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-${stat.color}-500/20 group ${idx === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
+                style={{animationDelay: stat.delay}}
+              >
+                <div className={`text-sm sm:text-lg lg:text-xl font-bold text-${stat.color}-400 group-hover:animate-bounce`}>
+                  {stat.value}
                 </div>
-                <div className="flex flex-col items-center">
-                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-purple-400">1000+</div>
-                  <div className="text-[10px] sm:text-xs text-slate-400 text-center">Courses</div>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-green-400">5000+</div>
-                  <div className="text-[10px] sm:text-xs text-slate-400 text-center">Admissions</div>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-yellow-400">1000+</div>
-                  <div className="text-[10px] sm:text-xs text-slate-400 text-center">Students Placed</div>
-                </div>
-                <div className="flex flex-col items-center col-span-2 sm:col-span-1">
-                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-pink-400">10+</div>
-                  <div className="text-[10px] sm:text-xs text-slate-400 text-center">Sub-offices in Kerala</div>
+                <div className="text-[10px] sm:text-xs text-slate-400 text-center group-hover:text-slate-300 transition-colors">
+                  {stat.label}
                 </div>
               </div>
-              
-              <blockquote className="text-sm sm:text-base lg:text-lg xl:text-xl font-medium text-white/90 italic border-l-2 sm:border-l-4 border-blue-500 bg-blue-500/10 p-3 sm:p-4 lg:p-6 rounded-lg">
-                &quot;We started as dreamers. Today, we are India&apos;s fastest-growing education ecosystem. Tomorrow, we will be unstoppable.&quot;
-              </blockquote>
-            </div>
+            ))}
           </div>
+          
+          {/* Animated quote with glow effect */}
+        {/* Animated quote with glow effect */}
+<blockquote className="relative text-[10px] sm:text-sm lg:text-base font-medium text-white/90 italic border-l-2 sm:border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/10 to-purple-500/5 p-2 sm:p-3 lg:p-4 rounded-lg animate-fade-in overflow-hidden group" style={{animationDelay: '1s'}}>
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500"></div>
+  <span className="relative z-10">
+    &quot;We started as dreamers. Today, we are India&apos;s fastest-growing education ecosystem. Tomorrow, we will be unstoppable.&quot;
+  </span>
+</blockquote>
+
         </div>
       </div>
+
+      {/* Bottom decorative gradient bar */}
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient-x"></div>
+    </div>
+  </div>
+</div>
+
+{/* Add custom animations - Place this style tag after the main div */}
+<style jsx>{`
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fade-in-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-fade-in-down {
+    animation: fade-in-down 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+  }
+  
+  .bg-300% {
+    background-size: 300% 100%;
+  }
+`}</style>
+
 
       {/* Mission & Vision Section */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Mission */}
-          <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm rounded-2xl p-8 border border-blue-500/20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-white">Our Mission</h2>
-            </div>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-slate-300">Guide students with AI-driven career mapping, ensuring education aligns with passion and purpose</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-slate-300">Deliver continuously updated, industry-relevant courses for lifelong employability</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-slate-300">Bridge global opportunities through language academies and advanced learning pathways</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-slate-300">Empower millions by making education smarter, accessible, and transformative</p>
-              </li>
-            </ul>
-          </div>
+       {/* Mission */}
+<div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm rounded-2xl p-4 sm:p-8 border border-blue-500/20">
+  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+    <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg sm:rounded-xl">
+      <Target className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+    </div>
+    <h2 className="text-base sm:text-2xl font-bold text-white">Our Mission</h2>
+  </div>
+  <ul className="space-y-2 sm:space-y-4">
+    <li className="flex items-start gap-2 sm:gap-3">
+      <CheckCircle className="w-3 h-3 sm:w-5 sm:h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <p className="text-[10px] sm:text-sm text-slate-300 leading-snug sm:leading-normal">Guide students with AI-driven career mapping, ensuring education aligns with passion and purpose</p>
+    </li>
+    <li className="flex items-start gap-2 sm:gap-3">
+      <CheckCircle className="w-3 h-3 sm:w-5 sm:h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <p className="text-[10px] sm:text-sm text-slate-300 leading-snug sm:leading-normal">Deliver continuously updated, industry-relevant courses for lifelong employability</p>
+    </li>
+    <li className="flex items-start gap-2 sm:gap-3">
+      <CheckCircle className="w-3 h-3 sm:w-5 sm:h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <p className="text-[10px] sm:text-sm text-slate-300 leading-snug sm:leading-normal">Bridge global opportunities through language academies and advanced learning pathways</p>
+    </li>
+    <li className="flex items-start gap-2 sm:gap-3">
+      <CheckCircle className="w-3 h-3 sm:w-5 sm:h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <p className="text-[10px] sm:text-sm text-slate-300 leading-snug sm:leading-normal">Empower millions by making education smarter, accessible, and transformative</p>
+    </li>
+  </ul>
+</div>
 
-          {/* Vision */}
-          <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-                <Eye className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-white">Our Vision</h2>
-            </div>
-            <p className="text-slate-300 leading-relaxed mb-6">
-              To become India&apos;s largest and most trusted education ecosystem, offering admissions, 
-              updated courses, and lifelong learning opportunities that transform lives and careers.
-            </p>
-            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-              <p className="text-xs text-slate-400 mb-2">By 2030, we aim to:</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-slate-300">
-                  <ChevronRight className="w-4 h-4 text-purple-400" />
-                  Impact 10 million+ students
-                </li>
-                <li className="flex items-center gap-2 text-sm text-slate-300">
-                  <ChevronRight className="w-4 h-4 text-purple-400" />
-                  Partner with 5000+ institutions
-                </li>
-                <li className="flex items-center gap-2 text-sm text-slate-300">
-                  <ChevronRight className="w-4 h-4 text-purple-400" />
-                  Create 1 million+ career success stories
-                </li>
-              </ul>
-            </div>
-          </div>
+{/* Vision */}
+<div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-sm rounded-2xl p-4 sm:p-8 border border-purple-500/20">
+  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+    <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg sm:rounded-xl">
+      <Eye className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+    </div>
+    <h2 className="text-base sm:text-2xl font-bold text-white">Our Vision</h2>
+  </div>
+  <p className="text-[10px] sm:text-base text-slate-300 leading-snug sm:leading-relaxed mb-4 sm:mb-6">
+    To become India&apos;s largest and most trusted education ecosystem, offering admissions, 
+    updated courses, and lifelong learning opportunities that transform lives and careers.
+  </p>
+  <div className="bg-slate-900/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-slate-700">
+    <p className="text-[9px] sm:text-xs text-slate-400 mb-2">By 2030, we aim to:</p>
+    <ul className="space-y-1.5 sm:space-y-2">
+      <li className="flex items-center gap-2 text-[10px] sm:text-sm text-slate-300">
+        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+        Impact 10 million+ students
+      </li>
+      <li className="flex items-center gap-2 text-[10px] sm:text-sm text-slate-300">
+        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+        Partner with 5000+ institutions
+      </li>
+      <li className="flex items-center gap-2 text-[10px] sm:text-sm text-slate-300">
+        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+        Create 1 million+ career success stories
+      </li>
+    </ul>
+  </div>
+</div>
+
         </div>
       </div>
 
@@ -436,35 +546,36 @@ const AboutPage: React.FC = () => {
             
             {/* CEO Info */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg">
-                Kevin C Philipose
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-purple-300 font-semibold mb-3 sm:mb-4">
-                Founder &amp; CEO – Learn Scape
-              </p>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-300 mb-4 sm:mb-6 leading-relaxed">
-                Kevin C Philipose is a visionary leader with deep expertise in the education sector. As the Founder &amp; CEO of Learn Scape, he pioneered India&apos;s first integrated education ecosystem, dedicated to empowering students and enabling strong, sustainable careers.
-              </p>
-              <p className="text-sm sm:text-base text-slate-400 mb-4 sm:mb-6 leading-relaxed">
-                With his strategic leadership and visionary approach, he continues to drive innovation, growth, and long-term impact in the education industry.
-              </p>
-              
-              {/* CEO Achievements */}
-              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-start">
-                <span className="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-xs sm:text-sm font-medium border border-purple-500/30">
-                  <Rocket className="w-3 h-3" />
-                  Innovation Leader
-                </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-blue-500/20 text-blue-300 rounded-full text-xs sm:text-sm font-medium border border-blue-500/30">
-                  <Target className="w-3 h-3" />
-                  Strategic Visionary
-                </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-green-500/20 text-green-300 rounded-full text-xs sm:text-sm font-medium border border-green-500/30">
-                  <GraduationCap className="w-3 h-3" />
-                  Education Pioneer
-                </span>
-              </div>
-            </div>
+  <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg">
+    Kevin C Philipose
+  </h2>
+  <p className="text-xs sm:text-lg lg:text-xl text-purple-300 font-semibold mb-2 sm:mb-4">
+    Founder &amp; CEO – Learn Scape
+  </p>
+  <p className="text-[10px] sm:text-base lg:text-lg text-slate-300 mb-3 sm:mb-6 leading-snug sm:leading-relaxed">
+    Kevin C Philipose is a visionary leader with deep expertise in the education sector. As the Founder &amp; CEO of Learn Scape, he pioneered India&apos;s first integrated education ecosystem, dedicated to empowering students and enabling strong, sustainable careers.
+  </p>
+  <p className="text-[9px] sm:text-base text-slate-400 mb-3 sm:mb-6 leading-snug sm:leading-relaxed">
+    With his strategic leadership and visionary approach, he continues to drive innovation, growth, and long-term impact in the education industry.
+  </p>
+  
+  {/* CEO Achievements */}
+  <div className="flex flex-wrap gap-1.5 sm:gap-3 justify-center sm:justify-start">
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-3 sm:py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-[9px] sm:text-sm font-medium border border-purple-500/30">
+      <Rocket className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+      Innovation Leader
+    </span>
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-3 sm:py-1.5 bg-blue-500/20 text-blue-300 rounded-full text-[9px] sm:text-sm font-medium border border-blue-500/30">
+      <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+      Strategic Visionary
+    </span>
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-3 sm:py-1.5 bg-green-500/20 text-green-300 rounded-full text-[9px] sm:text-sm font-medium border border-green-500/30">
+      <GraduationCap className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+      Education Pioneer
+    </span>
+  </div>
+</div>
+
           </div>
         </div>
       </div>
@@ -521,32 +632,31 @@ const AboutPage: React.FC = () => {
       <div className="p-6 sm:p-8 lg:p-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           
-          {/* Award Description */}
-          <div className="space-y-6">
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              Recognized by Business Insight Magazine as the <strong className="text-yellow-300">Best Education Consultancy</strong> for our innovative approach, exceptional student guidance, and transformative impact on India&apos;s education landscape.
-            </p>
-           
+         {/* Award Description */}
+<div className="space-y-4 sm:space-y-6">
+  <p className="text-[11px] sm:text-lg text-slate-300 leading-snug sm:leading-relaxed">
+    Recognized by Business Insight Magazine as the <strong className="text-yellow-300">Best Education Consultancy</strong> for our innovative approach, exceptional student guidance, and transformative impact on India&apos;s education landscape.
+  </p>
 
-            {/* Key Highlights */}
-            <div className="space-y-3">
-              <h4 className="text-lg font-semibold text-white mb-3">Recognition Highlights:</h4>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <span className="text-sm text-slate-300">Excellence in Educational Consultancy Services</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                  <span className="text-sm text-slate-300">Innovation in AI-Driven Career Mapping</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                  <span className="text-sm text-slate-300">Outstanding Student Success Stories</span>
-                </div>
-              </div>
-            </div>
-          </div>
+  {/* Key Highlights */}
+  <div className="space-y-2 sm:space-y-3">
+    <h4 className="text-sm sm:text-lg font-semibold text-white mb-2 sm:mb-3">Recognition Highlights:</h4>
+    <div className="space-y-1.5 sm:space-y-2">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-yellow-400 rounded-full flex-shrink-0"></div>
+        <span className="text-[10px] sm:text-sm text-slate-300">Excellence in Educational Consultancy Services</span>
+      </div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-orange-400 rounded-full flex-shrink-0"></div>
+        <span className="text-[10px] sm:text-sm text-slate-300">Innovation in AI-Driven Career Mapping</span>
+      </div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-400 rounded-full flex-shrink-0"></div>
+        <span className="text-[10px] sm:text-sm text-slate-300">Outstanding Student Success Stories</span>
+      </div>
+    </div>
+  </div>
+</div>
 
           {/* Award Ceremony Image */}
           <div className="relative">
@@ -610,16 +720,17 @@ const AboutPage: React.FC = () => {
             {timeline.map((event, index) => (
               <div key={index} className={`flex flex-col lg:flex-row items-center gap-8 ${index % 2 === 0 ? 'lg:flex-row-reverse' : ''}`}>
                 <div className="flex-1">
-                  <div className={`bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-800 hover:border-slate-700 transition-all ${index % 2 === 0 ? 'lg:text-right' : ''}`}>
-                    <div className={`flex items-center gap-3 mb-3 ${index % 2 === 0 ? 'lg:justify-end' : ''}`}>
-                      <div className={`p-2 bg-gradient-to-r ${event.color} rounded-lg text-white`}>
-                        {event.icon}
-                      </div>
-                      <span className="text-2xl font-bold text-white">{event.year}</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{event.title}</h3>
-                    <p className="text-sm text-slate-400">{event.description}</p>
-                  </div>
+                  <div className={`bg-slate-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-slate-800 hover:border-slate-700 transition-all ${index % 2 === 0 ? 'lg:text-right' : ''}`}>
+  <div className={`flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 ${index % 2 === 0 ? 'lg:justify-end' : ''}`}>
+    <div className={`p-1.5 sm:p-2 bg-gradient-to-r ${event.color} rounded-md sm:rounded-lg text-white`}>
+      {event.icon}
+    </div>
+    <span className="text-lg sm:text-2xl font-bold text-white">{event.year}</span>
+  </div>
+  <h3 className="text-sm sm:text-lg font-semibold text-white mb-1.5 sm:mb-2">{event.title}</h3>
+  <p className="text-[10px] sm:text-sm text-slate-400 leading-snug sm:leading-normal">{event.description}</p>
+</div>
+
                 </div>
 
                 {/* Center Circle */}
@@ -666,13 +777,14 @@ const AboutPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {values.map((value, index) => (
-            <div key={index} className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-slate-700 hover:border-blue-500/50 transition-all group">
-              <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl text-blue-400 mb-3 sm:mb-4 inline-block group-hover:scale-110 transition-transform">
-                {value.icon}
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">{value.title}</h3>
-              <p className="text-xs sm:text-sm text-slate-400">{value.description}</p>
-            </div>
+           <div key={index} className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-6 border border-slate-700 hover:border-blue-500/50 transition-all group">
+  <div className="p-1.5 sm:p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-md sm:rounded-xl text-blue-400 mb-2 sm:mb-4 inline-block group-hover:scale-110 transition-transform">
+    {value.icon}
+  </div>
+  <h3 className="text-xs sm:text-lg font-semibold text-white mb-1.5 sm:mb-2">{value.title}</h3>
+  <p className="text-[10px] sm:text-sm text-slate-400 leading-snug sm:leading-normal">{value.description}</p>
+</div>
+
           ))}
         </div>
       </div>
