@@ -46,8 +46,6 @@ function formatMessage(text: string) {
   return formatted;
 }
 
-
-
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([
@@ -64,10 +62,26 @@ export default function ChatWidget() {
 
   const boxRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // ✅ Initialize audio on mount
+  useEffect(() => {
+    audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audioRef.current.volume = 0.3; // Adjust volume (0.0 to 1.0)
+  }, []);
+
+  // Auto-scroll effect
   useEffect(() => {
     boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight, behavior: 'smooth' });
   }, [msgs, loading]);
+
+  // ✅ Play sound when opening
+  useEffect(() => {
+    if (open && audioRef.current) {
+      audioRef.current.currentTime = 0; // Reset to start
+      audioRef.current.play().catch(err => console.log('Audio play failed:', err));
+    }
+  }, [open]);
 
   async function send() {
     if (!input.trim() || loading) return;
@@ -153,65 +167,64 @@ export default function ChatWidget() {
 
   return (
     <>
-    <style>{`
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes bounceDot { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
-  @keyframes shimmer { 0% { background-position: -1000px 0 } 100% { background-position: 1000px 0 } }
-  @keyframes pulse-glow { 0%, 100% { opacity: 0.2 } 50% { opacity: 0.3 } }
-  @keyframes wave-blend { 
-    0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
-    50% { transform: translateX(-40%) translateY(-30px) scale(1.15); opacity: 0.65; }
-    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
-  }
-  @keyframes rotate-blend { 
-    0% { transform: rotate(0deg); opacity: 0.4; }
-    50% { opacity: 0.6; }
-    100% { transform: rotate(360deg); opacity: 0.4; }
-  }
-  @keyframes float-green {
-    0% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
-    50% { transform: translate(-45%, -15px) scale(1.1); opacity: 0.6; }
-    100% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
-  }
-  @keyframes shade-orb {
-    0% { margin-top: 0; }
-    100% { margin-top: calc(100% - 24px); }
-  }
-  .message-enter { animation: fadeIn .25s ease-out }
-  .panel-enter { animation: slideUp .45s cubic-bezier(.16,1,.3,1) }
-  .typing-dot { width: 6px; height: 6px; border-radius: 9999px; background: #9ca3af; animation: bounceDot 1.2s infinite }
-  .typing-dot:nth-child(2) { animation-delay: .15s }
-  .typing-dot:nth-child(3) { animation-delay: .30s }
-  .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); background-size: 1000px 100%; animation: shimmer 2.4s infinite }
-  .hide-scrollbar::-webkit-scrollbar { display: none; }
-  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  
-  /* Better text formatting */
-  .msg-content { 
-    line-height: 1.6; 
-    font-size: 11px;
-  }
-  @media (min-width: 640px) {
-    .msg-content { font-size: 12px; }
-  }
-  .msg-content div { line-height: 1.6; }
-  .msg-content span { line-height: 1.6; }
-  .msg-content br { display: block; content: ""; margin: 0.2rem 0; line-height: 1.6; }
-  .msg-content strong { font-weight: 600; color: #f1f5f9; }
-  
-  /* Numbered item styling with proper spacing */
-  .msg-content .numbered-item {
-    display: block;
-    line-height: 1.5;
-    margin-top: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-  .msg-content .numbered-item:first-child {
-    margin-top: 0;
-  }
-`}</style>
-
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes bounceDot { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+        @keyframes shimmer { 0% { background-position: -1000px 0 } 100% { background-position: 1000px 0 } }
+        @keyframes pulse-glow { 0%, 100% { opacity: 0.2 } 50% { opacity: 0.3 } }
+        @keyframes wave-blend { 
+          0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
+          50% { transform: translateX(-40%) translateY(-30px) scale(1.15); opacity: 0.65; }
+          100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.5; }
+        }
+        @keyframes rotate-blend { 
+          0% { transform: rotate(0deg); opacity: 0.4; }
+          50% { opacity: 0.6; }
+          100% { transform: rotate(360deg); opacity: 0.4; }
+        }
+        @keyframes float-green {
+          0% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
+          50% { transform: translate(-45%, -15px) scale(1.1); opacity: 0.6; }
+          100% { transform: translate(-50%, 0) scale(1); opacity: 0.45; }
+        }
+        @keyframes shade-orb {
+          0% { margin-top: 0; }
+          100% { margin-top: calc(100% - 24px); }
+        }
+        .message-enter { animation: fadeIn .25s ease-out }
+        .panel-enter { animation: slideUp .45s cubic-bezier(.16,1,.3,1) }
+        .typing-dot { width: 6px; height: 6px; border-radius: 9999px; background: #9ca3af; animation: bounceDot 1.2s infinite }
+        .typing-dot:nth-child(2) { animation-delay: .15s }
+        .typing-dot:nth-child(3) { animation-delay: .30s }
+        .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); background-size: 1000px 100%; animation: shimmer 2.4s infinite }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Better text formatting */
+        .msg-content { 
+          line-height: 1.6; 
+          font-size: 11px;
+        }
+        @media (min-width: 640px) {
+          .msg-content { font-size: 12px; }
+        }
+        .msg-content div { line-height: 1.6; }
+        .msg-content span { line-height: 1.6; }
+        .msg-content br { display: block; content: ""; margin: 0.2rem 0; line-height: 1.6; }
+        .msg-content strong { font-weight: 600; color: #f1f5f9; }
+        
+        /* Numbered item styling with proper spacing */
+        .msg-content .numbered-item {
+          display: block;
+          line-height: 1.5;
+          margin-top: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+        .msg-content .numbered-item:first-child {
+          margin-top: 0;
+        }
+      `}</style>
 
       <button
         onClick={() => setOpen(o => !o)}
