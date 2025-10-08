@@ -315,21 +315,16 @@ const AboutPage: React.FC = () => {
         
         {/* Animated title with multiple effects */}
         <div className="mb-3 sm:mb-6">
-          <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight">
-            <span className="block text-white mb-1 sm:mb-2 text-[15px] sm:text-3xl animate-fade-in-down">
-              From Zero to
-            </span>
-          <span className="relative inline-block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-  {/* Glow effect only */}
-  <span className="absolute inset-0 bg-blue-500 blur-2xl opacity-30 animate-pulse"></span>
-  
-  {/* Main text in standard white */}
-  <span className="relative text-white text-[18px] sm:text-3xl lg:text-5xl font-bold drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]">
-    INDIA&apos;S 1st Education Ecosystem
+          <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-6 leading-tight">
+  <span className="block text-white mb-1 sm:mb-2 text-[14px] sm:text-3xl">From Zero to</span>
+  <span className="relative inline-block">
+    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-lg sm:blur-2xl opacity-50"></span>
+    <span className="relative bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent text-[16px] sm:text-3xl lg:text-5xl leading-tight">
+      INDIA&apos;S 1st Education Ecosystem
+    </span>
   </span>
-</span>
+</h1>
 
-          </h1>
         </div>
 
         {/* Content with staggered animations */}
