@@ -132,6 +132,71 @@ const AdminSettingsPage = () => {
     }
   };
 
+  const handleClearCookies = async () => {
+    if (!confirm('Are you sure you want to clear cookies? You will be logged out.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('/api/admin/auth/clear-cookies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showMessage('success', 'Cookies cleared successfully!');
+        // Clear local storage and redirect
+        localStorage.removeItem('adminToken');
+        setTimeout(() => {
+          window.location.href = '/admin/login';
+        }, 1500);
+      } else {
+        showMessage('error', data.message || 'Failed to clear cookies');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showMessage('error', 'Error clearing cookies');
+    }
+  };
+const handleInvalidateAllSessions = async () => {
+  if (!confirm('⚠️ DANGER: This will forcibly log out ALL users including yourself!\n\nThis cannot be undone. Continue?')) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await fetch('/api/admin/auth/invalidate-all-sessions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showMessage('success', 'All sessions invalidated! Redirecting to login...');
+      localStorage.removeItem('adminToken');
+      setTimeout(() => {
+        window.location.href = '/admin/login';
+      }, 2000);
+    } else {
+      showMessage('error', data.message || 'Failed to invalidate sessions');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showMessage('error', 'Error invalidating sessions');
+  }
+};
+
   if (loading) {
     return (
       <AdminLayout>
@@ -318,6 +383,49 @@ const AdminSettingsPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Session Management */}
+<div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-800">
+  <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+    <Shield className="w-5 h-5 text-red-400" />
+    Session Management
+  </h2>
+  
+  <div className="space-y-4">
+    {/* Clear own cookies */}
+    <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+      <p className="text-sm text-orange-300 mb-3">
+        <AlertTriangle className="w-4 h-4 inline mr-1" />
+        Clear your own session and log yourself out.
+      </p>
+      <button
+        onClick={handleClearCookies}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition-colors"
+      >
+        <Shield className="w-4 h-4" />
+        Clear My Session
+      </button>
+    </div>
+
+    {/* Invalidate all sessions */}
+    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+      <p className="text-sm text-red-300 mb-2 font-semibold">
+        ⚠️ DANGER ZONE
+      </p>
+      <p className="text-sm text-red-300 mb-3">
+        This will immediately log out ALL users including yourself. Use only in emergencies.
+      </p>
+      <button
+        onClick={handleInvalidateAllSessions}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition-colors"
+      >
+        <AlertTriangle className="w-4 h-4" />
+        Invalidate All Sessions
+      </button>
+    </div>
+  </div>
+</div>
+
         </div>
 
         {/* Save Button */}

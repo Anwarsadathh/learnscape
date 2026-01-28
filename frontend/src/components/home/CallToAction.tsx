@@ -59,7 +59,7 @@ const CallToAction = () => {
 
           {/* Enhanced Description */}
           <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
-            Join <span className="font-bold text-[#173974]">500,000+</span> students who transformed their dreams into reality with our expert guidance
+            Join <span className="font-bold text-[#173974]">50,000+</span> students who transformed their dreams into reality with our expert guidance
           </p>
 
           {/* Premium Feature Pills */}

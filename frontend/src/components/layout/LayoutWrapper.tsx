@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import ChatWidget from '@/components/chat/ChatWidget'
 
 interface LayoutWrapperProps {
   children: React.ReactNode
@@ -20,17 +21,21 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     '/admin/reports',
     '/admin/settings',
     '/admin/enquiries',
-    '/admin/scholarships', // ✅ Add this line
-    '/maintenance', // ✅ Add this line
+    '/admin/scholarships',
+    '/maintenance',
   ]
   
   const shouldHideLayout = hideLayoutPages.some(page => pathname.startsWith(page))
+  
+  // Hide chat widget on admin pages and maintenance
+  const hideChatWidget = pathname?.startsWith('/admin') || pathname === '/maintenance'
 
   return (
     <>
       {!shouldHideLayout && <Header />}
       <main>{children}</main>
       {!shouldHideLayout && <Footer />}
+      {!hideChatWidget && <ChatWidget />}
     </>
   )
 }
