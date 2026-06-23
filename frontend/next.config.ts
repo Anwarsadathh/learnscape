@@ -2,23 +2,24 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   transpilePackages: ['lucide-react'],
+
   images: {
-    domains: ['localhost', 'learnscapeedu.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'learnscapeedu.com',
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: 'localhost',
-        port: '6667',
+        hostname: '**',
       },
     ],
   },
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   typescript: {
     ignoreBuildErrors: true,
   },

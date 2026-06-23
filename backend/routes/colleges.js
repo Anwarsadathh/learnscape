@@ -46,13 +46,13 @@ router.get('/', async (req, res) => {
     }
     
     // Get total count for pagination
-    const totalCount = await db.get().collection('collegeoruni').countDocuments(filterQuery);
+    const totalCount = await db.get().collection('colleges').countDocuments(filterQuery);
     const totalPages = Math.ceil(totalCount / limit);
     
     // Fetch colleges with pagination
     const colleges = await db
       .get()
-      .collection('collegeoruni')
+      .collection('colleges')
       .find(filterQuery)
       .sort(sortQuery)
       .skip(skip)
@@ -60,8 +60,8 @@ router.get('/', async (req, res) => {
       .toArray();
     
     // Get all unique streams and locations for filters
-    const allStreams = await db.get().collection('collegeoruni').distinct('streams');
-    const allLocations = await db.get().collection('collegeoruni').distinct('locations');
+    const allStreams = await db.get().collection('colleges').distinct('streams');
+    const allLocations = await db.get().collection('colleges').distinct('locations');
     
     res.json({
       success: true,
@@ -104,7 +104,7 @@ router.get('/:id', async (req, res) => {
       });
     }
     
-    const college = await db.get().collection('collegeoruni')
+    const college = await db.get().collection('colleges')
       .findOne({ _id: new ObjectId(collegeId) });
     
     if (!college) {

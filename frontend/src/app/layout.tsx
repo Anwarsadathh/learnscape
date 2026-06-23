@@ -4,16 +4,16 @@ import './globals.css'
 import LayoutWrapper from '../components/layout/LayoutWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
-const poppins = Poppins({ 
+const poppins = Poppins({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-poppins'
+  variable: '--font-poppins',
 })
 
-// ✅ Corrected metadata for LearnScape
 export const metadata: Metadata = {
   title: 'LearnScape - Discover Top Colleges & Universities | Higher Education Platform',
-  description: 'Find the perfect college for your future with LearnScape. Explore 500+ top colleges and universities across India. Get expert guidance, scholarships, and admission support for engineering, medical, MBA, and more.',
+  description:
+    'Find the perfect college for your future with LearnScape. Explore 500+ top colleges and universities across India. Get expert guidance, scholarships, and admission support for engineering, medical, MBA, and more.',
   keywords: [
     'colleges India',
     'universities',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     'LearnScape',
     'college search',
     'university rankings',
-    'admission guidance'
+    'admission guidance',
   ],
   authors: [{ name: 'LearnScape Team' }],
   creator: 'LearnScape',
@@ -49,11 +49,12 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://learnscapeedu.com',
     title: 'LearnScape - Find Your Perfect College | Top Universities in India',
-    description: 'Discover 500+ top colleges and universities across India. Get expert guidance for engineering, medical, MBA admissions and scholarships.',
+    description:
+      'Discover 500+ top colleges and universities across India. Get expert guidance for engineering, medical, MBA admissions and scholarships.',
     siteName: 'LearnScape',
     images: [
       {
-        url: '/og-image.jpg', // You'll need to add this image
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'LearnScape - Top Colleges and Universities Platform',
@@ -63,9 +64,10 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'LearnScape - Find Your Perfect College',
-    description: 'Discover top colleges and universities across India with expert guidance and scholarship support.',
-    images: ['/twitter-image.jpg'], // You'll need to add this image
-    creator: '@learnscapeedu', // Update with your actual Twitter handle
+    description:
+      'Discover top colleges and universities across India with expert guidance and scholarship support.',
+    images: ['/twitter-image.jpg'],
+    creator: '@learnscapeedu',
   },
   alternates: {
     canonical: 'https://learnscapeedu.com',
@@ -80,11 +82,9 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://learnscapeedu.com'),
   verification: {
-    google: 'your-google-verification-code', // Add your Google Search Console verification
-    // bing: 'your-bing-verification-code', // Add if you use Bing Webmaster Tools
+    google: 'your-google-verification-code',
   },
-};
-
+}
 
 export default function RootLayout({
   children,
@@ -92,7 +92,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.className} ${poppins.variable}`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.className} ${poppins.variable}`}
+    >
       <body className="min-h-screen bg-white">
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>

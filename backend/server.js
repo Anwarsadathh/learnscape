@@ -65,20 +65,29 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? ['https://learnscapeedu.com', 'https://www.learnscapeedu.com']
-  : ['http://localhost:3000', 'http://localhost:3001', 'https://learnscapeedu.com', 'https://www.learnscapeedu.com'];
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? ['https://learnscapeedu.com', 'https://www.learnscapeedu.com']
+    : ['http://localhost:3000', 'http://localhost:3001'];
 
-// CORS configuration
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: '*',
-  exposedHeaders: ['Content-Disposition', 'X-Total-Count']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Disposition', 'X-Total-Count'],
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

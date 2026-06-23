@@ -1,451 +1,301 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Search, 
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import {
+  Trash2,
+  Search,
   Eye,
   X,
   MapPin,
-  Save,
-  FileText,
-  GraduationCap,
-  PlusCircle,
-  MinusCircle,
-} from 'lucide-react';
-import AdminLayout from '../../../components/admin/AdminLayout';
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  Building2,
+} from 'lucide-react'
+import AdminLayout from '../../../components/admin/AdminLayout'
 
 interface Course {
-  name: string;
-  level: string;
-  duration: string;
-  fees: string;
+  id?: string
+  name: string
+  level: string
+  duration: string
+  fees: string
+  seats: string
+  entrance: string
 }
 
 interface OverviewPoint {
-  heading: string;
-  description: string;
+  id?: string
+  heading: string
+  description: string
 }
 
 interface Overview {
-  heading: string;
-  description: string;
-  points: OverviewPoint[];
+  heading: string
+  description: string
+  points: OverviewPoint[]
 }
+
+type CollegeType = 'government' | 'private' | 'deemed' | 'autonomous'
 
 interface College {
-  _id: string;
-  name: string;
-  streams: string[];
-  locations: string[];
-  positions: string;
-  rating?: number;
-  image?: string;
-  brochure?: string;
-  feeStructureDoc?: string;
-  courses: Course[];
-  overview?: Overview;
-  portalLink?: string;
-  CollegeLink?: string;
+  id?: string
+  _id?: string
+  name: string
+  slug: string
+  streams: string[]
+  locations: string[]
+  positions: string | number
+  image?: string
+  brochure?: string
+  feeStructureDoc?: string
+  courses: Course[]
+  overview?: Overview
+  portalLink?: string
+  portalLinkAC?: string
+  portalLinkFV?: string
+  CollegeLink?: string
+  rating?: number
+  naac?: string
+  fees?: {
+    min: number
+    max: number
+  }
+  type?: CollegeType
+  established?: number
+  accreditations?: string[]
+  highlights?: string[]
 }
 
-const CollegesManagementPage = () => {
-  const [colleges, setColleges] = useState<College[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit' | 'view'>('add');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface PaginationInfo {
+  total?: number
+  totalPages?: number
+  current?: number
+  limit?: number | string
+}
 
-  // Available streams options
-  const availableStreams = [
-    'Paramedical',
-    'Medical Science',
-    'Arts and Humanities',
-    'Commerce',
-    'Engineering',
-    'Management'
-  ];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
-  // Available locations options
-  const availableLocations = [
-    'Bangalore',
-    'Mumbai',
-    'Delhi',
-    'Chennai',
-    'Hyderabad',
-    'Pune',
-    'Kolkata',
-    'Ahmedabad',
-    'Jaipur',
-    'Lucknow',
-    'Mysore',
-    'Kochi',
-    'Coimbatore',
-    'Chandigarh',
-    'Bhopal'
-  ];
+export default function CollegesManagementPage() {
+  const [colleges, setColleges] = useState<College[]>([])
+  const [loading, setLoading] = useState(true)
+  const [tableLoading, setTableLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebouncedValue(searchTerm, 400)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalColleges, setTotalColleges] = useState(0)
+  const [pageSize, setPageSize] = useState<number | 'all'>(20)
+  const [selectedCollege, setSelectedCollege] = useState<College | null>(null)
+  const [showModal, setShowModal] = useState(false)
 
-  // Form data state
-  const [formData, setFormData] = useState<Partial<College>>({
-    name: '',
-    streams: [],
-    locations: [],
-    positions: '1',
-    rating: 4.5,
-    courses: [],
-    overview: {
-      heading: '',
-      description: '',
-      points: []
-    },
-    portalLink: '',
-    CollegeLink: ''
-  });
+  const filteredTitle = useMemo(() => {
+    if (debouncedSearch.trim()) return `Search results for "${debouncedSearch}"`
+    return 'Manage Colleges'
+  }, [debouncedSearch])
 
-  // File states
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [brochureFile, setBrochureFile] = useState<File | null>(null);
-  const [feeStructureFile, setFeeStructureFile] = useState<File | null>(null);
+  const getCollegeId = (college: College) => college.id || college._id || ''
 
-  const fetchColleges = async (page = 1, search = '') => {
-    try {
-      setLoading(true);
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: '10',
-        ...(search && { search })
-      });
-      
-      const response = await fetch(`/api/colleges?${queryParams}`, {
-        cache: 'no-store'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setColleges(data.data);
-        setTotalPages(data.pagination?.totalPages || 1);
-        setCurrentPage(page);
-        setError(null);
-      } else {
-        setError('Failed to load colleges');
+  const getImageSrc = (image?: string) => {
+    if (!image) return ''
+    if (image.startsWith('http://') || image.startsWith('https://')) return image
+    const baseUrl = API_BASE.replace(/\/api$/, '')
+    return `${baseUrl}${image}`
+  }
+
+  const fetchColleges = useCallback(
+    async (page = 1, search = '', limit: number | 'all' = pageSize) => {
+      try {
+        if (!loading) setTableLoading(true)
+        else setLoading(true)
+
+        const queryParams = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+          ...(search.trim() ? { search: search.trim() } : {}),
+        })
+
+        const response = await fetch(`${API_BASE}/admin/colleges?${queryParams}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+          const list = Array.isArray(data.data) ? data.data : []
+          const pagination: PaginationInfo = data.pagination || {}
+
+          setColleges(list)
+          setTotalPages(Number(pagination.totalPages) || 1)
+          setTotalColleges(Number(pagination.total) || list.length)
+          setCurrentPage(Number(pagination.current) || page)
+          setError(null)
+        } else {
+          setError(data.message || 'Failed to load colleges')
+        }
+      } catch {
+        setError('Network error occurred while loading colleges')
+      } finally {
+        setLoading(false)
+        setTableLoading(false)
       }
-    } catch {
-      setError('Network error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [pageSize, loading]
+  )
 
   useEffect(() => {
-    fetchColleges(currentPage, searchTerm);
-  }, [currentPage, searchTerm]);
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      streams: [],
-      locations: [],
-      positions: '1',
-      rating: 4.5,
-      courses: [],
-      overview: {
-        heading: '',
-        description: '',
-        points: []
-      },
-      portalLink: '',
-      CollegeLink: ''
-    });
-    setImageFile(null);
-    setBrochureFile(null);
-    setFeeStructureFile(null);
-  };
-
-  const handleAdd = () => {
-    resetForm();
-    setModalMode('add');
-    setShowModal(true);
-  };
+    fetchColleges(1, debouncedSearch, pageSize)
+  }, [debouncedSearch, pageSize, fetchColleges])
 
   const handleView = async (collegeId: string) => {
+    if (!collegeId) return
+
     try {
-      const response = await fetch(`/api/admin/colleges/${collegeId}`);
-      const data = await response.json();
-      
+      const response = await fetch(`${API_BASE}/admin/colleges/${collegeId}`, {
+        cache: 'no-store',
+        credentials: 'include',
+      })
+      const data = await response.json()
+
       if (data.success) {
-        setSelectedCollege(data.data);
-        setModalMode('view');
-        setShowModal(true);
+        setSelectedCollege(data.data)
+        setShowModal(true)
       } else {
-        alert('Failed to load college details');
+        alert(data.message || 'Failed to load college details')
       }
     } catch {
-      alert('Error loading college details');
+      alert('Error loading college details')
     }
-  };
-
-  const handleEdit = async (collegeId: string) => {
-    try {
-      const response = await fetch(`/api/admin/colleges/${collegeId}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setFormData(data.data);
-        setModalMode('edit');
-        setShowModal(true);
-      } else {
-        alert('Failed to load college for editing');
-      }
-    } catch {
-      alert('Error loading college for editing');
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      setIsSubmitting(true);
-      
-      const formDataToSend = new FormData();
-      
-      // Add basic fields
-      formDataToSend.append('name', formData.name || '');
-      formDataToSend.append('positions', formData.positions || '1');
-      formDataToSend.append('rating', formData.rating?.toString() || '4.5');
-      formDataToSend.append('portalLink', formData.portalLink || '');
-      formDataToSend.append('CollegeLink', formData.CollegeLink || '');
-      
-      // Add arrays as comma-separated strings
-      if (formData.streams && formData.streams.length > 0) {
-        formDataToSend.append('streams', formData.streams.join(','));
-      }
-      if (formData.locations && formData.locations.length > 0) {
-        formDataToSend.append('locations', formData.locations.join(','));
-      }
-      
-      // Add complex objects as JSON strings
-      if (formData.courses && formData.courses.length > 0) {
-        formDataToSend.append('courses', JSON.stringify(formData.courses));
-      }
-      if (formData.overview) {
-        formDataToSend.append('overview', JSON.stringify(formData.overview));
-      }
-      
-      // Add files if selected
-      if (imageFile) {
-        formDataToSend.append('image', imageFile);
-      }
-      if (brochureFile) {
-        formDataToSend.append('brochure', brochureFile);
-      }
-      if (feeStructureFile) {
-        formDataToSend.append('feeStructureDoc', feeStructureFile);
-      }
-      
-      const url = modalMode === 'add' 
-        ? '/api/admin/colleges'
-        : `/api/admin/colleges/${formData._id}`;
-      
-      const method = modalMode === 'add' ? 'POST' : 'PUT';
-      
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
-        alert(`College ${modalMode === 'add' ? 'created' : 'updated'} successfully!`);
-        setShowModal(false);
-        resetForm();
-        fetchColleges(currentPage, searchTerm);
-      } else {
-        alert(result.message || `Failed to ${modalMode} college`);
-      }
-    } catch (error) {
-      console.error('Submit error:', error);
-      alert(`Error ${modalMode === 'add' ? 'creating' : 'updating'} college`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  }
 
   const handleDelete = async (collegeId: string, collegeName: string) => {
-    if (!confirm(`Are you sure you want to delete ${collegeName}? This action cannot be undone.`)) {
-      return;
-    }
+    if (!collegeId) return
+
+    const ok = window.confirm(`Are you sure you want to delete ${collegeName}? This action cannot be undone.`)
+    if (!ok) return
 
     try {
-      const response = await fetch(`/api/admin/colleges/${collegeId}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        alert('College deleted successfully');
-        fetchColleges(currentPage, searchTerm);
+      const response = await fetch(`${API_BASE}/admin/colleges/${collegeId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        const nextPage =
+          pageSize !== 'all' && colleges.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage
+        fetchColleges(nextPage, debouncedSearch, pageSize)
       } else {
-        alert('Failed to delete college');
+        alert(result.message || 'Failed to delete college')
       }
     } catch {
-      alert('Error deleting college');
+      alert('Error deleting college')
     }
-  };
-
-  // Stream selection handlers
-  const handleStreamToggle = (stream: string) => {
-    const currentStreams = formData.streams || [];
-    const isSelected = currentStreams.includes(stream);
-    
-    if (isSelected) {
-      setFormData({
-        ...formData,
-        streams: currentStreams.filter(s => s !== stream)
-      });
-    } else {
-      setFormData({
-        ...formData,
-        streams: [...currentStreams, stream]
-      });
-    }
-  };
-
-  // Location selection handlers
-  const handleLocationToggle = (location: string) => {
-    const currentLocations = formData.locations || [];
-    const isSelected = currentLocations.includes(location);
-    
-    if (isSelected) {
-      setFormData({
-        ...formData,
-        locations: currentLocations.filter(l => l !== location)
-      });
-    } else {
-      setFormData({
-        ...formData,
-        locations: [...currentLocations, location]
-      });
-    }
-  };
-
-  // Course management functions
-  const addCourse = () => {
-    setFormData({
-      ...formData,
-      courses: [...(formData.courses || []), { name: '', level: '', duration: '', fees: '' }]
-    });
-  };
-
-  const updateCourse = (index: number, field: keyof Course, value: string) => {
-    const updatedCourses = [...(formData.courses || [])];
-    updatedCourses[index] = { ...updatedCourses[index], [field]: value };
-    setFormData({ ...formData, courses: updatedCourses });
-  };
-
-  const removeCourse = (index: number) => {
-    const updatedCourses = (formData.courses || []).filter((_, i) => i !== index);
-    setFormData({ ...formData, courses: updatedCourses });
-  };
-
-  // Overview points management
-  const addOverviewPoint = () => {
-    const currentOverview = formData.overview || { heading: '', description: '', points: [] };
-    setFormData({
-      ...formData,
-      overview: {
-        ...currentOverview,
-        points: [...currentOverview.points, { heading: '', description: '' }]
-      }
-    });
-  };
-
-  const updateOverviewPoint = (index: number, field: keyof OverviewPoint, value: string) => {
-    const currentOverview = formData.overview || { heading: '', description: '', points: [] };
-    const updatedPoints = [...currentOverview.points];
-    updatedPoints[index] = { ...updatedPoints[index], [field]: value };
-    setFormData({
-      ...formData,
-      overview: { ...currentOverview, points: updatedPoints }
-    });
-  };
-
-  const removeOverviewPoint = (index: number) => {
-    const currentOverview = formData.overview || { heading: '', description: '', points: [] };
-    const updatedPoints = currentOverview.points.filter((_, i) => i !== index);
-    setFormData({
-      ...formData,
-      overview: { ...currentOverview, points: updatedPoints }
-    });
-  };
+  }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-            Manage Colleges
-          </h1>
-          <p className="text-slate-400">Add, edit, and manage college information</p>
+        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{filteredTitle}</h1>
+            <p className="text-slate-400">View and manage college information</p>
+          </div>
+
+          <Link
+            href="/admin/colleges/add"
+            className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 font-semibold text-white transition-all hover:shadow-lg"
+          >
+            Add new College
+          </Link>
         </div>
 
-        {/* Error Display */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4">
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center">
-                <span className="text-red-400 text-sm">!</span>
-              </div>
-              <p className="text-red-400 font-medium">{error}</p>
+              <AlertCircle className="h-5 w-5 text-red-400" />
+              <p className="font-medium text-red-400">{error}</p>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-400 hover:text-red-300 transition-colors"
+                className="ml-auto text-red-400 transition-colors hover:text-red-300"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* Search and Actions */}
-        <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            
-            {/* Search */}
-            <div className="flex-1 max-w-md">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-xl">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="max-w-md flex-1">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search colleges..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2 pl-10 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {searchTerm.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm('')
+                      setCurrentPage(1)
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-white"
+                    aria-label="Clear search"
+                    title="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
-            
-            {/* Add Button */}
-            <button 
-              onClick={handleAdd}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Add New College
-            </button>
+
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
+              <div className="text-sm text-slate-400">
+                {tableLoading ? 'Refreshing...' : pageSize === 'all' ? `Showing all ${colleges.length}` : `Showing ${colleges.length} on this page`}
+              </div>
+
+              <div className="text-sm font-medium text-slate-300">
+                Total Colleges: <span className="text-white">{totalColleges}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="pageSize" className="text-sm text-slate-400">
+                  Show
+                </label>
+                <select
+                  id="pageSize"
+                  value={String(pageSize)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setCurrentPage(1)
+                    setPageSize(value === 'all' ? 'all' : Number(value))
+                  }}
+                  className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Colleges Table */}
-        <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-800/50">
@@ -457,649 +307,293 @@ const CollegesManagementPage = () => {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Actions</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-slate-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
                       Loading colleges...
                     </td>
                   </tr>
                 ) : colleges.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
                       No colleges found
                     </td>
                   </tr>
                 ) : (
-                  colleges.map((college) => (
-                    <tr key={college._id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {college.image && (
-                            <div className="w-12 h-12 relative rounded-lg overflow-hidden">
-                              <Image
-                                src={`https://learnscapeedu.com${college.image}`}
-                                alt={college.name}
-                                fill
-                                className="object-cover"
-                              />
+                  colleges.map((college) => {
+                    const collegeId = getCollegeId(college)
+
+                    return (
+                      <tr
+                        key={collegeId || college.slug || college.name}
+                        className="transition-colors hover:bg-slate-800/30"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            {college.image ? (
+                              <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-800">
+                                <Image
+                                  src={getImageSrc(college.image)}
+                                  alt={college.name}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-800 text-slate-400">
+                                <Building2 className="h-5 w-5" />
+                              </div>
+                            )}
+
+                            <div>
+                              <h3 className="font-semibold text-white">{college.name}</h3>
+                              <div className="flex items-center gap-2 text-xs text-slate-400">
+                                {college.rating ? <span>{college.rating}</span> : null}
+                                {college.naac ? <span>NAAC {college.naac}</span> : null}
+                                {college.type ? <span className="capitalize">{college.type}</span> : null}
+                              </div>
                             </div>
-                          )}
-                          <div>
-                            <h3 className="text-white font-semibold">{college.name}</h3>
-                            {college.rating && (
-                              <p className="text-yellow-400 text-sm">★ {college.rating}</p>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {(college.streams || []).slice(0, 2).map((stream, idx) => (
+                              <span
+                                key={`${collegeId || college.slug}-stream-${stream}-${idx}`}
+                                className="rounded-full border border-blue-500/30 bg-blue-500/20 px-2 py-1 text-xs text-blue-300"
+                              >
+                                {stream}
+                              </span>
+                            ))}
+                            {(college.streams || []).length > 2 && (
+                              <span className="rounded-full bg-slate-700 px-2 py-1 text-xs text-slate-300">
+                                +{(college.streams || []).length - 2}
+                              </span>
                             )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {college.streams.slice(0, 2).map((stream, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30"
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1 text-slate-300">
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm">{(college.locations || []).join(', ')}</span>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span className="rounded-full bg-orange-500/20 px-2 py-1 text-sm font-semibold text-orange-300">
+                            {college.positions}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleView(collegeId)}
+                              className="rounded-lg p-2 text-slate-400 transition-all hover:bg-blue-500/20 hover:text-blue-400"
+                              title="View Details"
                             >
-                              {stream}
-                            </span>
-                          ))}
-                          {college.streams.length > 2 && (
-                            <span className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded-full">
-                              +{college.streams.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-slate-300">
-                          <MapPin className="w-4 h-4" />
-                          <span className="text-sm">{college.locations.join(', ')}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 bg-orange-500/20 text-orange-300 text-sm font-semibold rounded-full">
-                          #{college.positions}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => handleView(college._id)}
-                            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleEdit(college._id)}
-                            className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/20 rounded-lg transition-all"
-                            title="Edit College"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(college._id, college.name)}
-                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-all"
-                            title="Delete College"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                              <Eye className="h-4 w-4" />
+                            </button>
+
+                            <Link
+                              href={`/admin/colleges/edit/${collegeId}`}
+                              className="rounded-lg p-2 text-slate-400 transition-all hover:bg-green-500/20 hover:text-green-400"
+                              title="Edit College"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+
+                            <button
+                              onClick={() => handleDelete(collegeId, college.name)}
+                              className="rounded-lg p-2 text-slate-400 transition-all hover:bg-red-500/20 hover:text-red-400"
+                              title="Delete College"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 bg-slate-800/30 border-t border-slate-700">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-400">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 bg-slate-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 bg-slate-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+          <div className="flex items-center justify-between border-t border-slate-800 px-6 py-4">
+            <button
+              onClick={() => {
+                const nextPage = Math.max(1, currentPage - 1)
+                setCurrentPage(nextPage)
+                fetchColleges(nextPage, debouncedSearch, pageSize)
+              }}
+              disabled={pageSize === 'all' || currentPage === 1}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-slate-300 disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Prev
+            </button>
+
+            <div className="text-sm text-slate-400">
+              {pageSize === 'all'
+                ? `Showing all ${totalColleges} colleges`
+                : `Page ${currentPage} of ${Math.max(totalPages, 1)} • Total ${totalColleges} colleges`}
             </div>
-          )}
+
+            <button
+              onClick={() => {
+                const nextPage = Math.min(totalPages, currentPage + 1)
+                setCurrentPage(nextPage)
+                fetchColleges(nextPage, debouncedSearch, pageSize)
+              }}
+              disabled={pageSize === 'all' || currentPage === totalPages}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-slate-300 disabled:opacity-40"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {/* FIXED WIDTH MODAL */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
-              
-              {/* Modal Header - Fixed */}
-              <div className="flex justify-between items-center p-6 border-b border-slate-700 bg-slate-900">
-                <h2 className="text-2xl font-bold text-white">
-                  {modalMode === 'add' ? 'Add New College' : 
-                   modalMode === 'edit' ? 'Edit College' : 'College Details'}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-slate-400 hover:text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+        {showModal && selectedCollege && (
+          <ModalShell title={selectedCollege.name} onClose={() => setShowModal(false)}>
+            <div className="space-y-5 text-slate-200">
+              <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+                <InfoBox label="Slug" value={selectedCollege.slug || '-'} />
+                <InfoBox label="Position" value={String(selectedCollege.positions || '-')} />
+                <InfoBox label="Type" value={selectedCollege.type || '-'} />
+                <InfoBox label="NAAC" value={selectedCollege.naac || '-'} />
+                <InfoBox
+                  label="Established"
+                  value={selectedCollege.established ? String(selectedCollege.established) : '-'}
+                />
+                <InfoBox label="Rating" value={selectedCollege.rating ? String(selectedCollege.rating) : '-'} />
               </div>
 
-              {/* Modal Content - Scrollable */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {modalMode === 'view' && selectedCollege ? (
-                  /* COMPLETE VIEW MODE */
-                  <div className="space-y-8">
-                    
-                    {/* Basic Information Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Left Column */}
-                      <div className="space-y-6">
-                        <div className="bg-slate-800/50 rounded-xl p-4">
-                          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <GraduationCap className="w-5 h-5" />
-                            College Information
-                          </h3>
-                          <div className="space-y-3">
-                            <div>
-                              <label className="text-sm text-slate-400">College Name</label>
-                              <p className="text-white font-semibold text-lg">{selectedCollege.name}</p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm text-slate-400">Position</label>
-                                <p className="text-orange-300 font-semibold text-xl">#{selectedCollege.positions}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm text-slate-400">Rating</label>
-                                <p className="text-yellow-400 font-semibold text-xl">★ {selectedCollege.rating || 'N/A'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-800/50 rounded-xl p-4">
-                          <h3 className="text-lg font-semibold text-white mb-4">Streams Offered</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedCollege.streams.map((stream, idx) => (
-                              <span
-                                key={idx}
-                                className="px-3 py-2 bg-blue-500/20 text-blue-300 text-sm rounded-full border border-blue-500/30"
-                              >
-                                {stream}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-800/50 rounded-xl p-4">
-                          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <MapPin className="w-5 h-5" />
-                            Locations
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedCollege.locations.map((location, idx) => (
-                              <span
-                                key={idx}
-                                className="px-3 py-2 bg-green-500/20 text-green-300 text-sm rounded-full border border-green-500/30"
-                              >
-                                {location}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Column */}
-                      <div className="space-y-6">
-                        {selectedCollege.image && (
-                          <div className="bg-slate-800/50 rounded-xl p-4">
-                            <h3 className="text-lg font-semibold text-white mb-4">College Image</h3>
-                            <div className="w-full h-64 relative rounded-lg overflow-hidden">
-                              <Image
-                                src={`https://learnscapeedu.com${selectedCollege.image}`}
-                                alt={selectedCollege.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="bg-slate-800/50 rounded-xl p-4">
-                          <h3 className="text-lg font-semibold text-white mb-4">Links</h3>
-                          <div className="space-y-3">
-                            <div>
-                              <label className="text-sm text-slate-400">Portal Link</label>
-                              <p className="text-blue-400 break-all">
-                                {selectedCollege.portalLink || 'N/A'}
-                              </p>
-                            </div>
-                            <div>
-                              <label className="text-sm text-slate-400">College Website</label>
-                              <p className="text-blue-400 break-all">
-                                {selectedCollege.CollegeLink || 'N/A'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Courses Section */}
-                    {selectedCollege.courses && selectedCollege.courses.length > 0 && (
-                      <div className="bg-slate-800/50 rounded-xl p-4">
-                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                          <FileText className="w-5 h-5" />
-                          Courses Offered ({selectedCollege.courses.length})
-                        </h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full">
-                            <thead className="bg-slate-700/50">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-300">Course Name</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-300">Level</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-300">Duration</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-300">Fees</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-600">
-                              {selectedCollege.courses.map((course, idx) => (
-                                <tr key={idx} className="hover:bg-slate-700/30">
-                                  <td className="px-4 py-3 text-white font-medium">{course.name}</td>
-                                  <td className="px-4 py-3 text-slate-300">{course.level}</td>
-                                  <td className="px-4 py-3 text-slate-300">{course.duration}</td>
-                                  <td className="px-4 py-3 text-green-400 font-semibold">₹{course.fees}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Overview Section */}
-                    {selectedCollege.overview && (
-                      <div className="bg-slate-800/50 rounded-xl p-4">
-                        <h3 className="text-lg font-semibold text-white mb-4">Overview</h3>
-                        {selectedCollege.overview.heading && (
-                          <h4 className="text-white font-semibold text-xl mb-3">{selectedCollege.overview.heading}</h4>
-                        )}
-                        {selectedCollege.overview.description && (
-                          <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap mb-6">
-                            {selectedCollege.overview.description}
-                          </p>
-                        )}
-                        
-                        {selectedCollege.overview.points && selectedCollege.overview.points.length > 0 && (
-                          <div>
-                            <h5 className="text-white font-semibold mb-3">Key Points</h5>
-                            <div className="space-y-4">
-                              {selectedCollege.overview.points.map((point, idx) => (
-                                <div key={idx} className="bg-slate-700/30 rounded-lg p-4 border-l-4 border-blue-500">
-                                  <h6 className="text-white font-semibold mb-2">{point.heading}</h6>
-                                  <p className="text-slate-300 text-sm leading-relaxed">{point.description}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* ADD/EDIT MODE CONTENT */
-                  <div className="space-y-6">
-                    {/* Basic Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">College Name *</label>
-                        <input
-                          type="text"
-                          value={formData.name || ''}
-                          onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter college name"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Position *</label>
-                        <input
-                          type="number"
-                          value={formData.positions || ''}
-                          onChange={(e) => setFormData({...formData, positions: e.target.value})}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter position"
-                          min="1"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Rating</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          max="5"
-                          value={formData.rating || ''}
-                          onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value) || 0})}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="4.5"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Image Upload</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* STREAMS MULTI-SELECT */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Streams *</label>
-                      <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 min-h-[100px]">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {availableStreams.map((stream) => {
-                            const isSelected = formData.streams?.includes(stream);
-                            return (
-                              <label key={stream} className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => handleStreamToggle(stream)}
-                                  className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500"
-                                />
-                                <span className={`text-sm ${isSelected ? 'text-blue-300' : 'text-slate-300'}`}>
-                                  {stream}
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                        {formData.streams && formData.streams.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-slate-600">
-                            <p className="text-xs text-slate-400 mb-2">Selected streams:</p>
-                            <div className="flex flex-wrap gap-1">
-                              {formData.streams.map((stream, idx) => (
-                                <span key={idx} className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">
-                                  {stream}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* LOCATIONS MULTI-SELECT */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Locations *</label>
-                      <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 min-h-[100px]">
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-32 overflow-y-auto">
-                          {availableLocations.map((location) => {
-                            const isSelected = formData.locations?.includes(location);
-                            return (
-                              <label key={location} className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => handleLocationToggle(location)}
-                                  className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500"
-                                />
-                                <span className={`text-sm ${isSelected ? 'text-blue-300' : 'text-slate-300'}`}>
-                                  {location}
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                        {formData.locations && formData.locations.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-slate-600">
-                            <p className="text-xs text-slate-400 mb-2">Selected locations:</p>
-                            <div className="flex flex-wrap gap-1">
-                              {formData.locations.map((location, idx) => (
-                                <span key={idx} className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full border border-green-500/30">
-                                  {location}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Links */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Portal Link</label>
-                        <input
-                          type="url"
-                          value={formData.portalLink || ''}
-                          onChange={(e) => setFormData({...formData, portalLink: e.target.value})}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="https://example.com/admissions"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">College Website</label>
-                        <input
-                          type="url"
-                          value={formData.CollegeLink || ''}
-                          onChange={(e) => setFormData({...formData, CollegeLink: e.target.value})}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="https://college-website.com"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Courses Section */}
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <label className="block text-sm font-medium text-slate-300">Courses</label>
-                        <button
-                          type="button"
-                          onClick={addCourse}
-                          className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all"
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                          Add Course
-                        </button>
-                      </div>
-                      
-                      {formData.courses && formData.courses.map((course, index) => (
-                        <div key={index} className="bg-slate-800/50 p-4 rounded-lg mb-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <input
-                              type="text"
-                              value={course.name}
-                              onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                              placeholder="Course Name"
-                              className="px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <input
-                              type="text"
-                              value={course.level}
-                              onChange={(e) => updateCourse(index, 'level', e.target.value)}
-                              placeholder="Level (B.Tech, M.Tech)"
-                              className="px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <input
-                              type="text"
-                              value={course.duration}
-                              onChange={(e) => updateCourse(index, 'duration', e.target.value)}
-                              placeholder="Duration (4 years)"
-                              className="px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <div className="flex gap-2">
-                              <input
-                                type="text"
-                                value={course.fees}
-                                onChange={(e) => updateCourse(index, 'fees', e.target.value)}
-                                placeholder="Fees (200000)"
-                                className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removeCourse(index)}
-                                className="px-2 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                              >
-                                <MinusCircle className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Overview Section */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-4">Overview</label>
-                      
-                      <div className="space-y-4">
-                        <input
-                          type="text"
-                          value={formData.overview?.heading || ''}
-                          onChange={(e) => setFormData({
-                            ...formData, 
-                            overview: { ...(formData.overview || { heading: '', description: '', points: [] }), heading: e.target.value }
-                          })}
-                          placeholder="Overview Heading"
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        
-                        <textarea
-                          value={formData.overview?.description || ''}
-                          onChange={(e) => setFormData({
-                            ...formData, 
-                            overview: { ...(formData.overview || { heading: '', description: '', points: [] }), description: e.target.value }
-                          })}
-                          placeholder="Overview Description"
-                          rows={4}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-slate-300">Key Points</span>
-                            <button
-                              type="button"
-                              onClick={addOverviewPoint}
-                              className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all"
-                            >
-                              <PlusCircle className="w-4 h-4" />
-                              Add Point
-                            </button>
-                          </div>
-                          
-                          {formData.overview?.points.map((point, index) => (
-                            <div key={index} className="bg-slate-800/30 p-3 rounded-lg mb-2">
-                              <div className="flex gap-2">
-                                <input
-                                  type="text"
-                                  value={point.heading}
-                                  onChange={(e) => updateOverviewPoint(index, 'heading', e.target.value)}
-                                  placeholder="Point heading"
-                                  className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => removeOverviewPoint(index)}
-                                  className="px-2 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                                >
-                                  <MinusCircle className="w-4 h-4" />
-                                </button>
-                              </div>
-                              <textarea
-                                value={point.description}
-                                onChange={(e) => updateOverviewPoint(index, 'description', e.target.value)}
-                                placeholder="Point description"
-                                rows={2}
-                                className="w-full mt-2 px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* File Uploads */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Brochure (PDF)</label>
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => setBrochureFile(e.target.files?.[0] || null)}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Fee Structure (PDF)</label>
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => setFeeStructureFile(e.target.files?.[0] || null)}
-                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-slate-300">Streams</h3>
+                <div className="flex flex-wrap gap-2">
+                  {(selectedCollege.streams || []).map((stream, i) => (
+                    <span
+                      key={`${getCollegeId(selectedCollege)}-view-stream-${stream}-${i}`}
+                      className="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-300"
+                    >
+                      {stream}
+                    </span>
+                  ))}
+                </div>
               </div>
 
-              {/* Modal Footer - Fixed */}
-              {modalMode !== 'view' && (
-                <div className="border-t border-slate-700 bg-slate-900 px-6 py-4">
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowModal(false)}
-                      className="px-6 py-2 text-slate-400 hover:text-white transition-colors"
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-slate-300">Locations</h3>
+                <div className="flex flex-wrap gap-2">
+                  {(selectedCollege.locations || []).map((location, i) => (
+                    <span
+                      key={`${getCollegeId(selectedCollege)}-view-location-${location}-${i}`}
+                      className="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-300"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
-                    >
-                      <Save className="w-4 h-4" />
-                      {isSubmitting ? 'Saving...' : `${modalMode === 'add' ? 'Create' : 'Update'} College`}
-                    </button>
+                      {location}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {selectedCollege.overview?.description && (
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-300">Overview</h3>
+                  <p className="text-sm leading-6 text-slate-400">{selectedCollege.overview.description}</p>
+                </div>
+              )}
+
+              {(selectedCollege.courses || []).length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-300">Courses</h3>
+                  <div className="max-h-64 space-y-2 overflow-auto pr-1">
+                    {selectedCollege.courses.map((course, idx) => (
+                      <div
+                        key={course.id || `${getCollegeId(selectedCollege)}-course-${course.name}-${idx}`}
+                        className="rounded-lg border border-slate-700 bg-slate-800/50 p-3"
+                      >
+                        <div className="font-medium text-white">{course.name}</div>
+                        <div className="mt-1 text-xs text-slate-400">
+                          {course.level} • {course.duration} • {course.fees}
+                          {course.seats ? ` • Seats ${course.seats}` : ''}
+                          {course.entrance ? ` • ${course.entrance}` : ''}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
+
+              <div className="flex justify-end">
+                <Link
+                  href={`/admin/colleges/edit/${getCollegeId(selectedCollege)}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open Edit Page
+                </Link>
+              </div>
             </div>
-          </div>
+          </ModalShell>
         )}
       </div>
     </AdminLayout>
-  );
-};
+  )
+}
 
-export default CollegesManagementPage;
+function useDebouncedValue<T>(value: T, delay = 400) {
+  const [debounced, setDebounced] = useState(value)
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebounced(value), delay)
+    return () => window.clearTimeout(id)
+  }, [value, delay])
+
+  return debounced
+}
+
+function ModalShell({
+  title,
+  children,
+  onClose,
+}: {
+  title: string
+  children: React.ReactNode
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+      <div className="flex min-h-full items-start justify-center py-8">
+        <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+            <h2 className="text-lg font-semibold text-white">{title}</h2>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="p-6">{children}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function InfoBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-800/40 p-3">
+      <div className="mb-1 text-xs uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="text-sm text-white">{value}</div>
+    </div>
+  )
+}

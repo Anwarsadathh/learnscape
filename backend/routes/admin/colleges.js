@@ -1,11 +1,13 @@
-// routes/admin/colleges.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { ObjectId } = require('mongodb');
+const db = require('../../config/connection');
 
-// Configure multer for file uploads
+/* ========= MULTER CONFIG ========= */
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, '../../uploads/college-img');
@@ -14,49 +16,219 @@ const storage = multer.diskStorage({
     }
     cb(null, uploadPath);
   },
+  // ✅ CHANGE 2: .toLowerCase() on extension
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
   }
 });
 
-const upload = multer({ storage });
+// ✅ CHANGE 1: strict per-field fileFilter
+const fileFilter = (req, file, cb) => {
+  const ext  = path.extname(file.originalname).toLowerCase();
+  const mime = file.mimetype;
 
-// IMPROVED POSITION MANAGEMENT - NO DUPLICATES EVER
-const updatePositions = async (db, newPosition, currentPosition = null, excludeId = null) => {
-  const newPos = parseInt(newPosition);
-  
+  if (file.fieldname === 'image') {
+    const ok = ['image/jpeg', 'image/png'].includes(mime) &&
+               ['.jpg', '.jpeg', '.png'].includes(ext);
+    return ok
+      ? cb(null, true)
+      : cb(new Error('College image must be JPG or PNG only.'));
+  }
+
+  if (file.fieldname === 'brochure' || file.fieldname === 'feeStructureDoc') {
+    const ok = mime === 'application/pdf' && ext === '.pdf';
+    return ok
+      ? cb(null, true)
+      : cb(new Error(`${file.fieldname} must be a PDF file only.`));
+  }
+
+  cb(new Error('Unexpected file field: ' + file.fieldname));
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB per file
+  fileFilter,
+});
+
+// ✅ CHANGE 3: wrapper that returns JSON on multer errors
+const uploadFields = (req, res, next) => {
+  upload.fields([
+    { name: 'image',           maxCount: 1 },
+    { name: 'brochure',        maxCount: 1 },
+    { name: 'feeStructureDoc', maxCount: 1 },
+  ])(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    next();
+  });
+};
+
+/* ========= HELPERS ========= */
+
+const parseJSONField = (value, fallback) => {
+  if (!value) return fallback;
+  if (typeof value === 'object') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+const parseArrayField = value => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value.map(v => String(v).trim()).filter(Boolean);
+  }
+  return String(value)
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+};
+
+const normalizeCourses = (courses = []) => {
+  if (!Array.isArray(courses)) return [];
+  return courses
+    .filter(course => course && course.name)
+    .map(course => ({
+      name:     course.name?.trim()     || '',
+      level:    course.level?.trim()    || 'UG',
+      duration: course.duration?.trim() || '',
+      fees:     course.fees?.trim()     || '',
+      seats:    Number(course.seats)    || 0,
+      entrance: course.entrance?.trim() || ''
+    }));
+};
+
+const normalizeOverview = (overview = {}) => ({
+  heading:     overview.heading?.trim()     || '',
+  description: overview.description?.trim() || '',
+  points: Array.isArray(overview.points)
+    ? overview.points.map(point => ({
+        heading:     point.heading?.trim()     || '',
+        description: point.description?.trim() || ''
+      }))
+    : []
+});
+
+const normalizeCollegePayload = (body, files = {}, existingCollege = {}) => {
+  const courses  = normalizeCourses(
+    parseJSONField(body.courses,  existingCollege.courses  || [])
+  );
+  const overview = normalizeOverview(
+    parseJSONField(body.overview, existingCollege.overview || {})
+  );
+
+  const accreditations =
+    typeof body.accreditations === 'string' &&
+    body.accreditations.trim().startsWith('[')
+      ? parseJSONField(body.accreditations, existingCollege.accreditations || [])
+      : parseArrayField(body.accreditations ?? existingCollege.accreditations);
+
+  const highlights =
+    typeof body.highlights === 'string' && body.highlights.trim().startsWith('[')
+      ? parseJSONField(body.highlights, existingCollege.highlights || [])
+      : typeof body.highlights === 'string'
+      ? body.highlights.split('\n').map(v => v.trim()).filter(Boolean)
+      : Array.isArray(body.highlights)
+      ? body.highlights.map(v => String(v).trim()).filter(Boolean)
+      : existingCollege.highlights || [];
+
+  const payload = {
+    name:      String(body.name      ?? existingCollege.name      ?? '').trim(),
+    slug:      String(body.slug      ?? existingCollege.slug      ?? '').trim(),
+    streams:   parseArrayField(body.streams   ?? existingCollege.streams),
+    locations: parseArrayField(body.locations ?? existingCollege.locations),
+    positions: Number(body.positions  ?? existingCollege.positions) || 1,
+
+    image:          existingCollege.image          || '',
+    brochure:       existingCollege.brochure       || '',
+    feeStructureDoc: existingCollege.feeStructureDoc || '',
+
+    courses,
+    overview,
+
+    portalLink: String(body.portalLink ?? existingCollege.portalLink ?? '').trim(),
+
+    rating: Number(body.rating ?? existingCollege.rating) || 0,
+    naac:   String(body.naac   ?? existingCollege.naac   ?? '').trim(),
+
+    fees: {
+      min: Number(
+        body.feesMin     ??
+        body['fees[min]'] ??
+        body?.fees?.min  ??
+        existingCollege.fees?.min
+      ) || 0,
+      max: Number(
+        body.feesMax     ??
+        body['fees[max]'] ??
+        body?.fees?.max  ??
+        existingCollege.fees?.max
+      ) || 0
+    },
+
+    type:        String(body.type        ?? existingCollege.type        ?? 'private').trim(),
+    established: Number(body.established ?? existingCollege.established) || 0,
+    accreditations,
+    highlights,
+    updatedAt: new Date()
+  };
+
+  if (!existingCollege.createdAt) {
+    payload.createdAt = new Date();
+  }
+
+  // File uploads — use generated filename stored in college-img folder
+  if (files.image?.[0]) {
+    payload.image = `/uploads/college-img/${files.image[0].filename}`;
+  }
+  if (files.brochure?.[0]) {
+    payload.brochure = `/uploads/college-img/${files.brochure[0].filename}`;
+  }
+  if (files.feeStructureDoc?.[0]) {
+    payload.feeStructureDoc = `/uploads/college-img/${files.feeStructureDoc[0].filename}`;
+  }
+
+  return payload;
+};
+
+const updatePositions = async (
+  dbConn,
+  newPosition,
+  currentPosition = null,
+  excludeId = null
+) => {
+  const newPos = parseInt(newPosition, 10);
+
   if (isNaN(newPos) || newPos < 1) {
     throw new Error('Invalid position value. Position must be a positive integer.');
   }
 
-  const collection = db.get().collection('collegeoruni');
+  const collection = dbConn.get().collection('colleges');
 
-  // First, ensure all positions are stored as numbers
+  // Normalize any string positions to ints
   await collection.updateMany(
-    { positions: { $type: "string" } },
-    [{ $set: { positions: { $toInt: "$positions" } } }]
+    { positions: { $type: 'string' } },
+    [{ $set: { positions: { $toInt: '$positions' } } }]
   );
 
   if (currentPosition !== null) {
-    const currentPos = parseInt(currentPosition);
-    
-    if (newPos === currentPos) {
-      return; // No change needed
-    }
-    
+    const currentPos = parseInt(currentPosition, 10);
+    if (newPos === currentPos) return;
+
     if (newPos < currentPos) {
-      // Moving UP (to smaller position number)
-      // All colleges with positions >= newPos and < currentPos should move down (+1)
       await collection.updateMany(
-        { 
+        {
           positions: { $gte: newPos, $lt: currentPos },
           ...(excludeId && { _id: { $ne: excludeId } })
         },
         { $inc: { positions: 1 } }
       );
     } else {
-      // Moving DOWN (to larger position number)  
-      // All colleges with positions > currentPos and <= newPos should move up (-1)
       await collection.updateMany(
         {
           positions: { $gt: currentPos, $lte: newPos },
@@ -66,8 +238,6 @@ const updatePositions = async (db, newPosition, currentPosition = null, excludeI
       );
     }
   } else {
-    // New college insertion
-    // All colleges with positions >= newPos should move down (+1)
     await collection.updateMany(
       { positions: { $gte: newPos } },
       { $inc: { positions: 1 } }
@@ -75,216 +245,144 @@ const updatePositions = async (db, newPosition, currentPosition = null, excludeI
   }
 };
 
-// Fix any existing duplicate positions
-const fixDuplicatePositions = async (db) => {
-  try {
-    const collection = db.get().collection('collegeoruni');
-    
-    // Get all colleges sorted by current position, then by creation date
-    const colleges = await collection.find({})
-      .sort({ positions: 1, createdAt: 1 })
-      .toArray();
-    
-    // Reassign positions sequentially starting from 1
-    for (let i = 0; i < colleges.length; i++) {
-      const newPosition = i + 1;
-      if (colleges[i].positions !== newPosition) {
-        await collection.updateOne(
-          { _id: colleges[i]._id },
-          { $set: { positions: newPosition } }
-        );
-      }
+const fixDuplicatePositions = async dbConn => {
+  const collection = dbConn.get().collection('colleges');
+  const colleges = await collection
+    .find({})
+    .sort({ positions: 1, createdAt: 1 })
+    .toArray();
+
+  for (let i = 0; i < colleges.length; i++) {
+    const newPosition = i + 1;
+    if (Number(colleges[i].positions) !== newPosition) {
+      await collection.updateOne(
+        { _id: colleges[i]._id },
+        { $set: { positions: newPosition } }
+      );
     }
-    
-    console.log(`Fixed positions for ${colleges.length} colleges`);
-  } catch (error) {
-    console.error('Error fixing duplicate positions:', error);
   }
 };
 
-// Get all colleges with pagination (for admin)
+/* ========= ROUTES ========= */
+
+// GET /api/admin/colleges
 router.get('/', async (req, res) => {
   try {
-    const db = require('../../config/connection');
-    
-    // Fix duplicates on every get request (can be removed after initial cleanup)
-    await fixDuplicatePositions(db);
-    
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    const search = req.query.search || '';
+    const rawPage  = parseInt(req.query.page,  10);
+    const rawLimit = req.query.limit;
 
-    let filterQuery = {};
+    const page  = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+    const isAll = rawLimit === 'all';
+
+    const limit =
+      !isAll && Number.isInteger(parseInt(rawLimit, 10)) && parseInt(rawLimit, 10) > 0
+        ? Math.min(parseInt(rawLimit, 10), 100)
+        : isAll ? 0 : 10;
+
+    const skip   = isAll ? 0 : (page - 1) * limit;
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    const filterQuery = {};
     if (search) {
+      const safe  = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(safe, 'i');
       filterQuery.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { streams: { $in: [new RegExp(search, 'i')] } },
-        { locations: { $in: [new RegExp(search, 'i')] } }
+        { name:           regex },
+        { slug:           regex },
+        { streams:        { $in: [regex] } },
+        { locations:      { $in: [regex] } },
+        { naac:           regex },
+        { accreditations: { $in: [regex] } }
       ];
     }
 
-    const totalCount = await db.get().collection('collegeoruni').countDocuments(filterQuery);
-    const colleges = await db.get().collection('collegeoruni')
-      .find(filterQuery)
-      .sort({ positions: 1 }) // Sort by position ascending
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    const collection = db.get().collection('colleges');
+    const totalCount = await collection.countDocuments(filterQuery);
 
-    // Ensure positions are strings for frontend consistency
-    const processedColleges = colleges.map(college => ({
-      ...college,
-      positions: college.positions.toString()
-    }));
+    let query = collection.find(filterQuery).sort({ positions: 1 });
+    if (!isAll) query = query.skip(skip).limit(limit);
+
+    const colleges = await query.toArray();
 
     res.json({
       success: true,
-      data: processedColleges,
+      data: colleges,
       pagination: {
-        current: page,
-        limit,
-        total: totalCount,
-        totalPages: Math.ceil(totalCount / limit)
+        current:    isAll ? 1 : page,
+        limit:      isAll ? 'all' : limit,
+        total:      totalCount,
+        totalPages: isAll ? 1 : Math.ceil(totalCount / limit)
       }
     });
   } catch (error) {
-    console.error('Error fetching colleges for admin:', error);
+    console.error('GET /colleges error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch colleges'
+      message: 'Failed to fetch colleges',
+      error: error.message
     });
   }
 });
 
-// Get single college by ID
-router.get('/:id', async (req, res) => {
+// GET /api/admin/colleges/:identifier  (by Mongo _id or slug)
+router.get('/:identifier', async (req, res) => {
   try {
-    const { ObjectId } = require('mongodb');
-    const db = require('../../config/connection');
-    
-    const collegeId = req.params.id;
-    if (!ObjectId.isValid(collegeId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid college ID'
-      });
+    const { identifier } = req.params;
+    const collection = db.get().collection('colleges');
+
+    let college = null;
+    if (ObjectId.isValid(identifier)) {
+      college = await collection.findOne({ _id: new ObjectId(identifier) });
     }
-
-    const college = await db.get().collection('collegeoruni')
-      .findOne({ _id: new ObjectId(collegeId) });
-
     if (!college) {
-      return res.status(404).json({
-        success: false,
-        message: 'College not found'
-      });
+      college = await collection.findOne({ slug: identifier });
+    }
+    if (!college) {
+      return res.status(404).json({ success: false, message: 'College not found' });
     }
 
-    // Ensure position is a string for consistency
-    college.positions = college.positions.toString();
-
-    res.json({
-      success: true,
-      data: college
-    });
+    res.json({ success: true, data: college });
   } catch (error) {
-    console.error('Error fetching college:', error);
+    console.error('GET /colleges/:identifier error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch college'
+      message: 'Failed to fetch college',
+      error: error.message
     });
   }
 });
 
-// Create new college
-router.post('/', upload.fields([
-  { name: 'image', maxCount: 1 },
-  { name: 'brochure', maxCount: 1 },
-  { name: 'feeStructureDoc', maxCount: 1 }
-]), async (req, res) => {
+// POST /api/admin/colleges
+router.post('/', uploadFields, async (req, res) => {
   try {
-    const db = require('../../config/connection');
-    
-    console.log('Creating new college with data:', req.body);
-    
-    // Validate position
-    const requestedPosition = parseInt(req.body.positions) || 1;
-    if (requestedPosition < 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Position must be a positive integer starting from 1'
-      });
+    const collection = db.get().collection('colleges');
+    const payload    = normalizeCollegePayload(req.body, req.files);
+
+    if (!payload.name || !payload.slug) {
+      return res.status(400).json({ success: false, message: 'Name and slug are required' });
+    }
+    if (payload.positions < 1) {
+      return res.status(400).json({ success: false, message: 'Position must be at least 1' });
+    }
+    if (payload.fees.min > payload.fees.max) {
+      return res.status(400).json({ success: false, message: 'Minimum fee cannot be greater than maximum fee' });
     }
 
-    // Parse courses if it's a string
-    let courses = [];
-    if (req.body.courses) {
-      try {
-        courses = typeof req.body.courses === 'string' 
-          ? JSON.parse(req.body.courses) 
-          : req.body.courses;
-      } catch (e) {
-        console.log('Error parsing courses:', e);
-        courses = [];
-      }
+    const existingSlug = await collection.findOne({ slug: payload.slug });
+    if (existingSlug) {
+      return res.status(409).json({ success: false, message: 'Slug already exists' });
     }
 
-    // Parse overview if it's a string
-    let overview = { heading: '', description: '', points: [] };
-    if (req.body.overview) {
-      try {
-        overview = typeof req.body.overview === 'string' 
-          ? JSON.parse(req.body.overview) 
-          : req.body.overview;
-      } catch (e) {
-        console.log('Error parsing overview:', e);
-      }
-    }
+    await updatePositions(db, payload.positions);
+    const result = await collection.insertOne(payload);
 
-    const collegeData = {
-      name: req.body.name,
-      streams: Array.isArray(req.body.streams) 
-        ? req.body.streams 
-        : req.body.streams.split(',').map(s => s.trim()),
-      locations: Array.isArray(req.body.locations) 
-        ? req.body.locations 
-        : req.body.locations.split(',').map(s => s.trim()),
-      positions: requestedPosition, // Store as number
-      rating: parseFloat(req.body.rating) || 4.5,
-      courses: courses,
-      overview: overview,
-      portalLink: req.body.portalLink || '',
-      CollegeLink: req.body.CollegeLink || '',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // Handle file uploads
-    if (req.files) {
-      if (req.files.image) {
-        collegeData.image = `/uploads/college-img/${req.files.image[0].filename}`;
-      }
-      if (req.files.brochure) {
-        collegeData.brochure = `/uploads/college-img/${req.files.brochure[0].filename}`;
-      }
-      if (req.files.feeStructureDoc) {
-        collegeData.feeStructureDoc = `/uploads/college-img/${req.files.feeStructureDoc[0].filename}`;
-      }
-    }
-
-    // Update positions to prevent duplicates
-    await updatePositions(db, requestedPosition);
-
-    const result = await db.get().collection('collegeoruni').insertOne(collegeData);
-    
-    res.json({
+    res.status(201).json({
       success: true,
       message: 'College created successfully',
-      data: { _id: result.insertedId, ...collegeData }
+      data: { _id: result.insertedId, ...payload }
     });
   } catch (error) {
-    console.error('Error creating college:', error);
+    console.error('POST /colleges error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create college',
@@ -293,125 +391,56 @@ router.post('/', upload.fields([
   }
 });
 
-// Update college
-router.put('/:id', upload.fields([
-  { name: 'image', maxCount: 1 },
-  { name: 'brochure', maxCount: 1 },
-  { name: 'feeStructureDoc', maxCount: 1 }
-]), async (req, res) => {
+// PUT /api/admin/colleges/:id
+router.put('/:id', uploadFields, async (req, res) => {
   try {
-    const { ObjectId } = require('mongodb');
-    const db = require('../../config/connection');
-    
-    const collegeId = req.params.id;
-    if (!ObjectId.isValid(collegeId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid college ID'
-      });
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid college ID' });
     }
 
-    console.log('Updating college with ID:', collegeId);
-    console.log('Update data received:', req.body);
-
-    // Get current college to compare positions
-    const currentCollege = await db.get().collection('collegeoruni')
-      .findOne({ _id: new ObjectId(collegeId) });
+    const collection     = db.get().collection('colleges');
+    const currentCollege = await collection.findOne({ _id: new ObjectId(id) });
 
     if (!currentCollege) {
-      return res.status(404).json({
-        success: false,
-        message: 'College not found'
-      });
+      return res.status(404).json({ success: false, message: 'College not found' });
     }
 
-    // Validate new position
-    const newPosition = parseInt(req.body.positions);
-    if (isNaN(newPosition) || newPosition < 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Position must be a positive integer starting from 1'
-      });
+    const payload = normalizeCollegePayload(req.body, req.files, currentCollege);
+
+    if (!payload.name || !payload.slug) {
+      return res.status(400).json({ success: false, message: 'Name and slug are required' });
+    }
+    if (payload.positions < 1) {
+      return res.status(400).json({ success: false, message: 'Position must be at least 1' });
+    }
+    if (payload.fees.min > payload.fees.max) {
+      return res.status(400).json({ success: false, message: 'Minimum fee cannot be greater than maximum fee' });
     }
 
-    // Parse courses if it's a string
-    let courses = currentCollege.courses || [];
-    if (req.body.courses) {
-      try {
-        courses = typeof req.body.courses === 'string' 
-          ? JSON.parse(req.body.courses) 
-          : req.body.courses;
-      } catch (e) {
-        console.log('Error parsing courses:', e);
-      }
-    }
-
-    // Parse overview if it's a string
-    let overview = currentCollege.overview || { heading: '', description: '', points: [] };
-    if (req.body.overview) {
-      try {
-        overview = typeof req.body.overview === 'string' 
-          ? JSON.parse(req.body.overview) 
-          : req.body.overview;
-      } catch (e) {
-        console.log('Error parsing overview:', e);
-      }
-    }
-
-    const updateData = {
-      name: req.body.name || currentCollege.name,
-      streams: req.body.streams 
-        ? (Array.isArray(req.body.streams) 
-          ? req.body.streams 
-          : req.body.streams.split(',').map(s => s.trim()))
-        : currentCollege.streams,
-      locations: req.body.locations 
-        ? (Array.isArray(req.body.locations) 
-          ? req.body.locations 
-          : req.body.locations.split(',').map(s => s.trim()))
-        : currentCollege.locations,
-      positions: newPosition, // Store as number
-      rating: req.body.rating ? parseFloat(req.body.rating) : currentCollege.rating,
-      courses: courses,
-      overview: overview,
-      portalLink: req.body.portalLink !== undefined ? req.body.portalLink : currentCollege.portalLink,
-      CollegeLink: req.body.CollegeLink !== undefined ? req.body.CollegeLink : currentCollege.CollegeLink,
-      updatedAt: new Date()
-    };
-
-    // Handle file uploads
-    if (req.files) {
-      if (req.files.image) {
-        updateData.image = `/uploads/college-img/${req.files.image[0].filename}`;
-      }
-      if (req.files.brochure) {
-        updateData.brochure = `/uploads/college-img/${req.files.brochure[0].filename}`;
-      }
-      if (req.files.feeStructureDoc) {
-        updateData.feeStructureDoc = `/uploads/college-img/${req.files.feeStructureDoc[0].filename}`;
-      }
-    }
-
-    // Update positions if changed to prevent duplicates
-    const currentPos = typeof currentCollege.positions === 'string' 
-      ? parseInt(currentCollege.positions) 
-      : currentCollege.positions;
-    
-    if (newPosition !== currentPos) {
-      console.log(`Position change detected: ${currentPos} -> ${newPosition}`);
-      await updatePositions(db, newPosition, currentPos, new ObjectId(collegeId));
-    }
-
-    const result = await db.get().collection('collegeoruni')
-      .updateOne({ _id: new ObjectId(collegeId) }, { $set: updateData });
-
-    res.json({
-      success: true,
-      message: 'College updated successfully',
-      modifiedCount: result.modifiedCount
+    const duplicateSlug = await collection.findOne({
+      slug: payload.slug,
+      _id:  { $ne: new ObjectId(id) }
     });
+    if (duplicateSlug) {
+      return res.status(409).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const currentPos = Number(currentCollege.positions) || 1;
+    const newPos     = Number(payload.positions)        || 1;
+    if (newPos !== currentPos) {
+      await updatePositions(db, newPos, currentPos, new ObjectId(id));
+    }
+
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: payload }
+    );
+
+    res.json({ success: true, message: 'College updated successfully' });
   } catch (error) {
-    console.error('Error updating college:', error);
+    console.error('PUT /colleges/:id error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update college',
@@ -420,60 +449,37 @@ router.put('/:id', upload.fields([
   }
 });
 
-// Delete college
+// DELETE /api/admin/colleges/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const { ObjectId } = require('mongodb');
-    const db = require('../../config/connection');
-    
-    const collegeId = req.params.id;
-    if (!ObjectId.isValid(collegeId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid college ID'
-      });
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid college ID' });
     }
 
-    // Get college to know its position before deletion
-    const collegeToDelete = await db.get().collection('collegeoruni')
-      .findOne({ _id: new ObjectId(collegeId) });
+    const collection      = db.get().collection('colleges');
+    const collegeToDelete = await collection.findOne({ _id: new ObjectId(id) });
 
     if (!collegeToDelete) {
-      return res.status(404).json({
-        success: false,
-        message: 'College not found'
-      });
+      return res.status(404).json({ success: false, message: 'College not found' });
     }
 
-    const result = await db.get().collection('collegeoruni')
-      .deleteOne({ _id: new ObjectId(collegeId) });
+    await collection.deleteOne({ _id: new ObjectId(id) });
 
-    if (result.deletedCount > 0) {
-      // Convert position to number for comparison
-      const deletedPos = typeof collegeToDelete.positions === 'string' 
-        ? parseInt(collegeToDelete.positions) 
-        : collegeToDelete.positions;
-      
-      console.log(`Deleted college at position ${deletedPos}, adjusting positions...`);
-      
-      // Shift all colleges with higher positions down by 1
-      await db.get().collection('collegeoruni').updateMany(
-        { positions: { $gt: deletedPos } },
-        { $inc: { positions: -1 } }
-      );
-      
-      console.log('Position adjustment completed after deletion');
-    }
+    const deletedPos = Number(collegeToDelete.positions) || 1;
+    await collection.updateMany(
+      { positions: { $gt: deletedPos } },
+      { $inc: { positions: -1 } }
+    );
 
-    res.json({
-      success: true,
-      message: 'College deleted successfully'
-    });
+    res.json({ success: true, message: 'College deleted successfully' });
   } catch (error) {
-    console.error('Error deleting college:', error);
+    console.error('DELETE /colleges/:id error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete college'
+      message: 'Failed to delete college',
+      error: error.message
     });
   }
 });

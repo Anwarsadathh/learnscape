@@ -29,12 +29,14 @@ const AdminLogin = () => {
     try {
       console.log('🔐 Starting login process...');
       
-      const response = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Important for cookies
-        body: JSON.stringify({ email, password })
-      });
+// ✅ NEW - goes directly to Express backend
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const response = await fetch(`${apiUrl}/admin/auth`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include',
+  body: JSON.stringify({ email, password }),
+});
 
       const data = await response.json();
       console.log('📦 Login response received:', {
