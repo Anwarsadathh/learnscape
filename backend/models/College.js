@@ -7,7 +7,7 @@ class College {
     this.slug = data.slug?.trim() || '';
     this.streams = Array.isArray(data.streams) ? data.streams.filter(Boolean) : [];
     this.locations = Array.isArray(data.locations) ? data.locations.filter(Boolean) : [];
-    this.positions = Number(data.positions) || 0;
+    this.positions = Number(data.positions) || 1;
 
     this.image = data.image?.trim() || '';
     this.brochure = data.brochure?.trim() || '';
@@ -36,6 +36,9 @@ class College {
     };
 
     this.portalLink = data.portalLink?.trim() || '';
+    this.portalLinkAC = data.portalLinkAC?.trim() || '';
+    this.CollegeLink = data.CollegeLink?.trim() || '';
+
     this.rating = Number(data.rating) || 0;
     this.naac = data.naac?.trim() || '';
 
@@ -69,7 +72,7 @@ class College {
       slug: data.slug?.trim() || '',
       streams: Array.isArray(data.streams) ? data.streams.filter(Boolean) : [],
       locations: Array.isArray(data.locations) ? data.locations.filter(Boolean) : [],
-      positions: Number(data.positions) || 0,
+      positions: Number(data.positions) || 1,
 
       image: data.image?.trim() || '',
       brochure: data.brochure?.trim() || '',
@@ -98,6 +101,9 @@ class College {
       },
 
       portalLink: data.portalLink?.trim() || '',
+      portalLinkAC: data.portalLinkAC?.trim() || '',
+      CollegeLink: data.CollegeLink?.trim() || '',
+
       rating: Number(data.rating) || 0,
       naac: data.naac?.trim() || '',
 

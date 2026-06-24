@@ -340,7 +340,7 @@ function MediaField({
 
           <input
             type="file"
-           accept={type === 'image' ? '.jpg,.jpeg,.png,image/jpeg,image/png' : '.pdf,application/pdf'}
+            accept={type === 'image' ? '.jpg,.jpeg,.png,image/jpeg,image/png' : '.pdf,application/pdf'}
             onChange={(e) => onFileChange(e.target.files?.[0] || null)}
             className={`${fileInput} ${
               type === 'image'
@@ -377,6 +377,10 @@ export default function EditCollegePage() {
   const [imageMode, setImageMode] = useState<MediaMode>('url');
   const [brochureMode, setBrochureMode] = useState<MediaMode>('url');
   const [feeStructureMode, setFeeStructureMode] = useState<MediaMode>('url');
+
+  const [removeImage, setRemoveImage] = useState(false);
+  const [removeBrochure, setRemoveBrochure] = useState(false);
+  const [removeFeeStructureDoc, setRemoveFeeStructureDoc] = useState(false);
 
   const pageTitle = useMemo(() => {
     return form.name ? `Edit ${form.name}` : 'Edit College';
@@ -458,7 +462,7 @@ export default function EditCollegePage() {
                   level: course.level || 'UG',
                   duration: course.duration || '',
                   fees: course.fees || '',
-                  seats: course.seats || '',
+                  seats: String(course.seats || ''),
                   entrance: course.entrance || '',
                 }))
               : [{ ...EMPTY_COURSE }],
@@ -467,6 +471,10 @@ export default function EditCollegePage() {
         setImageMode(college.image ? 'url' : 'upload');
         setBrochureMode(college.brochure ? 'url' : 'upload');
         setFeeStructureMode(college.feeStructureDoc ? 'url' : 'upload');
+
+        setRemoveImage(false);
+        setRemoveBrochure(false);
+        setRemoveFeeStructureDoc(false);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load college.');
       } finally {
@@ -555,6 +563,8 @@ export default function EditCollegePage() {
 
   const handleImageFileChange = (file: File | null) => {
     setImageFile(file);
+    setRemoveImage(false);
+
     if (!file) {
       setImagePreview('');
       return;
@@ -565,19 +575,32 @@ export default function EditCollegePage() {
     reader.readAsDataURL(file);
   };
 
+  const handleBrochureFileChange = (file: File | null) => {
+    setBrochureFile(file);
+    setRemoveBrochure(false);
+  };
+
+  const handleFeeStructureFileChange = (file: File | null) => {
+    setFeeStructureFile(file);
+    setRemoveFeeStructureDoc(false);
+  };
+
   const clearImage = () => {
     setImageFile(null);
     setImagePreview('');
+    setRemoveImage(true);
     setForm((prev) => ({ ...prev, image: '' }));
   };
 
   const clearBrochure = () => {
     setBrochureFile(null);
+    setRemoveBrochure(true);
     setForm((prev) => ({ ...prev, brochure: '' }));
   };
 
   const clearFeeStructure = () => {
     setFeeStructureFile(null);
+    setRemoveFeeStructureDoc(true);
     setForm((prev) => ({ ...prev, feeStructureDoc: '' }));
   };
 
@@ -599,7 +622,6 @@ export default function EditCollegePage() {
       return;
     }
 
-// ✅ Client-side file validation
     if (imageFile) {
       const allowed = ['image/jpeg', 'image/png'];
       if (!allowed.includes(imageFile.type)) {
@@ -638,7 +660,6 @@ export default function EditCollegePage() {
       setSaving(true);
       setError('');
 
-
       const payload = new FormData();
 
       payload.append('name', form.name.trim());
@@ -663,22 +684,32 @@ export default function EditCollegePage() {
       );
       payload.append('overview', JSON.stringify(form.overview));
 
-      if (imageMode === 'url') {
-        payload.append('image', form.image);
-      } else if (imageFile) {
+      payload.append('removeImage', removeImage ? 'true' : 'false');
+      payload.append('removeBrochure', removeBrochure ? 'true' : 'false');
+      payload.append('removeFeeStructureDoc', removeFeeStructureDoc ? 'true' : 'false');
+
+      if (imageFile) {
         payload.append('image', imageFile);
+      } else if (imageMode === 'url' && !removeImage) {
+        payload.append('image', form.image.trim());
+      } else if (removeImage) {
+        payload.append('image', '');
       }
 
-      if (brochureMode === 'url') {
-        payload.append('brochure', form.brochure);
-      } else if (brochureFile) {
+      if (brochureFile) {
         payload.append('brochure', brochureFile);
+      } else if (brochureMode === 'url' && !removeBrochure) {
+        payload.append('brochure', form.brochure.trim());
+      } else if (removeBrochure) {
+        payload.append('brochure', '');
       }
 
-      if (feeStructureMode === 'url') {
-        payload.append('feeStructureDoc', form.feeStructureDoc);
-      } else if (feeStructureFile) {
+      if (feeStructureFile) {
         payload.append('feeStructureDoc', feeStructureFile);
+      } else if (feeStructureMode === 'url' && !removeFeeStructureDoc) {
+        payload.append('feeStructureDoc', form.feeStructureDoc.trim());
+      } else if (removeFeeStructureDoc) {
+        payload.append('feeStructureDoc', '');
       }
 
       const res = await fetch(`${API_BASE}/admin/colleges/${id}`, {
@@ -1002,9 +1033,15 @@ NAAC A+ accredited`}
               label="College Image"
               type="image"
               mode={imageMode}
-              setMode={setImageMode}
+              setMode={(mode) => {
+                setImageMode(mode);
+                if (mode === 'url') setImageFile(null);
+              }}
               urlValue={form.image}
-              onUrlChange={(value) => setForm((f) => ({ ...f, image: value }))}
+              onUrlChange={(value) => {
+                setRemoveImage(false);
+                setForm((f) => ({ ...f, image: value }));
+              }}
               file={imageFile}
               onFileChange={handleImageFileChange}
               previewUrl={imagePreview}
@@ -1015,11 +1052,17 @@ NAAC A+ accredited`}
               label="Brochure PDF"
               type="pdf"
               mode={brochureMode}
-              setMode={setBrochureMode}
+              setMode={(mode) => {
+                setBrochureMode(mode);
+                if (mode === 'url') setBrochureFile(null);
+              }}
               urlValue={form.brochure}
-              onUrlChange={(value) => setForm((f) => ({ ...f, brochure: value }))}
+              onUrlChange={(value) => {
+                setRemoveBrochure(false);
+                setForm((f) => ({ ...f, brochure: value }));
+              }}
               file={brochureFile}
-              onFileChange={setBrochureFile}
+              onFileChange={handleBrochureFileChange}
               onClear={clearBrochure}
             />
 
@@ -1027,11 +1070,17 @@ NAAC A+ accredited`}
               label="Fee Structure PDF"
               type="pdf"
               mode={feeStructureMode}
-              setMode={setFeeStructureMode}
+              setMode={(mode) => {
+                setFeeStructureMode(mode);
+                if (mode === 'url') setFeeStructureFile(null);
+              }}
               urlValue={form.feeStructureDoc}
-              onUrlChange={(value) => setForm((f) => ({ ...f, feeStructureDoc: value }))}
+              onUrlChange={(value) => {
+                setRemoveFeeStructureDoc(false);
+                setForm((f) => ({ ...f, feeStructureDoc: value }));
+              }}
               file={feeStructureFile}
-              onFileChange={setFeeStructureFile}
+              onFileChange={handleFeeStructureFileChange}
               onClear={clearFeeStructure}
             />
           </div>

@@ -22,6 +22,7 @@ import {
   Share2,
   IndianRupee,
   ArrowLeft,
+  Lock,
 } from 'lucide-react';
 
 interface Course {
@@ -58,16 +59,15 @@ interface College {
   CollegeLink?: string;
   rating?: number;
   naac?: string;
-  fees?: {
-    min: number;
-    max: number;
-  };
+  fees?: { min: number; max: number };
   type?: string;
   established?: number;
   accreditations?: string[];
   highlights?: string[];
   positions?: number;
 }
+
+const NAVBAR_HEIGHT = 72;
 
 const LEVEL_COLORS: Record<string, { bg: string; color: string; border: string }> = {
   UG: { bg: '#172554', color: '#93c5fd', border: '#1d4ed8' },
@@ -77,45 +77,14 @@ const LEVEL_COLORS: Record<string, { bg: string; color: string; border: string }
   Lateral: { bg: '#083344', color: '#67e8f9', border: '#0891b2' },
 };
 
-const ACCREDITATION_STYLES: Record<
-  string,
-  { bg: string; text: string; border: string }
-> = {
-  'NAAC A+': {
-    bg: 'rgba(250, 204, 21, 0.14)',
-    text: '#fde68a',
-    border: 'rgba(250, 204, 21, 0.28)',
-  },
-  'NAAC A++': {
-    bg: 'rgba(245, 158, 11, 0.14)',
-    text: '#fcd34d',
-    border: 'rgba(245, 158, 11, 0.28)',
-  },
-  Autonomous: {
-    bg: 'rgba(59, 130, 246, 0.14)',
-    text: '#93c5fd',
-    border: 'rgba(59, 130, 246, 0.28)',
-  },
-  NBA: {
-    bg: 'rgba(168, 85, 247, 0.14)',
-    text: '#d8b4fe',
-    border: 'rgba(168, 85, 247, 0.28)',
-  },
-  AICTE: {
-    bg: 'rgba(16, 185, 129, 0.14)',
-    text: '#86efac',
-    border: 'rgba(16, 185, 129, 0.28)',
-  },
-  UGC: {
-    bg: 'rgba(236, 72, 153, 0.14)',
-    text: '#f9a8d4',
-    border: 'rgba(236, 72, 153, 0.28)',
-  },
-  NIRF: {
-    bg: 'rgba(14, 165, 233, 0.14)',
-    text: '#7dd3fc',
-    border: 'rgba(14, 165, 233, 0.28)',
-  },
+const ACCREDITATION_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  'NAAC A+': { bg: 'rgba(250,204,21,0.14)', text: '#fde68a', border: 'rgba(250,204,21,0.28)' },
+  'NAAC A++': { bg: 'rgba(245,158,11,0.14)', text: '#fcd34d', border: 'rgba(245,158,11,0.28)' },
+  Autonomous: { bg: 'rgba(59,130,246,0.14)', text: '#93c5fd', border: 'rgba(59,130,246,0.28)' },
+  NBA: { bg: 'rgba(168,85,247,0.14)', text: '#d8b4fe', border: 'rgba(168,85,247,0.28)' },
+  AICTE: { bg: 'rgba(16,185,129,0.14)', text: '#86efac', border: 'rgba(16,185,129,0.28)' },
+  UGC: { bg: 'rgba(236,72,153,0.14)', text: '#f9a8d4', border: 'rgba(236,72,153,0.28)' },
+  NIRF: { bg: 'rgba(14,165,233,0.14)', text: '#7dd3fc', border: 'rgba(14,165,233,0.28)' },
 };
 
 function getAccreditationStyle(value: string) {
@@ -141,10 +110,8 @@ function formatFees(fees?: { min: number; max: number }) {
 function getAssetUrl(path?: string) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
-  const root = apiUrl.replace(/\/api$/, '');
-  return `${root}${path}`;
+  return apiUrl.replace(/\/api$/, '') + path;
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -168,20 +135,21 @@ function SidebarCTA({
   onDownload: (type: 'brochure' | 'fee-structure', url: string) => void;
 }) {
   return (
-    <div className="bg-[#0f172a]/90 rounded-[22px] border border-white/10 overflow-hidden shadow-2xl sticky top-24 backdrop-blur-xl">
+    <div
+      className="bg-[#0f172a]/90 rounded-[22px] border border-white/10 overflow-hidden shadow-2xl backdrop-blur-xl"
+      style={{ position: 'sticky', top: `${NAVBAR_HEIGHT + 16}px` }}
+    >
       <div className="px-5 py-5 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 border-b border-white/10">
         <div className="inline-flex items-center gap-1.5 bg-blue-400/10 border border-blue-400/20 text-blue-300 text-[9px] font-bold tracking-[1.5px] uppercase px-2.5 py-1 rounded-full mb-3">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
           Free Counselling
         </div>
-
         <h3
           className="text-[16px] font-extrabold text-white leading-snug mb-1"
           style={{ fontFamily: 'var(--font-display)' }}
         >
           Interested in {college.name.split(' ').slice(0, 3).join(' ')}?
         </h3>
-
         <p className="text-[11.5px] text-white/55">
           Get expert guidance on admission, fees &amp; eligibility.
         </p>
@@ -214,9 +182,7 @@ function SidebarCTA({
           {college.type ? (
             <div className="flex items-center gap-2.5">
               <Building2 size={13} className="text-slate-500 flex-shrink-0" />
-              <span className="text-[12px] text-slate-300 capitalize">
-                {college.type} Institution
-              </span>
+              <span className="text-[12px] text-slate-300 capitalize">{college.type} Institution</span>
             </div>
           ) : null}
 
@@ -242,8 +208,7 @@ function SidebarCTA({
                 onClick={() => onDownload('brochure', college.brochure!)}
                 className="flex items-center gap-2 text-[11.5px] font-semibold text-blue-400 hover:text-blue-300 transition-colors text-left"
               >
-                <Download size={12} strokeWidth={2.5} />
-                Download Brochure
+                <Download size={12} strokeWidth={2.5} /> Download Brochure
               </button>
             ) : null}
 
@@ -252,8 +217,7 @@ function SidebarCTA({
                 onClick={() => onDownload('fee-structure', college.feeStructureDoc!)}
                 className="flex items-center gap-2 text-[11.5px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors text-left"
               >
-                <Download size={12} strokeWidth={2.5} />
-                Fee Structure PDF
+                <Download size={12} strokeWidth={2.5} /> Fee Structure PDF
               </button>
             ) : null}
           </div>
@@ -294,7 +258,6 @@ function CourseTable({ courses }: { courses: Course[] }) {
                     {course.name}
                   </span>
                 </td>
-
                 <td className="px-3 py-2.5">
                   {course.level ? (
                     <span
@@ -309,11 +272,9 @@ function CourseTable({ courses }: { courses: Course[] }) {
                     </span>
                   ) : null}
                 </td>
-
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-[11px] text-slate-400">{course.duration}</span>
                 </td>
-
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-[11.5px] font-semibold text-emerald-400">{course.fees}</span>
                 </td>
@@ -338,6 +299,44 @@ function CourseTable({ courses }: { courses: Course[] }) {
   );
 }
 
+function TabLockPrompt({
+  collegeName,
+  tabLabel,
+  onUnlockClick,
+}: {
+  collegeName: string;
+  tabLabel: string;
+  onUnlockClick: () => void;
+}) {
+  return (
+    <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-10 shadow-sm backdrop-blur-xl flex flex-col items-center text-center">
+      <div className="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
+        <Lock size={24} className="text-blue-400" />
+      </div>
+      <h3
+        className="text-[18px] font-extrabold text-white mb-2"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
+        Unlock {tabLabel}
+      </h3>
+      <p className="text-[13px] text-slate-400 mb-7 leading-relaxed max-w-xs">
+        Fill a quick enquiry form to access {tabLabel.toLowerCase()} details for{' '}
+        <span className="text-white font-semibold">{collegeName}</span>.
+      </p>
+      <button
+        onClick={onUnlockClick}
+        className="flex items-center justify-center gap-2 text-[13.5px] font-bold text-slate-950 bg-blue-400 hover:bg-blue-300 px-6 py-3.5 rounded-[14px] transition-all duration-200 hover:-translate-y-0.5"
+      >
+        <span className="w-2 h-2 rounded-full bg-slate-950 animate-pulse" />
+        Get Free Counselling to Unlock
+      </button>
+      <p className="text-[11px] text-slate-500 mt-3">Free · No spam · Takes 30 seconds</p>
+    </div>
+  );
+}
+
+
+
 export default function CollegeDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
@@ -345,11 +344,50 @@ export default function CollegeDetailPage() {
   const [college, setCollege] = useState<College | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'admission'>('overview');
-  const [streamColors, setStreamColors] = useState<Record<string, { bg: string; color: string }>>(
-    {}
-  );
+  const [streamColors, setStreamColors] = useState<Record<string, { bg: string; color: string }>>({});
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [pendingTab, setPendingTab] = useState<'courses' | 'admission' | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && id) {
+      if (localStorage.getItem(`enquiry_unlocked_${id}`) === '1') {
+        setUnlocked(true);
+      }
+    }
+  }, [id]);
+
+  const handleUnlock = () => {
+    setUnlocked(true);
+    setGateOpen(false);
+    setEnquiryOpen(false);
+
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+
+    if (id && typeof window !== 'undefined') {
+      localStorage.setItem(`enquiry_unlocked_${id}`, '1');
+    }
+  };
+
+  const handleTabChange = (tab: 'overview' | 'courses' | 'admission') => {
+    if (tab === 'overview') {
+      setActiveTab('overview');
+      return;
+    }
+
+    if (unlocked) {
+      setActiveTab(tab);
+      return;
+    }
+
+    setPendingTab(tab);
+    setGateOpen(true);
+  };
 
   useEffect(() => {
     fetch('/api/streams')
@@ -378,17 +416,14 @@ export default function CollegeDetailPage() {
       })
       .then((data) => {
         if (!data) return;
-
         if (data.success && data.data) {
           setCollege(data.data);
           return;
         }
-
         if (data._id || data.name) {
           setCollege(data);
           return;
         }
-
         setNotFound(true);
       })
       .catch(() => setNotFound(true))
@@ -396,8 +431,7 @@ export default function CollegeDetailPage() {
   }, [id]);
 
   const openDownload = (_type: 'brochure' | 'fee-structure', url: string) => {
-    const finalUrl = getAssetUrl(url);
-    window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    window.open(getAssetUrl(url), '_blank', 'noopener,noreferrer');
   };
 
   const handleShare = async () => {
@@ -407,9 +441,7 @@ export default function CollegeDetailPage() {
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(window.location.href);
       }
-    } catch {
-      //
-    }
+    } catch {}
   };
 
   if (loading) {
@@ -426,18 +458,15 @@ export default function CollegeDetailPage() {
         <div className="w-16 h-16 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mb-4">
           <Building2 size={28} className="text-blue-400" strokeWidth={1.5} />
         </div>
-
         <h1
           className="text-[22px] font-extrabold text-white mb-2"
           style={{ fontFamily: 'var(--font-display)' }}
         >
           College not found
         </h1>
-
         <p className="text-[13px] text-slate-400 mb-6">
           This college doesn&apos;t exist or may have been removed.
         </p>
-
         <Link
           href="/colleges"
           className="bg-blue-600 text-white font-bold text-[13px] px-5 py-2.5 rounded-[12px] hover:bg-blue-500 transition-colors"
@@ -448,11 +477,11 @@ export default function CollegeDetailPage() {
     );
   }
 
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'courses', label: `Courses (${college.courses?.length || 0})` },
-    { id: 'admission', label: 'Admission' },
-  ] as const;
+const tabs = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'courses', label: `Courses & Fees (${college.courses?.length || 0})` },
+  { id: 'admission', label: 'Admission' },
+] as const;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -460,8 +489,7 @@ export default function CollegeDetailPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage:
-              'radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px)',
+            backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
@@ -470,23 +498,17 @@ export default function CollegeDetailPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-14 relative z-10">
           <div className="flex items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2 text-[11px] text-white/45 flex-wrap">
-              <Link href="/" className="hover:text-white transition-colors">
-                Home
-              </Link>
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
               <ChevronRight size={10} />
-              <Link href="/colleges" className="hover:text-white transition-colors">
-                Colleges
-              </Link>
+              <Link href="/colleges" className="hover:text-white transition-colors">Colleges</Link>
               <ChevronRight size={10} />
               <span className="text-white/75 truncate max-w-[200px]">{college.name}</span>
             </div>
-
             <Link
               href="/colleges"
               className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-white border border-white/15 hover:bg-white/5 px-3 py-2 rounded-[11px] transition-all duration-200 flex-shrink-0"
             >
-              <ArrowLeft size={12} />
-              Back
+              <ArrowLeft size={12} /> Back
             </Link>
           </div>
 
@@ -514,11 +536,7 @@ export default function CollegeDetailPage() {
                   return (
                     <span
                       className="text-[10px] font-bold px-2.5 py-1 rounded-full border"
-                      style={{
-                        background: style.bg,
-                        color: style.text,
-                        borderColor: style.border,
-                      }}
+                      style={{ background: style.bg, color: style.text, borderColor: style.border }}
                     >
                       NAAC {college.naac}
                     </span>
@@ -537,11 +555,7 @@ export default function CollegeDetailPage() {
                     <span
                       key={a}
                       className="text-[10px] font-bold px-2.5 py-1 rounded-full border"
-                      style={{
-                        background: style.bg,
-                        color: style.text,
-                        borderColor: style.border,
-                      }}
+                      style={{ background: style.bg, color: style.text, borderColor: style.border }}
                     >
                       {a}
                     </span>
@@ -559,8 +573,7 @@ export default function CollegeDetailPage() {
               <div className="flex flex-wrap gap-4 mb-4">
                 {college.locations?.length ? (
                   <div className="flex items-center gap-1.5 text-white/65 text-[12.5px]">
-                    <MapPin size={13} />
-                    {college.locations.join(', ')}
+                    <MapPin size={13} /> {college.locations.join(', ')}
                   </div>
                 ) : null}
 
@@ -573,8 +586,7 @@ export default function CollegeDetailPage() {
 
                 {college.established ? (
                   <div className="flex items-center gap-1.5 text-white/65 text-[12.5px]">
-                    <Calendar size={13} />
-                    Est. {college.established}
+                    <Calendar size={13} /> Est. {college.established}
                   </div>
                 ) : null}
               </div>
@@ -585,7 +597,6 @@ export default function CollegeDetailPage() {
                     bg: 'rgba(255,255,255,0.08)',
                     color: 'rgba(255,255,255,0.85)',
                   };
-
                   return (
                     <span
                       key={s}
@@ -614,8 +625,7 @@ export default function CollegeDetailPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-[11.5px] font-semibold text-white border border-white/15 hover:bg-white/5 px-3.5 py-2.5 rounded-[11px] transition-all duration-200 flex-shrink-0"
                   >
-                    <ExternalLink size={12} />
-                    Official Website
+                    <ExternalLink size={12} /> Official Website
                   </a>
                 ) : null}
 
@@ -632,21 +642,42 @@ export default function CollegeDetailPage() {
 
         <div className="border-t border-white/10 relative z-10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className="relative text-[13px] font-semibold px-4 py-3.5 transition-all duration-200 whitespace-nowrap"
-                style={{
-                  color: activeTab === tab.id ? '#60a5fa' : 'rgba(255,255,255,0.55)',
-                }}
-              >
-                {tab.label}
-                {activeTab === tab.id ? (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-blue-400 rounded-full" />
-                ) : null}
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const isLocked = !unlocked && tab.id !== 'overview';
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className="relative text-[13px] font-semibold px-4 py-3.5 transition-all duration-200 whitespace-nowrap flex items-center gap-1.5"
+                 style={{
+  color:
+    activeTab === tab.id
+      ? tab.id === 'overview'
+        ? '#67e8f9'
+        : tab.id === 'courses'
+        ? '#6ee7b7'
+        : '#c4b5fd'
+      : 'rgba(255,255,255,0.55)',
+}}
+                >
+                  {isLocked && <Lock size={10} className="text-slate-500" />}
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <span
+  className="absolute bottom-0 left-0 right-0 h-[2.5px] rounded-full"
+  style={{
+    backgroundColor:
+      tab.id === 'overview'
+        ? '#22d3ee'
+        : tab.id === 'courses'
+        ? '#34d399'
+        : '#8b5cf6',
+  }}
+/>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -660,10 +691,8 @@ export default function CollegeDetailPage() {
                   {college.highlights?.length ? (
                     <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-6 shadow-sm backdrop-blur-xl">
                       <SectionHeading>
-                        <Award size={18} className="text-blue-400" />
-                        College Highlights
+                        <Award size={18} className="text-blue-400" /> College Highlights
                       </SectionHeading>
-
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {college.highlights.map((h, i) => (
                           <div key={i} className="flex items-start gap-2.5">
@@ -683,11 +712,9 @@ export default function CollegeDetailPage() {
                         <BookOpen size={18} className="text-blue-400" />
                         {college.overview?.heading || 'About the College'}
                       </SectionHeading>
-
                       <p className="text-[13.5px] text-slate-300 leading-[1.8] mb-5">
                         {college.overview?.description}
                       </p>
-
                       {college.overview?.points?.length ? (
                         <div className="flex flex-col gap-4 mt-4 border-t border-white/10 pt-5">
                           {college.overview.points.map((pt, i) => (
@@ -724,14 +751,12 @@ export default function CollegeDetailPage() {
                           <div className="w-9 h-9 rounded-[10px] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-2">
                             <Icon size={16} className="text-blue-400" strokeWidth={1.8} />
                           </div>
-
                           <div
                             className="font-extrabold text-[16px] text-white"
                             style={{ fontFamily: 'var(--font-display)' }}
                           >
                             {item.value}
                           </div>
-
                           <div className="text-[10.5px] text-slate-500 font-medium mt-0.5">
                             {item.label}
                           </div>
@@ -743,10 +768,8 @@ export default function CollegeDetailPage() {
                   {(college.brochure || college.feeStructureDoc) && (
                     <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-5 shadow-sm backdrop-blur-xl">
                       <SectionHeading>
-                        <Download size={18} className="text-blue-400" />
-                        Downloads
+                        <Download size={18} className="text-blue-400" /> Downloads
                       </SectionHeading>
-
                       <div className="flex flex-wrap gap-3">
                         {college.brochure ? (
                           <button
@@ -774,113 +797,131 @@ export default function CollegeDetailPage() {
               )}
 
               {activeTab === 'courses' && (
-                <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-6 shadow-sm backdrop-blur-xl">
-                  <SectionHeading>
-                    <GraduationCap size={18} className="text-blue-400" />
-                    Courses &amp; Fees
-                  </SectionHeading>
-
-                  {college.courses?.length ? (
-                    <CourseTable courses={college.courses} />
-                  ) : (
-                    <div className="text-center py-10 text-slate-500">
-                      <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
-                      <p className="text-[13px]">Course details not yet added.</p>
-                    </div>
-                  )}
-                </div>
+                unlocked ? (
+                  <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-6 shadow-sm backdrop-blur-xl">
+                    <SectionHeading>
+                      <GraduationCap size={18} className="text-blue-400" /> Courses &amp; Fees
+                    </SectionHeading>
+                    {college.courses?.length ? (
+                      <CourseTable courses={college.courses} />
+                    ) : (
+                      <div className="text-center py-10 text-slate-500">
+                        <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
+                        <p className="text-[13px]">Course details not yet added.</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <TabLockPrompt
+                    collegeName={college.name}
+                    tabLabel={`Courses (${college.courses?.length || 0})`}
+                    onUnlockClick={() => {
+                      setPendingTab('courses');
+                      setGateOpen(true);
+                    }}
+                  />
+                )
               )}
 
               {activeTab === 'admission' && (
-                <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-6 shadow-sm backdrop-blur-xl">
-                  <SectionHeading>
-                    <Award size={18} className="text-blue-400" />
-                    Admission Process
-                  </SectionHeading>
-
-                  <div className="flex flex-col gap-4 mb-7">
-                    {[
-                      {
-                        step: '01',
-                        title: 'Check Eligibility',
-                        desc: 'Verify minimum marks, entrance exam scores, and category requirements for your chosen course.',
-                      },
-                      {
-                        step: '02',
-                        title: 'Apply Online',
-                        desc: 'Fill the application form on the official college portal or through our counsellors.',
-                      },
-                      {
-                        step: '03',
-                        title: 'Document Submission',
-                        desc: 'Submit mark sheets, ID proof, passport photos, category certificates if applicable.',
-                      },
-                      {
-                        step: '04',
-                        title: 'Counselling & Seat',
-                        desc: 'Attend counselling round, pay seat confirmation fee, and secure your admission.',
-                      },
-                    ].map((s) => (
-                      <div key={s.step} className="flex gap-4">
-                        <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-extrabold text-[13px] text-blue-400 border border-blue-500/20"
-                          style={{ background: 'rgba(59,130,246,0.08)', fontFamily: 'var(--font-display)' }}
-                        >
-                          {s.step}
-                        </div>
-
-                        <div className="pt-1">
-                          <h4
-                            className="font-bold text-[13.5px] text-white mb-0.5"
-                            style={{ fontFamily: 'var(--font-display)' }}
+                unlocked ? (
+                  <div className="bg-[#0f172a]/80 rounded-[20px] border border-white/10 p-6 shadow-sm backdrop-blur-xl">
+                    <SectionHeading>
+                      <Award size={18} className="text-blue-400" /> Admission Process
+                    </SectionHeading>
+                    <div className="flex flex-col gap-4 mb-7">
+                      {[
+                        {
+                          step: '01',
+                          title: 'Check Eligibility',
+                          desc: 'Verify minimum marks, entrance exam scores, and category requirements for your chosen course.',
+                        },
+                        {
+                          step: '02',
+                          title: 'Apply Online',
+                          desc: 'Fill the application form on the official college portal or through our counsellors.',
+                        },
+                        {
+                          step: '03',
+                          title: 'Document Submission',
+                          desc: 'Submit mark sheets, ID proof, passport photos, category certificates if applicable.',
+                        },
+                        {
+                          step: '04',
+                          title: 'Counselling & Seat',
+                          desc: 'Attend counselling round, pay seat confirmation fee, and secure your admission.',
+                        },
+                      ].map((s) => (
+                        <div key={s.step} className="flex gap-4">
+                          <div
+                            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-extrabold text-[13px] text-blue-400 border border-blue-500/20"
+                            style={{
+                              background: 'rgba(59,130,246,0.08)',
+                              fontFamily: 'var(--font-display)',
+                            }}
                           >
-                            {s.title}
-                          </h4>
-                          <p className="text-[12.5px] text-slate-400 leading-relaxed">{s.desc}</p>
+                            {s.step}
+                          </div>
+                          <div className="pt-1">
+                            <h4
+                              className="font-bold text-[13.5px] text-white mb-0.5"
+                              style={{ fontFamily: 'var(--font-display)' }}
+                            >
+                              {s.title}
+                            </h4>
+                            <p className="text-[12.5px] text-slate-400 leading-relaxed">{s.desc}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(college.portalLink || college.portalLinkAC) && (
-                    <div className="flex flex-col gap-2 pt-5 border-t border-white/10">
-                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[1px] mb-1">
-                        Apply Now
-                      </p>
-
-                      {college.portalLink ? (
-                        <a
-                          href={college.portalLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <ExternalLink size={13} />
-                          Official Admission Portal
-                        </a>
-                      ) : null}
-
-                      {college.portalLinkAC ? (
-                        <a
-                          href={college.portalLinkAC}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <ExternalLink size={13} />
-                          Alternate Application Portal
-                        </a>
-                      ) : null}
+                      ))}
                     </div>
-                  )}
 
-                  <button
-                    onClick={() => setEnquiryOpen(true)}
-                    className="mt-6 w-full flex items-center justify-center gap-2 text-[13px] font-bold text-slate-950 bg-blue-400 hover:bg-blue-300 py-3.5 rounded-[12px] transition-all duration-200"
-                  >
-                    Get Admission Guidance — Free <ArrowRight size={13} />
-                  </button>
-                </div>
+                    {(college.portalLink || college.portalLinkAC) && (
+                      <div className="flex flex-col gap-2 pt-5 border-t border-white/10">
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[1px] mb-1">
+                          Apply Now
+                        </p>
+
+                        {college.portalLink ? (
+                          <a
+                            href={college.portalLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <ExternalLink size={13} /> Official Admission Portal
+                          </a>
+                        ) : null}
+
+                        {college.portalLinkAC ? (
+                          <a
+                            href={college.portalLinkAC}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <ExternalLink size={13} /> Alternate Application Portal
+                          </a>
+                        ) : null}
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setEnquiryOpen(true)}
+                      className="mt-6 w-full flex items-center justify-center gap-2 text-[13px] font-bold text-slate-950 bg-blue-400 hover:bg-blue-300 py-3.5 rounded-[12px] transition-all duration-200"
+                    >
+                      Get Admission Guidance — Free <ArrowRight size={13} />
+                    </button>
+                  </div>
+                ) : (
+                  <TabLockPrompt
+                    collegeName={college.name}
+                    tabLabel="Admission"
+                    onUnlockClick={() => {
+                      setPendingTab('admission');
+                      setGateOpen(true);
+                    }}
+                  />
+                )
               )}
             </div>
 
@@ -895,11 +936,22 @@ export default function CollegeDetailPage() {
         </div>
       </div>
 
+      {gateOpen && (
+        <EnquiryModal
+          isOpen={gateOpen}
+          onClose={() => setGateOpen(false)}
+          collegeName={college.name}
+          collegeId={college._id}
+          onSuccess={handleUnlock}
+        />
+      )}
+
       <EnquiryModal
         isOpen={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
         collegeName={college.name}
         collegeId={college._id}
+        onSuccess={handleUnlock}
       />
     </div>
   );

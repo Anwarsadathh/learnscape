@@ -1,19 +1,20 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Phone, 
-  Mail, 
-  User, 
-  MessageSquare, 
-  GraduationCap, 
-  CheckCircle, 
+import {
+  X,
+  Phone,
+  Mail,
+  User,
+  MessageSquare,
+  GraduationCap,
+  CheckCircle,
   AlertCircle,
   Sparkles,
   ArrowRight,
   Clock,
   Shield,
-  Star
+  Star,
 } from 'lucide-react';
 
 interface EnquiryModalProps {
@@ -21,36 +22,46 @@ interface EnquiryModalProps {
   onClose: () => void;
   collegeName: string;
   collegeId: string;
+  onSuccess?: () => void;
 }
 
-const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeName, collegeId }) => {
+const EnquiryModal: React.FC<EnquiryModalProps> = ({
+  isOpen,
+  onClose,
+  collegeName,
+  collegeId,
+  onSuccess,
+}) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     mobile: '',
     message: '',
     courseName: '',
-    type: 'college_enquiry'
+    type: 'collegeenquiry',
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
+
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -68,7 +79,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
         body: JSON.stringify({
           ...formData,
           collegeName,
-          collegeId
+          collegeId,
         }),
       });
 
@@ -76,11 +87,22 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
 
       if (result.success) {
         setSubmitStatus('success');
-        setFormData({ name: '', email: '', mobile: '', message: '', courseName: '', type: 'college_enquiry' });
+
+        setFormData({
+          name: '',
+          email: '',
+          mobile: '',
+          message: '',
+          courseName: '',
+          type: 'collegeenquiry',
+        });
+
+        onSuccess?.();
+
         setTimeout(() => {
           onClose();
           setSubmitStatus('idle');
-        }, 2000);
+        }, 1200);
       } else {
         setSubmitStatus('error');
       }
@@ -96,16 +118,12 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
-      {/* Enhanced Backdrop with Blur */}
-      <div 
+      <div
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
-      
-      {/* Modal Container - Full screen on mobile, centered on desktop */}
+
       <div className="relative w-full h-full sm:h-auto sm:max-w-md lg:max-w-lg bg-white sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-300">
-        
-        {/* Enhanced Header */}
         <div className="relative bg-gradient-to-r from-blue-50 to-purple-50 px-5 py-4 border-b border-gray-100">
           <button
             onClick={onClose}
@@ -113,21 +131,19 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
           >
             <X className="w-4 h-4 text-gray-600 group-hover:text-gray-900 transition-colors" />
           </button>
-          
-          {/* Premium Badge */}
+
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200 mb-2">
             <Sparkles className="w-3 h-3 text-blue-600" />
-            <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">Quick Apply</span>
+            <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">
+              Quick Apply
+            </span>
           </div>
-          
-          <h3 className="text-lg font-bold text-gray-900 mb-0.5">
-            Start Your Journey
-          </h3>
+
+          <h3 className="text-lg font-bold text-gray-900 mb-0.5">Start Your Journey</h3>
           <p className="text-xs text-gray-600 pr-8">
             Apply to <span className="text-blue-600 font-semibold">{collegeName}</span>
           </p>
-          
-          {/* Trust Indicators */}
+
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-1 text-[10px] text-gray-500">
               <Clock className="w-3 h-3 text-green-500" />
@@ -144,11 +160,8 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
           </div>
         </div>
 
-        {/* Form Content - Scrollable on mobile */}
         <div className="overflow-y-auto h-[calc(100vh-180px)] sm:h-auto sm:max-h-[60vh] bg-white">
           <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
-            
-            {/* Name Field - Compact */}
             <div className="relative">
               <label className="flex items-center text-xs font-semibold text-gray-700 mb-1.5">
                 <User className="w-3.5 h-3.5 mr-1.5 text-blue-500" />
@@ -165,7 +178,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               />
             </div>
 
-            {/* Email Field - Compact */}
             <div className="relative">
               <label className="flex items-center text-xs font-semibold text-gray-700 mb-1.5">
                 <Mail className="w-3.5 h-3.5 mr-1.5 text-purple-500" />
@@ -182,7 +194,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               />
             </div>
 
-            {/* Mobile Field - Compact */}
             <div className="relative">
               <label className="flex items-center text-xs font-semibold text-gray-700 mb-1.5">
                 <Phone className="w-3.5 h-3.5 mr-1.5 text-green-500" />
@@ -198,14 +209,13 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
                   value={formData.mobile}
                   onChange={handleChange}
                   required
-                  pattern="[6-9]{1}[0-9]{9}"
+                  pattern="[6-9][0-9]{9}"
                   className="flex-1 px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-gray-400"
                   placeholder="10-digit mobile number"
                 />
               </div>
             </div>
 
-            {/* Course Input Field - FIXED with explicit text color */}
             <div className="relative">
               <label className="flex items-center text-xs font-semibold text-gray-700 mb-1.5">
                 <GraduationCap className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
@@ -219,13 +229,11 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
                 className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all placeholder:text-gray-400"
                 placeholder="e.g., B.Tech Computer Science, MBA, MBBS"
               />
-              {/* Popular course suggestions */}
               <div className="mt-1 text-[10px] text-gray-500">
                 Popular: B.Tech, MBA, MBBS, BBA, B.Com
               </div>
             </div>
 
-            {/* Message Field - Compact */}
             <div className="relative">
               <label className="flex items-center text-xs font-semibold text-gray-700 mb-1.5">
                 <MessageSquare className="w-3.5 h-3.5 mr-1.5 text-indigo-500" />
@@ -241,7 +249,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               />
             </div>
 
-            {/* Status Messages */}
             {submitStatus === 'success' && (
               <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
@@ -260,9 +267,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                 <div className="text-left">
-                  <p className="text-red-700 text-xs font-semibold">
-                    Submission Failed
-                  </p>
+                  <p className="text-red-700 text-xs font-semibold">Submission Failed</p>
                   <p className="text-red-600 text-[10px] mt-0.5">
                     Please check your connection and try again.
                   </p>
@@ -270,7 +275,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               </div>
             )}
 
-            {/* Submit Button - Compact */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -278,7 +282,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Submitting...</span>
                 </div>
               ) : (
@@ -289,7 +293,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
               )}
             </button>
 
-            {/* Trust Badge */}
             <div className="mt-3 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
               <div className="flex items-center justify-center gap-2 text-[10px] text-gray-600">
                 <Shield className="w-3.5 h-3.5 text-green-500" />
@@ -299,7 +302,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
           </form>
         </div>
 
-        {/* Enhanced Footer - Fixed at bottom on mobile */}
         <div className="absolute bottom-0 left-0 right-0 px-5 py-3 bg-gradient-to-t from-white via-white/95 to-transparent border-t border-gray-100">
           <div className="flex items-center justify-between">
             <p className="text-[10px] text-gray-500">
@@ -307,9 +309,9 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, collegeNam
             </p>
             <div className="flex items-center gap-2">
               <div className="flex -space-x-1.5">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 border-2 border-white"></div>
-                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 border-2 border-white"></div>
-                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-pink-400 to-red-400 border-2 border-white"></div>
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 border-2 border-white" />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 border-2 border-white" />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-pink-400 to-red-400 border-2 border-white" />
               </div>
               <span className="text-[10px] text-gray-500">500+ Applied Today</span>
             </div>
