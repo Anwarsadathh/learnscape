@@ -14,6 +14,7 @@ import {
   ChevronRight,
   AlertCircle,
   Building2,
+  ChevronUp,
 } from 'lucide-react'
 import AdminLayout from '../../../components/admin/AdminLayout'
 
@@ -92,6 +93,7 @@ export default function CollegesManagementPage() {
   const [pageSize, setPageSize] = useState<number | 'all'>(20)
   const [selectedCollege, setSelectedCollege] = useState<College | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [onlyNoImage, setOnlyNoImage] = useState(false)
 
   const filteredTitle = useMemo(() => {
     if (debouncedSearch.trim()) return `Search results for "${debouncedSearch}"`
@@ -152,6 +154,12 @@ export default function CollegesManagementPage() {
     fetchColleges(1, debouncedSearch, pageSize)
   }, [debouncedSearch, pageSize, fetchColleges])
 
+  // client-side filter for "no image"
+  const visibleColleges = useMemo(() => {
+    if (!onlyNoImage) return colleges
+    return colleges.filter((c) => !c.image || !String(c.image).trim())
+  }, [colleges, onlyNoImage])
+
   const handleView = async (collegeId: string) => {
     if (!collegeId) return
 
@@ -176,7 +184,9 @@ export default function CollegesManagementPage() {
   const handleDelete = async (collegeId: string, collegeName: string) => {
     if (!collegeId) return
 
-    const ok = window.confirm(`Are you sure you want to delete ${collegeName}? This action cannot be undone.`)
+    const ok = window.confirm(
+      `Are you sure you want to delete ${collegeName}? This action cannot be undone.`
+    )
     if (!ok) return
 
     try {
@@ -188,7 +198,9 @@ export default function CollegesManagementPage() {
 
       if (response.ok && result.success) {
         const nextPage =
-          pageSize !== 'all' && colleges.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage
+          pageSize !== 'all' && colleges.length === 1 && currentPage > 1
+            ? currentPage - 1
+            : currentPage
         fetchColleges(nextPage, debouncedSearch, pageSize)
       } else {
         alert(result.message || 'Failed to delete college')
@@ -198,12 +210,29 @@ export default function CollegesManagementPage() {
     }
   }
 
+  // arrow action: move a college to the top of the current list (client-side only)
+  const handleMoveToTop = (college: College) => {
+    const id = getCollegeId(college)
+    if (!id) return
+
+    setColleges((prev) => {
+      const idx = prev.findIndex((c) => getCollegeId(c) === id)
+      if (idx <= 0) return prev
+      const updated = [...prev]
+      const [item] = updated.splice(idx, 1)
+      updated.unshift(item)
+      return updated
+    })
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{filteredTitle}</h1>
+            <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">
+              {filteredTitle}
+            </h1>
             <p className="text-slate-400">View and manage college information</p>
           </div>
 
@@ -264,12 +293,30 @@ export default function CollegesManagementPage() {
 
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
               <div className="text-sm text-slate-400">
-                {tableLoading ? 'Refreshing...' : pageSize === 'all' ? `Showing all ${colleges.length}` : `Showing ${colleges.length} on this page`}
+                {tableLoading
+                  ? 'Refreshing...'
+                  : pageSize === 'all'
+                  ? `Showing all ${visibleColleges.length}`
+                  : `Showing ${visibleColleges.length} on this page`}
               </div>
 
               <div className="text-sm font-medium text-slate-300">
-                Total Colleges: <span className="text-white">{totalColleges}</span>
+                Total Colleges:{' '}
+                <span className="text-white">{totalColleges}</span>
               </div>
+
+              <label className="flex items-center gap-2 text-sm text-slate-400">
+                <input
+                  type="checkbox"
+                  checked={onlyNoImage}
+                  onChange={(e) => {
+                    setOnlyNoImage(e.target.checked)
+                    setCurrentPage(1)
+                  }}
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500"
+                />
+                <span>Only colleges without image</span>
+              </label>
 
               <div className="flex items-center gap-2">
                 <label htmlFor="pageSize" className="text-sm text-slate-400">
@@ -300,29 +347,45 @@ export default function CollegesManagementPage() {
             <table className="w-full">
               <thead className="bg-slate-800/50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">College</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Streams</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Locations</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Position</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    College
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Streams
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Locations
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Position
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                    <td
+                      colSpan={5}
+                      className="px-6 py-12 text-center text-slate-400"
+                    >
                       Loading colleges...
                     </td>
                   </tr>
-                ) : colleges.length === 0 ? (
+                ) : visibleColleges.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                    <td
+                      colSpan={5}
+                      className="px-6 py-12 text-center text-slate-400"
+                    >
                       No colleges found
                     </td>
                   </tr>
                 ) : (
-                  colleges.map((college) => {
+                  visibleColleges.map((college) => {
                     const collegeId = getCollegeId(college)
 
                     return (
@@ -349,11 +412,21 @@ export default function CollegesManagementPage() {
                             )}
 
                             <div>
-                              <h3 className="font-semibold text-white">{college.name}</h3>
+                              <h3 className="font-semibold text-white">
+                                {college.name}
+                              </h3>
                               <div className="flex items-center gap-2 text-xs text-slate-400">
-                                {college.rating ? <span>{college.rating}</span> : null}
-                                {college.naac ? <span>NAAC {college.naac}</span> : null}
-                                {college.type ? <span className="capitalize">{college.type}</span> : null}
+                                {college.rating ? (
+                                  <span>{college.rating}</span>
+                                ) : null}
+                                {college.naac ? (
+                                  <span>NAAC {college.naac}</span>
+                                ) : null}
+                                {college.type ? (
+                                  <span className="capitalize">
+                                    {college.type}
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
                           </div>
@@ -361,14 +434,16 @@ export default function CollegesManagementPage() {
 
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {(college.streams || []).slice(0, 2).map((stream, idx) => (
-                              <span
-                                key={`${collegeId || college.slug}-stream-${stream}-${idx}`}
-                                className="rounded-full border border-blue-500/30 bg-blue-500/20 px-2 py-1 text-xs text-blue-300"
-                              >
-                                {stream}
-                              </span>
-                            ))}
+                            {(college.streams || [])
+                              .slice(0, 2)
+                              .map((stream, idx) => (
+                                <span
+                                  key={`${collegeId || college.slug}-stream-${stream}-${idx}`}
+                                  className="rounded-full border border-blue-500/30 bg-blue-500/20 px-2 py-1 text-xs text-blue-300"
+                                >
+                                  {stream}
+                                </span>
+                              ))}
                             {(college.streams || []).length > 2 && (
                               <span className="rounded-full bg-slate-700 px-2 py-1 text-xs text-slate-300">
                                 +{(college.streams || []).length - 2}
@@ -380,7 +455,9 @@ export default function CollegesManagementPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1 text-slate-300">
                             <MapPin className="h-4 w-4" />
-                            <span className="text-sm">{(college.locations || []).join(', ')}</span>
+                            <span className="text-sm">
+                              {(college.locations || []).join(', ')}
+                            </span>
                           </div>
                         </td>
 
@@ -409,12 +486,25 @@ export default function CollegesManagementPage() {
                             </Link>
 
                             <button
-                              onClick={() => handleDelete(collegeId, college.name)}
+                              onClick={() =>
+                                handleDelete(collegeId, college.name)
+                              }
                               className="rounded-lg p-2 text-slate-400 transition-all hover:bg-red-500/20 hover:text-red-400"
                               title="Delete College"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
+
+                            {/* Arrow for no-image colleges to move them up in the current list */}
+                            {!college.image && (
+                              <button
+                                onClick={() => handleMoveToTop(college)}
+                                className="rounded-lg p-2 text-slate-400 transition-all hover:bg-yellow-500/20 hover:text-yellow-300"
+                                title="Move to top of this list"
+                              >
+                                <ChevronUp className="h-4 w-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -442,7 +532,10 @@ export default function CollegesManagementPage() {
             <div className="text-sm text-slate-400">
               {pageSize === 'all'
                 ? `Showing all ${totalColleges} colleges`
-                : `Page ${currentPage} of ${Math.max(totalPages, 1)} • Total ${totalColleges} colleges`}
+                : `Page ${currentPage} of ${Math.max(
+                    totalPages,
+                    1
+                  )} • Total ${totalColleges} colleges`}
             </div>
 
             <button
@@ -461,26 +554,47 @@ export default function CollegesManagementPage() {
         </div>
 
         {showModal && selectedCollege && (
-          <ModalShell title={selectedCollege.name} onClose={() => setShowModal(false)}>
+          <ModalShell
+            title={selectedCollege.name}
+            onClose={() => setShowModal(false)}
+          >
             <div className="space-y-5 text-slate-200">
               <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                 <InfoBox label="Slug" value={selectedCollege.slug || '-'} />
-                <InfoBox label="Position" value={String(selectedCollege.positions || '-')} />
+                <InfoBox
+                  label="Position"
+                  value={String(selectedCollege.positions || '-')}
+                />
                 <InfoBox label="Type" value={selectedCollege.type || '-'} />
                 <InfoBox label="NAAC" value={selectedCollege.naac || '-'} />
                 <InfoBox
                   label="Established"
-                  value={selectedCollege.established ? String(selectedCollege.established) : '-'}
+                  value={
+                    selectedCollege.established
+                      ? String(selectedCollege.established)
+                      : '-'
+                  }
                 />
-                <InfoBox label="Rating" value={selectedCollege.rating ? String(selectedCollege.rating) : '-'} />
+                <InfoBox
+                  label="Rating"
+                  value={
+                    selectedCollege.rating
+                      ? String(selectedCollege.rating)
+                      : '-'
+                  }
+                />
               </div>
 
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-slate-300">Streams</h3>
+                <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                  Streams
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {(selectedCollege.streams || []).map((stream, i) => (
                     <span
-                      key={`${getCollegeId(selectedCollege)}-view-stream-${stream}-${i}`}
+                      key={`${getCollegeId(
+                        selectedCollege
+                      )}-view-stream-${stream}-${i}`}
                       className="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-300"
                     >
                       {stream}
@@ -490,11 +604,15 @@ export default function CollegesManagementPage() {
               </div>
 
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-slate-300">Locations</h3>
+                <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                  Locations
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {(selectedCollege.locations || []).map((location, i) => (
                     <span
-                      key={`${getCollegeId(selectedCollege)}-view-location-${location}-${i}`}
+                      key={`${getCollegeId(
+                        selectedCollege
+                      )}-view-location-${location}-${i}`}
                       className="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-300"
                     >
                       {location}
@@ -505,21 +623,34 @@ export default function CollegesManagementPage() {
 
               {selectedCollege.overview?.description && (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-slate-300">Overview</h3>
-                  <p className="text-sm leading-6 text-slate-400">{selectedCollege.overview.description}</p>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                    Overview
+                  </h3>
+                  <p className="text-sm leading-6 text-slate-400">
+                    {selectedCollege.overview.description}
+                  </p>
                 </div>
               )}
 
               {(selectedCollege.courses || []).length > 0 && (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-slate-300">Courses</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                    Courses
+                  </h3>
                   <div className="max-h-64 space-y-2 overflow-auto pr-1">
                     {selectedCollege.courses.map((course, idx) => (
                       <div
-                        key={course.id || `${getCollegeId(selectedCollege)}-course-${course.name}-${idx}`}
+                        key={
+                          course.id ||
+                          `${getCollegeId(
+                            selectedCollege
+                          )}-course-${course.name}-${idx}`
+                        }
                         className="rounded-lg border border-slate-700 bg-slate-800/50 p-3"
                       >
-                        <div className="font-medium text-white">{course.name}</div>
+                        <div className="font-medium text-white">
+                          {course.name}
+                        </div>
                         <div className="mt-1 text-xs text-slate-400">
                           {course.level} • {course.duration} • {course.fees}
                           {course.seats ? ` • Seats ${course.seats}` : ''}
@@ -592,7 +723,9 @@ function ModalShell({
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-800/40 p-3">
-      <div className="mb-1 text-xs uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="mb-1 text-xs uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
       <div className="text-sm text-white">{value}</div>
     </div>
   )

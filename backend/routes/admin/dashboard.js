@@ -22,7 +22,7 @@ router.get('/stats', async (req, res) => {
       pendingEnquiries
     ] = await Promise.all([
       // Total colleges
-      db.get().collection('collegeoruni').countDocuments({}),
+      db.get().collection('colleges').countDocuments({}),
       
       // Total enquiries
       db.get().collection('expert_queries').countDocuments({}),
@@ -110,7 +110,7 @@ router.get('/activities', async (req, res) => {
         .limit(5)
         .toArray(),
       
-      db.get().collection('collegeoruni')
+      db.get().collection('colleges')
         .find({})
         .sort({ createdAt: -1 })
         .limit(3)

@@ -18,7 +18,7 @@ router.get('/suggestions', async (req, res) => {
     const query = q.toLowerCase().trim();
     
     // Search colleges, streams, and locations
-    const colleges = await db.get().collection('collegeoruni')
+    const colleges = await db.get().collection('colleges')
       .find({
         $or: [
           { name: { $regex: query, $options: 'i' } },
