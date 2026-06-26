@@ -39,6 +39,14 @@ interface College {
   ranking?: number;
 }
 
+// helper so we don’t hardcode domain
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
+const getAssetUrl = (image?: string) => {
+  if (!image) return '';
+  if (image.startsWith('http://') || image.startsWith('https://')) return image;
+  return API_URL.replace(/\/api$/, '') + image;
+};
+
 const FeaturedColleges = () => {
   const [colleges, setColleges] = useState<College[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +55,8 @@ const FeaturedColleges = () => {
   const [savedColleges, setSavedColleges] = useState<Set<string>>(new Set());
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState<{id: string, name: string} | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api';
 
   useEffect(() => {
     const fetchColleges = async () => {
@@ -71,7 +76,7 @@ const FeaturedColleges = () => {
     };
 
     fetchColleges();
-  }, [API_URL]);
+  }, []);
 
   const getCardsPerSlide = () => {
     if (typeof window !== 'undefined') {
@@ -148,13 +153,11 @@ const FeaturedColleges = () => {
     return colors[index % colors.length];
   };
 
-  // Handle apply button click
   const handleApplyClick = (collegeId: string, collegeName: string) => {
     setSelectedCollege({ id: collegeId, name: collegeName });
     setModalOpen(true);
   };
 
-  // Text truncation function
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
@@ -167,14 +170,18 @@ const FeaturedColleges = () => {
         <div className="absolute top-20 left-20 w-40 h-40 bg-[#173974]/8 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-60 h-60 bg-purple-500/8 rounded-full blur-3xl animate-pulse delay-700"></div>
         
-        <div className="absolute inset-0 opacity-[0.02]"
+        <div
+          className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `repeating-linear-gradient(0deg, #173974 0px, transparent 1px, transparent 99px, #173974 100px),
                              repeating-linear-gradient(90deg, #173974 0px, transparent 1px, transparent 99px, #173974 100px)`
           }}
         ></div>
         
-        <div className="absolute top-32 right-1/4 w-2 h-2 bg-[#173974]/30 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+        <div
+          className="absolute top-32 right-1/4 w-2 h-2 bg-[#173974]/30 rounded-full animate-bounce"
+          style={{ animationDelay: '1s' }}
+        ></div>
         <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-purple-500/30 rounded-full animate-pulse delay-300"></div>
       </div>
 
@@ -183,7 +190,9 @@ const FeaturedColleges = () => {
         <div className="text-center mb-6 sm:mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#173974]/10 to-purple-500/10 border border-[#173974]/20 backdrop-blur-sm mb-3 sm:mb-4 group hover:scale-105 transition-transform">
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#173974] animate-pulse" />
-            <span className="text-[10px] sm:text-xs font-bold text-[#173974] uppercase tracking-wider">Premium Institutions</span>
+            <span className="text-[10px] sm:text-xs font-bold text-[#173974] uppercase tracking-wider">
+              Premium Institutions
+            </span>
             <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 animate-pulse" />
           </div>
           
@@ -244,29 +253,39 @@ const FeaturedColleges = () => {
             <div className="overflow-hidden rounded-2xl">
               <div 
                 className="flex transition-transform duration-700 ease-in-out"
-                style={{ 
-                  transform: `translateX(-${currentSlide * 100}%)` 
-                }}
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
                 {Array.from({ length: totalSlides }).map((_, slideIndex) => (
                   <div key={slideIndex} className="w-full flex-shrink-0">
-                    <div className={`grid gap-4 sm:gap-6 ${
-                      cardsPerSlide === 1 ? 'grid-cols-1 max-w-sm mx-auto' : 
-                      cardsPerSlide === 2 ? 'grid-cols-2' : 
-                      cardsPerSlide === 3 ? 'grid-cols-3' : 'grid-cols-4'
-                    }`}>
+                    <div
+                      className={`grid gap-4 sm:gap-6 ${
+                        cardsPerSlide === 1
+                          ? 'grid-cols-1 max-w-sm mx-auto'
+                          : cardsPerSlide === 2
+                          ? 'grid-cols-2'
+                          : cardsPerSlide === 3
+                          ? 'grid-cols-3'
+                          : 'grid-cols-4'
+                      }`}
+                    >
                       {colleges
-                        .slice(slideIndex * cardsPerSlide, (slideIndex + 1) * cardsPerSlide)
+                        .slice(
+                          slideIndex * cardsPerSlide,
+                          (slideIndex + 1) * cardsPerSlide
+                        )
                         .map((college, index) => (
-<div 
-  key={college._id} 
-  className={`group relative transition-all duration-300 ${
-    hoveredCard === slideIndex * cardsPerSlide + index ? 'z-10' : 'z-0'
-  }`}
-  onMouseEnter={() => setHoveredCard(slideIndex * cardsPerSlide + index)}
-  onMouseLeave={() => setHoveredCard(null)}
->
-
+                          <div
+                            key={college._id}
+                            className={`group relative transition-all duration-300 ${
+                              hoveredCard === slideIndex * cardsPerSlide + index
+                                ? 'z-10'
+                                : 'z-0'
+                            }`}
+                            onMouseEnter={() =>
+                              setHoveredCard(slideIndex * cardsPerSlide + index)
+                            }
+                            onMouseLeave={() => setHoveredCard(null)}
+                          >
                             {/* Fixed Height Card - NO ROTATION */}
                             <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100 hover:border-[#173974]/30 transform hover:scale-[1.02] hover:-translate-y-1 flex flex-col h-[420px]">
                               
@@ -303,24 +322,27 @@ const FeaturedColleges = () => {
                                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#173974] via-blue-600 to-purple-600 flex-shrink-0">
                                   {college.image ? (
                                     <Image
-                                      src={`https://learnscapeedu.com${college.image}`}
+                                      src={getAssetUrl(college.image)}
                                       alt={college.name}
                                       fill
                                       className="object-cover group-hover:scale-110 transition-transform duration-700"
                                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                                      unoptimized
                                     />
                                   ) : (
                                     <div className="absolute inset-0 flex items-center justify-center">
                                       <div className="text-center text-white">
                                         <GraduationCap className="w-12 h-12 mx-auto mb-2 opacity-80 animate-pulse" />
-                                        <div className="text-sm font-bold opacity-90">Premium Institution</div>
+                                        <div className="text-sm font-bold opacity-90">
+                                          Premium Institution
+                                        </div>
                                       </div>
                                     </div>
                                   )}
                                   
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                                   
-                                  {/* Bottom badges - Removed Courses count as requested */}
+                                  {/* Bottom badges */}
                                   <div className="absolute bottom-3 right-3">
                                     <div className="px-3 py-1.5 bg-yellow-400/95 backdrop-blur-sm rounded-full text-xs font-bold text-gray-900 flex items-center gap-1.5 shadow-md">
                                       <Star className="w-3 h-3" />
@@ -335,28 +357,32 @@ const FeaturedColleges = () => {
                                   <div className="mb-3">
                                     <h3 
                                       className="text-base font-bold text-gray-900 group-hover:bg-gradient-to-r group-hover:from-[#173974] group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all leading-tight"
-                                      title={college.name} // Tooltip shows full name
+                                      title={college.name}
                                     >
                                       {truncateText(college.name, 40)}
                                     </h3>
                                   </div>
                                   
-                                  {/* Location with animated icon */}
+                                  {/* Location */}
                                   <div className="flex items-center gap-2 mb-4">
                                     <MapPin className="w-4 h-4 text-[#173974] animate-pulse flex-shrink-0" />
                                     <span className="text-sm font-medium text-gray-600 truncate">
                                       {college.locations[0]}
-                                      {college.locations.length > 1 && <span className="text-xs text-gray-400 ml-1">+{college.locations.length - 1}</span>}
+                                      {college.locations.length > 1 && (
+                                        <span className="text-xs text-gray-400 ml-1">
+                                          +{college.locations.length - 1}
+                                        </span>
+                                      )}
                                     </span>
                                   </div>
 
-                                  {/* Stream tags with fixed height */}
+                                  {/* Stream tags */}
                                   <div className="flex flex-wrap gap-2 mb-4 min-h-[60px] content-start">
                                     {college.streams.slice(0, 3).map((stream, idx) => (
                                       <span
                                         key={idx}
                                         className={`px-3 py-1 text-xs font-semibold rounded-full border transition-all hover:scale-105 cursor-pointer ${getStreamColor(idx)}`}
-                                        title={stream} // Tooltip for full stream name
+                                        title={stream}
                                       >
                                         {truncateText(stream, 12)}
                                       </span>
@@ -368,31 +394,29 @@ const FeaturedColleges = () => {
                                     )}
                                   </div>
 
-                                 {/* Action buttons - SMALLER FONTS */}
-<div className="flex gap-2 mt-auto">
-  <Link
-    href={`/colleges/${college._id}`}
-    className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-2 border-gray-200 rounded-lg font-semibold text-xs text-center hover:from-gray-100 hover:to-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg group/btn"
-  >
-    <span className="flex items-center justify-center gap-1">
-      Details
-      <TrendingUp className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-    </span>
-  </Link>
-  
-  <button
-    onClick={() => handleApplyClick(college._id, college.name)}
-    className="flex-1 px-3 py-2 bg-gradient-to-r from-[#173974] to-blue-600 text-white rounded-lg font-semibold text-xs text-center hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden group/apply"
-  >
-    <span className="relative z-10 flex items-center justify-center gap-1">
-      Apply Now
-      <ArrowRight className="w-3 h-3 group-hover/apply:translate-x-1 transition-transform" />
-    </span>
-    {/* Shimmer effect */}
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/apply:translate-x-[100%] transition-transform duration-700"></div>
-  </button>
-</div>
-
+                                  {/* Action buttons */}
+                                  <div className="flex gap-2 mt-auto">
+                                    <Link
+                                      href={`/colleges/${college._id}`}
+                                      className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-2 border-gray-200 rounded-lg font-semibold text-xs text-center hover:from-gray-100 hover:to-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg group/btn"
+                                    >
+                                      <span className="flex items-center justify-center gap-1">
+                                        Details
+                                        <TrendingUp className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                                      </span>
+                                    </Link>
+                                    
+                                    <button
+                                      onClick={() => handleApplyClick(college._id, college.name)}
+                                      className="flex-1 px-3 py-2 bg-gradient-to-r from-[#173974] to-blue-600 text-white rounded-lg font-semibold text-xs text-center hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden group/apply"
+                                    >
+                                      <span className="relative z-10 flex items-center justify-center gap-1">
+                                        Apply Now
+                                        <ArrowRight className="w-3 h-3 group-hover/apply:translate-x-1 transition-transform" />
+                                      </span>
+                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/apply:translate-x-[100%] transition-transform duration-700"></div>
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -404,49 +428,45 @@ const FeaturedColleges = () => {
               </div>
             </div>
 
-        {/* Progress indicators - STANDARD COLOR DOTS */}
-{totalSlides > 1 && (
-  <div className="flex justify-center items-center mt-8 gap-2">
-    {Array.from({ length: totalSlides }).map((_, index) => (
-      <button
-        key={index}
-        onClick={() => goToSlide(index)}
-        className={`relative transition-all duration-500 ${
-          currentSlide === index 
-            ? 'h-2 w-10 bg-blue-600 rounded-full shadow-lg' // Active dot - blue
-            : 'h-2 w-2 bg-gray-400 hover:bg-gray-500 rounded-full' // Inactive dots - gray
-        }`}
-        aria-label={`Go to slide ${index + 1}`}
-      >
-        {currentSlide === index && (
-          <div className="absolute inset-0 bg-gray-800 rounded-full animate-pulse"></div>
-        )}
-      </button>
-    ))}
-    
-    <div className="ml-3 text-xs text-gray-600 font-mono font-bold">
-      {String(currentSlide + 1).padStart(2, '0')}/{String(totalSlides).padStart(2, '0')}
-    </div>
-  </div>
-)}
-
-
-           
+            {/* Progress indicators */}
+            {totalSlides > 1 && (
+              <div className="flex justify-center items-center mt-8 gap-2">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`relative transition-all duration-500 ${
+                      currentSlide === index 
+                        ? 'h-2 w-10 bg-blue-600 rounded-full shadow-lg'
+                        : 'h-2 w-2 bg-gray-400 hover:bg-gray-500 rounded-full'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  >
+                    {currentSlide === index && (
+                      <div className="absolute inset-0 bg-gray-800 rounded-full animate-pulse"></div>
+                    )}
+                  </button>
+                ))}
+                
+                <div className="ml-3 text-xs text-gray-600 font-mono font-bold">
+                  {String(currentSlide + 1).padStart(2, '0')}/{String(totalSlides).padStart(2, '0')}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* CTA Section - SMALLER BUTTON */}
-<div className="text-center mt-10 sm:mt-12">
-  <Link
-    href="/colleges"
-    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#173974] via-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-xl hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] group border border-blue-500/20 relative overflow-hidden"
-  >
-    <span className="relative z-10">Explore All Colleges</span>
-    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-  </Link>
-</div>
-
+        {/* CTA Section */}
+        <div className="text-center mt-10 sm:mt-12">
+          <Link
+            href="/colleges"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#173974] via-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-xl hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] group border border-blue-500/20 relative overflow-hidden"
+          >
+            <span className="relative z-10">Explore All Colleges</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+          </Link>
+        </div>
       </div>
 
       {/* Enquiry Modal */}

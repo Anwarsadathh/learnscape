@@ -38,6 +38,9 @@ const STREAMS = [
   'Dental',
 ];
 
+const STREAMS_PER_PAGE = 6;
+const STREAM_TOTAL_PAGES = Math.ceil(STREAMS.length / STREAMS_PER_PAGE);
+
 // Optional per-stream colour accents (matches what /api/streams returns)
 const STREAM_COLORS: Record<string, { bg: string; color: string }> = {
   'Engineering':        { bg: 'rgba(59,130,246,0.12)',  color: '#60a5fa' },
@@ -162,9 +165,41 @@ function CollegesContent() {
   const [currentPage, setCurrentPage]         = useState(1);
   const [totalPages, setTotalPages]           = useState(1);
   const [totalColleges, setTotalColleges]     = useState(0);
-  const pageSize = 12;
 
+  // ── Stream carousel state ─────────────────────────────────────────
+  const [streamPage, setStreamPage]     = useState(0);
+  const [streamVisible, setStreamVisible] = useState(true);
+  const [isPaused, setIsPaused]         = useState(false);
+
+  const pageSize = 12;
   const searchParams = useSearchParams();
+
+  // ── Stream carousel logic ─────────────────────────────────────────
+  const goToStreamPage = useCallback((index: number) => {
+    setStreamVisible(false);
+    setTimeout(() => {
+      setStreamPage(index);
+      setStreamVisible(true);
+    }, 350);
+  }, []);
+
+  // Auto-rotate every 3.5s unless paused
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setStreamVisible(false);
+      setTimeout(() => {
+        setStreamPage(p => (p + 1) % STREAM_TOTAL_PAGES);
+        setStreamVisible(true);
+      }, 350);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  const visibleStreams = STREAMS.slice(
+    streamPage * STREAMS_PER_PAGE,
+    (streamPage + 1) * STREAMS_PER_PAGE
+  );
 
   // ── Fetch colleges ─────────────────────────────────────────────
   const fetchColleges = useCallback(async (page = 1) => {
@@ -638,21 +673,89 @@ function CollegesContent() {
               </button>
             </div>
 
-            {/* Quick stream pill tags (first 6) */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {STREAMS.slice(0, 6).map(s => {
-                const active = selectedStreams.includes(s);
-                return (
-                  <button
-                    key={s}
-                    onClick={() => toggleStream(s)}
-                    className="text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all"
-                    style={getStreamStyle(s, active)}
-                  >
-                    {s}
-                  </button>
-                );
-              })}
+            {/* ── Stream pill carousel — all streams, 6 at a time, auto-rotating ── */}
+            <div
+              className="mt-5"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Pills container with fade + slide animation */}
+              <div
+                style={{
+                  opacity: streamVisible ? 1 : 0,
+                  transform: streamVisible ? 'translateY(0px)' : 'translateY(-8px)',
+                  transition: 'opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1)',
+                  minHeight: '36px',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
+              >
+                {visibleStreams.map(s => {
+                  const active = selectedStreams.includes(s);
+                  const c = STREAM_COLORS[s];
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => toggleStream(s)}
+                      className="text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 hover:scale-105 hover:-translate-y-0.5"
+                      style={getStreamStyle(s, active)}
+                    >
+                      {/* Coloured dot accent */}
+                      <span
+                        className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle"
+                        style={{ background: c?.color ?? '#60a5fa', opacity: active ? 1 : 0.5 }}
+                      />
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Page indicator dots + label */}
+              <div className="flex flex-col items-center gap-2 mt-4">
+                {/* Dots */}
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: STREAM_TOTAL_PAGES }).map((_, i) => {
+                    const isActive = i === streamPage;
+                    const c = STREAM_COLORS[STREAMS[i * STREAMS_PER_PAGE]];
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => goToStreamPage(i)}
+                        title={`Show streams ${i * STREAMS_PER_PAGE + 1}–${Math.min((i + 1) * STREAMS_PER_PAGE, STREAMS.length)}`}
+                        style={{
+                          width: isActive ? '22px' : '7px',
+                          height: '7px',
+                          borderRadius: '999px',
+                          background: isActive
+                            ? (c?.color ?? '#60a5fa')
+                            : 'rgba(255,255,255,0.15)',
+                          transition: 'width 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s ease',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Subtle label */}
+                <p
+                  style={{
+                    fontSize: '10px',
+                    color: 'rgba(255,255,255,0.25)',
+                    letterSpacing: '0.8px',
+                    textTransform: 'uppercase',
+                    fontWeight: 600,
+                    transition: 'opacity 0.3s ease',
+                  }}
+                >
+                  {streamPage * STREAMS_PER_PAGE + 1}–{Math.min((streamPage + 1) * STREAMS_PER_PAGE, STREAMS.length)} of {STREAMS.length} streams · hover to pause
+                </p>
+              </div>
             </div>
           </div>
         </div>
