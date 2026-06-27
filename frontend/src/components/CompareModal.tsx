@@ -125,7 +125,7 @@ function BestBadge({ label = 'BEST', variant = 'green' }: { label?: string; vari
 function SecHead({ icon, label, accent, cols }: { icon: React.ReactNode; label: string; accent: string; cols: number }) {
   return (
     <div className="flex items-stretch" style={{ background: 'linear-gradient(90deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))', borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-      <div className="w-[90px] flex-shrink-0 px-3 py-2.5 flex items-center gap-1.5 border-r relative overflow-hidden"
+      <div className="w-[72px] sm:w-[90px] flex-shrink-0 px-3 py-2.5 flex items-center gap-1.5 border-r relative overflow-hidden"
         style={{ borderRightColor: 'rgba(255,255,255,0.06)', borderLeft: `3px solid ${accent}`, animation: 'accentPulse 2.5s ease-in-out infinite' }}>
         <div className="absolute left-0 top-0 h-full w-6 pointer-events-none"
           style={{ background: `linear-gradient(90deg,${accent}22,transparent)` }} />
@@ -144,7 +144,7 @@ function Row({ label, vals, best = -1, alt = false }: { label: string; vals: Rea
   return (
     <div className={`flex items-stretch border-b group transition-colors hover:bg-white/[0.018] ${alt ? 'bg-white/[0.012]' : 'bg-transparent'}`}
       style={{ borderColor: 'rgba(255,255,255,0.045)' }}>
-      <div className="w-[90px] flex-shrink-0 px-3 py-3 flex items-center border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+      <div className="w-[72px] sm:w-[90px] flex-shrink-0 px-3 py-3 flex items-center border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
         <span className="text-[10.5px] text-slate-500 group-hover:text-slate-400 transition-colors leading-snug">{label}</span>
       </div>
       {/* ✅ KEY ADDED */}
@@ -190,11 +190,22 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
     setBarsOn(false);
   }, [isOpen]);
 
+  // ── Lock body scroll when modal is open ──────────────────────
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   if (!isOpen || !colleges.length) return null;
 
   const n = colleges.length;
   const cols = n < 3 ? n + 1 : n;
-  const minW = n === 3 ? `${90 + 3 * 158}px` : `${90 + n * 158}px`;
+  // Column width: 145px per college on mobile, 170px on desktop
+  const colW = typeof window !== 'undefined' && window.innerWidth < 640 ? 145 : 170;
+  const labelW = typeof window !== 'undefined' && window.innerWidth < 640 ? 72 : 90;
+  const minW = `${labelW + n * colW}px`;
 
   /* best indices */
   const bRank   = getBest(colleges, c => c.positions, true);
@@ -230,7 +241,7 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
 
         {/* Modal inner */}
         <div className="bg-[#060a14] sm:rounded-[23.5px] flex flex-col overflow-hidden"
-          style={{ height: 'min(95vh,900px)', animation: 'cmpIn .38s cubic-bezier(0.4,0,0.2,1)' }}>
+          style={{ height: '100dvh', maxHeight: '900px', animation: 'cmpIn .38s cubic-bezier(0.4,0,0.2,1)' }}>
 
           {/* ════ AI HEADER ════ */}
           <div className="relative flex-shrink-0 overflow-hidden px-5 py-4"
@@ -290,10 +301,10 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
           </div>
 
           {/* ════ COMPACT COLLEGE STRIP — AI glow cards ════ */}
-          <div className="flex-shrink-0 overflow-x-auto" style={{ background: 'linear-gradient(180deg,rgba(8,12,28,1),rgba(6,10,20,1))', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex-shrink-0 overflow-x-auto" style={{ background: 'linear-gradient(180deg,rgba(8,12,28,1),rgba(6,10,20,1))', borderBottom: '1px solid rgba(255,255,255,0.07)', WebkitOverflowScrolling: 'touch' }}>
             <div style={{ minWidth: minW }} className="flex">
               {/* label col */}
-              <div className="w-[90px] flex-shrink-0 px-3 py-3.5 flex items-center border-r" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              <div className="w-[72px] sm:w-[90px] flex-shrink-0 px-3 py-3.5 flex items-center border-r" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                 <span className="text-[8px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.2)' }}>College</span>
               </div>
 
@@ -301,60 +312,48 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
               {colleges.map((college, ci) => {
                 const ns = NAAC_D[college.naac?.trim() ?? ''];
                 return (
-                  <div key={college._id} className="flex-1 px-3 py-3 border-r last:border-0 min-w-0 rounded-none"
+                  <div key={college._id} className="flex-1 px-2 py-2.5 border-r last:border-0 min-w-0"
                     style={{ borderColor: 'rgba(255,255,255,0.06)', animation: `slotPulse 3.5s ease-in-out ${ci * 0.35}s infinite`, animationFillMode: 'both' }}>
-                    <div className="flex items-start gap-2 mb-2">
-                      {/* College image with glow ring */}
-                      <div className="relative w-9 h-9 rounded-[9px] overflow-hidden flex-shrink-0 bg-slate-800"
-                        style={{ border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 0 8px rgba(139,92,246,0.2)' }}>
-                        {college.image ? (
-                          <Image src={assetUrl(college.image)} alt={college.name} fill className="object-cover" unoptimized />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <GraduationCap size={14} className="text-slate-600" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-1">
-                          <p className="text-[11px] font-bold text-white leading-snug line-clamp-2 flex-1">{college.name}</p>
-                          <button onClick={() => onRemove(college._id)} className="text-slate-700 hover:text-red-400 flex-shrink-0 ml-0.5 mt-0.5 transition-colors">
-                            <X size={11} />
-                          </button>
+
+                    {/* Image row */}
+                    <div className="relative w-full h-16 sm:h-20 rounded-[8px] overflow-hidden mb-2 bg-slate-800"
+                      style={{ border: '1px solid rgba(139,92,246,0.25)' }}>
+                      {college.image ? (
+                        <Image src={assetUrl(college.image)} alt={college.name} fill className="object-cover" unoptimized />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <GraduationCap size={16} className="text-slate-600" />
                         </div>
-                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                            style={{ background: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>#{college.positions}</span>
-                          {college.rating && (
-                            <span className="flex items-center gap-0.5">
-                              <Star size={8} className="text-yellow-400 fill-yellow-400" />
-                              <span className="text-[8.5px] font-bold text-slate-400">{college.rating}</span>
-                            </span>
-                          )}
-                          {college.naac && (
-                            <span className="text-[7.5px] font-extrabold px-1.5 py-[2px] rounded-full border"
-                              style={ns ? { background: ns.bg, color: ns.color, borderColor: ns.border } : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8', borderColor: 'rgba(255,255,255,0.1)' }}>
-                              NAAC {college.naac}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5">
-                      {/* Apply — aurora shimmer */}
-                      <button onClick={() => openEnq(college)}
-                        className="relative overflow-hidden flex-1 text-[9.5px] font-bold text-white py-1.5 rounded-[7px] transition-all flex items-center justify-center gap-0.5"
-                        style={{ background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6)', backgroundSize: '200% auto', animation: `ctaShimmer ${3 + ci * 0.4}s ease infinite`, boxShadow: '0 2px 10px rgba(139,92,246,0.35)' }}>
-                        <span className="absolute inset-0 pointer-events-none"
-                          style={{ background: 'linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.18) 50%,transparent 65%)', animation: 'shimmer 3s ease-in-out infinite' }} />
-                        <span className="w-1 h-1 rounded-full bg-white/70 animate-pulse relative z-10" />
-                        <span className="relative z-10">Apply</span>
+                      )}
+                      {/* Remove X on image */}
+                      <button onClick={() => onRemove(college._id)}
+                        className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center transition-colors"
+                        style={{ background: 'rgba(0,0,0,0.55)' }}>
+                        <X size={9} className="text-white/70" />
                       </button>
-                      <Link href={`/colleges/${college._id}`} onClick={onClose}
-                        className="flex-1 text-center text-[9.5px] font-semibold text-slate-400 hover:text-white border hover:border-white/20 py-1.5 rounded-[7px] transition-all"
-                        style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-                        View →
-                      </Link>
+                    </div>
+
+                    {/* Name */}
+                    <p className="text-[10px] font-bold text-white leading-tight line-clamp-2 mb-1.5">{college.name}</p>
+
+                    {/* Badges row */}
+                    <div className="flex items-center gap-1 flex-wrap mb-1">
+                      <span className="text-[7.5px] font-bold px-1 py-0.5 rounded-full"
+                        style={{ background: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>
+                        #{college.positions}
+                      </span>
+                      {college.rating && (
+                        <span className="flex items-center gap-0.5">
+                          <Star size={7} className="text-yellow-400 fill-yellow-400" />
+                          <span className="text-[7.5px] font-bold text-slate-400">{college.rating}</span>
+                        </span>
+                      )}
+                      {college.naac && (
+                        <span className="text-[7px] font-extrabold px-1 py-[1px] rounded-full border"
+                          style={ns ? { background: ns.bg, color: ns.color, borderColor: ns.border } : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8', borderColor: 'rgba(255,255,255,0.1)' }}>
+                          NAAC {college.naac}
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
@@ -376,7 +375,7 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
 
           {/* ════ SCROLLABLE CONTENT ════ */}
           <div className="flex-1 overflow-y-auto overflow-x-auto"
-            style={{ background: 'linear-gradient(180deg,#06090f 0%,#060a14 100%)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(139,92,246,0.3) transparent' }}>
+            style={{ background: 'linear-gradient(180deg,#06090f 0%,#060a14 100%)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(139,92,246,0.3) transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
             <div style={{ minWidth: minW }}>
 
               {/* ╔═══════════════════════════════╗
@@ -451,7 +450,7 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
                   ] as const).map(({ label, fn, best, badge }, ri) => (
                     <div key={label} className={`flex items-stretch hover:bg-white/[0.015] transition-colors ${ri === 0 ? 'border-b' : ''}`}
                       style={{ borderColor: 'rgba(245,158,11,0.1)' }}>
-                      <div className="w-[90px] flex-shrink-0 px-3 py-2.5 flex items-center border-r" style={{ borderColor: 'rgba(245,158,11,0.1)' }}>
+                      <div className="w-[72px] sm:w-[90px] flex-shrink-0 px-3 py-2.5 flex items-center border-r" style={{ borderColor: 'rgba(245,158,11,0.1)' }}>
                         <span className="text-[10.5px] font-semibold text-amber-600/80">{label}</span>
                       </div>
                       {/* ✅ KEY on inner college map */}
@@ -486,7 +485,7 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
 
                 <div className="flex">
                   {/* label col */}
-                  <div className="w-[90px] flex-shrink-0 px-3 py-3 border-r flex items-start" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
+                  <div className="w-[72px] sm:w-[90px] flex-shrink-0 px-3 py-3 border-r flex items-start" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
                     <span className="text-[8.5px] text-slate-600 font-medium leading-relaxed">Individual Course Fees</span>
                   </div>
 
@@ -681,13 +680,13 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
 
               {/* ════ FOOTER CTA — aurora shimmer button ════ */}
               <div className="px-4 py-5 mt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', background: 'linear-gradient(90deg,rgba(59,130,246,0.04),rgba(139,92,246,0.04),rgba(59,130,246,0.04))', backgroundSize: '200% auto', animation: 'sectionAura 5s ease infinite' }}>
-                <div className="flex" style={{ paddingLeft: '90px' }}>
+                {/* Mobile: stack buttons vertically; Desktop: row with label-column offset */}
+                <div className="hidden sm:flex" style={{ paddingLeft: `${labelW}px` }}>
                   {colleges.map(c => (
                     <div key={c._id} className="flex-1 px-3 first:pl-0">
                       <button onClick={() => openEnq(c)}
                         className="relative overflow-hidden w-full text-[11.5px] font-bold text-white py-2.5 rounded-[10px] transition-all hover:-translate-y-0.5 flex items-center justify-center gap-1.5"
                         style={{ background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6)', backgroundSize: '200% auto', animation: 'ctaShimmer 3s ease infinite', boxShadow: '0 4px 18px rgba(139,92,246,0.4),0 0 0 1px rgba(139,92,246,0.25)' }}>
-                        {/* Shimmer streak */}
                         <span className="absolute inset-0 pointer-events-none"
                           style={{ background: 'linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.18) 50%,transparent 65%)', animation: 'shimmer 3s ease-in-out infinite' }} />
                         <Scale size={11} className="relative z-10" />
@@ -696,6 +695,20 @@ export default function CompareModal({ isOpen, onClose, colleges, onRemove }: Co
                     </div>
                   ))}
                   {n < 3 && <div className="flex-1 px-3" />}
+                </div>
+                {/* Mobile CTA — 1 row, 2 small buttons */}
+                <div className="flex sm:hidden gap-2 mt-1">
+                  {colleges.map(c => (
+                    <button key={c._id} onClick={() => openEnq(c)}
+                      className="relative overflow-hidden flex-1 text-[10.5px] font-bold text-white py-2.5 rounded-[10px] flex items-center justify-center gap-1"
+                      style={{ background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6)', backgroundSize: '200% auto', animation: 'ctaShimmer 3s ease infinite', boxShadow: '0 3px 12px rgba(139,92,246,0.4)' }}>
+                      <span className="absolute inset-0 pointer-events-none"
+                        style={{ background: 'linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.18) 50%,transparent 65%)', animation: 'shimmer 3s ease-in-out infinite' }} />
+                      <Scale size={10} className="relative z-10 flex-shrink-0" />
+                      <span className="relative z-10 truncate">{c.name.split(' ')[0]} — Apply</span>
+                    </button>
+                  ))}
+                  {n < 3 && <div className="flex-1" />}
                 </div>
               </div>
 

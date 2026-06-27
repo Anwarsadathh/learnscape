@@ -165,7 +165,11 @@ function CollegesContent() {
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [modalOpen, setModalOpen]                 = useState(false);
   const [selectedCollege, setSelectedCollege]     = useState<{ id: string; name: string } | null>(null);
-  const [viewMode, setViewMode]                   = useState<'grid' | 'list'>('grid');
+  // Default to list on mobile, grid on desktop
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 640) setViewMode('list');
+  }, []);
   const [sortBy, setSortBy]                       = useState<'name' | 'ranking' | 'rating'>('ranking');
   const [savedColleges, setSavedColleges]         = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage]             = useState(1);
@@ -599,7 +603,7 @@ function CollegesContent() {
                   }
                 : compareFull
                 ? { background: 'rgba(255,255,255,.02)', border: '1px solid rgba(255,255,255,.05)', color: '#334155', cursor: 'not-allowed' }
-                : { background: 'rgba(255,255,255,.025)', border: '1px solid rgba(255,255,255,.07)', color: '#64748b' }
+                : { background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.25)', color: '#a78bfa' }
             }
           >
             {/* Shimmer */}
@@ -698,7 +702,7 @@ function CollegesContent() {
                   }
                 : compareFull
                 ? { color: '#334155', cursor: 'not-allowed', border: '1px solid transparent' }
-                : { color: '#64748b', border: '1px solid rgba(255,255,255,.06)', background: 'rgba(255,255,255,.02)' }
+                : { color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(139,92,246,0.07)' }
             }
           >
             {!compareFull && (
@@ -781,15 +785,17 @@ function CollegesContent() {
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
-              {/* Animated pill row */}
+              {/* Animated pill row — fixed height prevents layout shift */}
               <div
                 style={{
                   opacity: streamVisible ? 1 : 0,
                   transform: streamVisible ? 'translateY(0px)' : 'translateY(-8px)',
                   transition: 'opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1)',
-                  minHeight: '36px',
+                  height: '72px',           /* fixed — 2 rows × 36px, never collapses */
+                  overflow: 'hidden',
                   display: 'flex',
                   flexWrap: 'wrap',
+                  alignContent: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                 }}
@@ -814,35 +820,6 @@ function CollegesContent() {
                 })}
               </div>
 
-              {/* Dot indicators */}
-              <div className="flex flex-col items-center gap-2 mt-4">
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: STREAM_TOTAL_PAGES }).map((_, i) => {
-                    const isActive = i === streamPage;
-                    const dotColor = STREAM_COLORS[STREAMS[i * STREAMS_PER_PAGE]]?.color;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => goToStreamPage(i)}
-                        title={`Streams ${i * STREAMS_PER_PAGE + 1}–${Math.min((i + 1) * STREAMS_PER_PAGE, STREAMS.length)}`}
-                        style={{
-                          width: isActive ? '22px' : '7px',
-                          height: '7px',
-                          borderRadius: '999px',
-                          background: isActive ? (dotColor ?? '#60a5fa') : 'rgba(255,255,255,0.15)',
-                          transition: 'width 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s ease',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: 0,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.8px', textTransform: 'uppercase', fontWeight: 600 }}>
-                  {streamPage * STREAMS_PER_PAGE + 1}–{Math.min((streamPage + 1) * STREAMS_PER_PAGE, STREAMS.length)} of {STREAMS.length} streams · hover to pause
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -1201,15 +1178,41 @@ function CollegesContent() {
 
               {/* Left: icon + label */}
               <div className="flex items-center gap-2.5 flex-shrink-0">
-                <div
-                  className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg,rgba(59,130,246,0.18),rgba(139,92,246,0.18))',
-                    border: '1px solid rgba(139,92,246,0.35)',
-                  }}
-                >
-                  <Scale size={15} style={{ color: '#a78bfa', animation: 'iconSpark 2.2s ease-in-out infinite' }} />
+                {/* Icon — with dots indicator below on mobile */}
+                <div className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg,rgba(59,130,246,0.18),rgba(139,92,246,0.18))',
+                      border: '1px solid rgba(139,92,246,0.35)',
+                    }}
+                  >
+                    <Scale size={15} style={{ color: '#a78bfa', animation: 'iconSpark 2.2s ease-in-out infinite' }} />
+                  </div>
+                  {/* ── Mobile-only: 3 slot dots + count below icon ── */}
+                  <div className="flex sm:hidden flex-col items-center gap-[2px]">
+                    <div className="flex items-center gap-[3px]">
+                      {[0, 1, 2].map(i => (
+                        <span key={i} className="rounded-full transition-all duration-300"
+                          style={{
+                            width:  i < compareList.length ? '6px' : '4px',
+                            height: i < compareList.length ? '6px' : '4px',
+                            background: i < compareList.length
+                              ? ['#60a5fa','#a78bfa','#34d399'][i]
+                              : 'rgba(255,255,255,0.15)',
+                            boxShadow: i < compareList.length
+                              ? `0 0 4px ${['rgba(96,165,250,.7)','rgba(167,139,250,.7)','rgba(52,211,153,.7)'][i]}`
+                              : 'none',
+                          }} />
+                      ))}
+                    </div>
+                    <span className="text-[7.5px] font-extrabold leading-none"
+                      style={{ color: compareList.length === 3 ? '#34d399' : 'rgba(255,255,255,0.3)' }}>
+                      {compareList.length}/3
+                    </span>
+                  </div>
                 </div>
+
                 <div className="hidden sm:block">
                   <p
                     className="text-[12.5px] font-extrabold leading-none"
@@ -1228,37 +1231,56 @@ function CollegesContent() {
                 </div>
               </div>
 
-              {/* Middle: college slots */}
-              <div className="flex items-center gap-2 flex-1 overflow-x-auto">
+              {/* Middle: college slots — desktop full, mobile compact dots */}
+
+              {/* Mobile: slot indicator + college pills */}
+              <div className="flex sm:hidden items-center gap-1.5 flex-1 overflow-hidden">
+
+                {/* College pills */}
+                {compareList.map((c, i) => (
+                  <div key={c._id} className="flex items-center gap-1 rounded-[7px] px-1.5 py-1 flex-shrink-0"
+                    style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: ['#60a5fa','#a78bfa','#34d399'][i], animation: `sparkDot 1.8s ease-in-out ${i*0.3}s infinite` }} />
+                    <span className="text-[9.5px] font-semibold text-white truncate max-w-[44px]">
+                      {c.name.split(' ')[0]}
+                    </span>
+                    <button onClick={() => removeFromCompare(c._id)} className="text-slate-600 hover:text-red-400 flex-shrink-0">
+                      <X size={8} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Empty slot hints */}
+                {compareList.length < 3 && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {Array.from({ length: 3 - compareList.length }).map((_, i) => (
+                      <div key={i} className="rounded-[7px] px-2 py-1 border border-dashed flex-shrink-0"
+                        style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                        <span className="text-[8.5px] text-slate-700">+add</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop: full name slots */}
+              <div className="hidden sm:flex items-center gap-2 flex-1 overflow-x-auto">
                 {[0, 1, 2].map(i => {
                   const c = compareList[i];
                   return c ? (
-                    <div
-                      key={c._id}
-                      className="flex items-center gap-2 rounded-[11px] px-3 py-2 flex-shrink-0 border"
-                      style={{ animation: 'slotPulse 3s ease-in-out infinite', animationDelay: `${i * 0.4}s` }}
-                    >
-                      {/* Tiny spark dot */}
-                      <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{
-                          background: ['#60a5fa', '#a78bfa', '#34d399'][i],
-                          animation: `sparkDot 1.8s ease-in-out ${i * 0.3}s infinite`,
-                        }}
-                      />
-                      <span className="text-[11px] font-semibold text-white max-w-[100px] sm:max-w-[130px] truncate">
-                        {c.name}
-                      </span>
+                    <div key={c._id} className="flex items-center gap-2 rounded-[11px] px-3 py-2 flex-shrink-0 border"
+                      style={{ animation: 'slotPulse 3s ease-in-out infinite', animationDelay: `${i * 0.4}s` }}>
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{ background: ['#60a5fa','#a78bfa','#34d399'][i], animation: `sparkDot 1.8s ease-in-out ${i*0.3}s infinite` }} />
+                      <span className="text-[11px] font-semibold text-white max-w-[130px] truncate">{c.name}</span>
                       <button onClick={() => removeFromCompare(c._id)} className="text-slate-600 hover:text-red-400 transition-colors flex-shrink-0">
                         <X size={10} />
                       </button>
                     </div>
                   ) : (
-                    <div
-                      key={`empty-${i}`}
-                      className="hidden sm:flex items-center gap-1.5 rounded-[11px] px-3 py-2 border border-dashed flex-shrink-0"
-                      style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}
-                    >
+                    <div key={`empty-${i}`} className="flex items-center gap-1.5 rounded-[11px] px-3 py-2 border border-dashed flex-shrink-0"
+                      style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
                       <span className="text-[9.5px] text-slate-700">+ slot {i + 1}</span>
                     </div>
                   );
