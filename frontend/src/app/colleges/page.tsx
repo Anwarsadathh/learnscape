@@ -791,7 +791,7 @@ function CollegesContent() {
                   opacity: streamVisible ? 1 : 0,
                   transform: streamVisible ? 'translateY(0px)' : 'translateY(-8px)',
                   transition: 'opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1)',
-                  height: '72px',           /* fixed — 2 rows × 36px, never collapses */
+                  height: '120px',          /* fixed — 3 rows × ~40px, no layout shift */
                   overflow: 'hidden',
                   display: 'flex',
                   flexWrap: 'wrap',
