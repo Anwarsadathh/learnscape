@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   console.log(`[Middleware] Processing: ${pathname}`)
 
   const backendBaseUrl =
-    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+    process.env.NEXT_PUBLIC_API_URL || 'https://learnscapeedu.com/api'
   const backendRoot = backendBaseUrl.replace(/\/api$/, '')
 
   // === API PROXY FIRST ===
