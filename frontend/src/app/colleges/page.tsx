@@ -27,36 +27,43 @@ import EnquiryModal from '@/components/EnquiryModal';
 import CompareModal from '@/components/CompareModal';
 
 // ─── Static stream list ────────────────────────────────────────────
+// ─── Streams: labels match DB exactly (isActive:true, sorted by order) ──
 const STREAMS = [
-  'Engineering',
-  'Medical Science',
-  'Management',
-  'Commerce',
-  'Arts and Humanities',
-  'Paramedical',
-  'Law',
-  'Design',
-  'Science',
-  'Agriculture',
-  'Dental',
+  'Engineering',       // order 1
+  'Medical',           // order 2  (was 'Medical Science' — mismatch with DB)
+  'Management',        // order 3
+  'Commerce',          // order 4
+  'Science',           // order 5
+  'Arts & Humanities', // order 6  (was 'Arts and Humanities' — mismatch with DB)
+  'Law',               // order 7
+  'Paramedical',       // order 8
+  'Pharmacy',          // order 9  (new)
+  'Architecture',      // order 10 (new)
+  'Design',            // order 11
+  'Hotel Management',  // order 12 (new)
+  'Nursing',           // order 13 (new)
+  'Dental',            // order 14
 ];
 
 const STREAMS_PER_PAGE   = 6;
-const STREAM_TOTAL_PAGES = Math.ceil(STREAMS.length / STREAMS_PER_PAGE);
+const STREAM_TOTAL_PAGES = Math.ceil(STREAMS.length / STREAMS_PER_PAGE); // 3 pages
 
-// ─── Stream colour palette ─────────────────────────────────────────
+// ─── Stream colour palette — colours from DB ────────────────────────
 const STREAM_COLORS: Record<string, { bg: string; color: string }> = {
-  'Engineering':         { bg: 'rgba(59,130,246,0.12)',  color: '#60a5fa' },
-  'Medical Science':     { bg: 'rgba(239,68,68,0.12)',   color: '#f87171' },
-  'Management':          { bg: 'rgba(168,85,247,0.12)',  color: '#c084fc' },
-  'Commerce':            { bg: 'rgba(245,158,11,0.12)',  color: '#fbbf24' },
-  'Arts and Humanities': { bg: 'rgba(236,72,153,0.12)',  color: '#f472b6' },
-  'Paramedical':         { bg: 'rgba(20,184,166,0.12)',  color: '#2dd4bf' },
-  'Law':                 { bg: 'rgba(99,102,241,0.12)',  color: '#818cf8' },
-  'Design':              { bg: 'rgba(249,115,22,0.12)',  color: '#fb923c' },
-  'Science':             { bg: 'rgba(16,185,129,0.12)',  color: '#34d399' },
-  'Agriculture':         { bg: 'rgba(132,204,22,0.12)',  color: '#a3e635' },
-  'Dental':              { bg: 'rgba(14,165,233,0.12)',  color: '#38bdf8' },
+  'Engineering':      { bg: 'rgba(26,111,212,0.12)',  color: '#60a5fa' },
+  'Medical':          { bg: 'rgba(220,38,38,0.12)',   color: '#f87171' },
+  'Management':       { bg: 'rgba(124,58,237,0.12)',  color: '#c084fc' },
+  'Commerce':         { bg: 'rgba(22,163,74,0.12)',   color: '#4ade80' },
+  'Science':          { bg: 'rgba(8,145,178,0.12)',   color: '#22d3ee' },
+  'Arts & Humanities':{ bg: 'rgba(234,88,12,0.12)',   color: '#fb923c' },
+  'Law':              { bg: 'rgba(180,83,9,0.12)',    color: '#fbbf24' },
+  'Paramedical':      { bg: 'rgba(219,39,119,0.12)',  color: '#f472b6' },
+  'Pharmacy':         { bg: 'rgba(5,150,105,0.12)',   color: '#34d399' },
+  'Architecture':     { bg: 'rgba(67,56,202,0.12)',   color: '#818cf8' },
+  'Design':           { bg: 'rgba(147,51,234,0.12)',  color: '#d8b4fe' },
+  'Hotel Management': { bg: 'rgba(217,119,6,0.12)',   color: '#fcd34d' },
+  'Nursing':          { bg: 'rgba(13,148,136,0.12)',  color: '#5eead4' },
+  'Dental':           { bg: 'rgba(14,165,233,0.12)',  color: '#38bdf8' },
 };
 
 function getStreamStyle(label: string, active: boolean) {
@@ -937,7 +944,7 @@ function CollegesContent() {
                   </button>
                 )}
               </div>
-              <FilterPanel />
+              {FilterPanel()}
             </div>
           </aside>
 
@@ -1068,7 +1075,7 @@ function CollegesContent() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-5">
-              <FilterPanel />
+              {FilterPanel()}
             </div>
             <div className="p-4 border-t border-white/10 flex gap-3">
               <button onClick={clearAll} className="flex-1 text-[12.5px] font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/10 py-2.5 rounded-[10px] transition-all">
