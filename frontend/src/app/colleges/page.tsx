@@ -789,6 +789,7 @@ function CollegesContent() {
             {/* ── Stream carousel ───────────────────────────────── */}
             <div
               className="mt-5"
+              style={{ isolation: 'isolate', willChange: 'auto' }}
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
@@ -974,11 +975,11 @@ function CollegesContent() {
               <>
                 {viewMode === 'grid' ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {colleges.map(c => <CollegeCard key={c._id} college={c} />)}
+                    {colleges.map(c => <React.Fragment key={c._id}>{CollegeCard({ college: c })}</React.Fragment>)}
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
-                    {colleges.map(c => <CollegeRow key={c._id} college={c} />)}
+                    {colleges.map(c => <React.Fragment key={c._id}>{CollegeRow({ college: c })}</React.Fragment>)}
                   </div>
                 )}
 
