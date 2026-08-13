@@ -58,7 +58,7 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
               alt={`${member.name} - ${member.role}`}
               width={128}
               height={128}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-top"
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 const fallback = target.parentElement?.querySelector('.fallback-placeholder') as HTMLElement;
@@ -238,13 +238,13 @@ const AboutPage: React.FC = () => {
     }
   ];
 
-  // ✅ Only Vivek and Shibin — Anurag and Lakshmi removed
+  // ✅ Only Bhadra and Shibin — Anurag and Lakshmi removed
   const teamMembers: TeamMember[] = [
     {
-      name: 'Vivek S',
+      name: 'Bhadra Nair',
       role: 'Managing Director',
-      image: '/about/vivek.jpg',
-      description: 'A dedicated professional with a strong career in the education sector. Consistently delivers excellence with passion and commitment. Plays a key role in driving Learn Scape\'s growth and success. Known for his performance, dedication, and strategic support. Contributes to shaping a stronger future for the organization.',
+      image: '/about/bhad.jpg',
+      description: 'A dedicated professional with a strong career in the education sector. Consistently delivers excellence with passion and commitment. Plays a key role in driving Learn Scape\'s growth and success. Known for her performance, dedication, and strategic support. Contributes to shaping a stronger future for the organization.',
       featured: false
     },
     {
