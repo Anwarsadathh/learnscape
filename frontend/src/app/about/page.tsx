@@ -41,6 +41,7 @@ interface TeamMemberCardProps {
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isBhadraImage = member.image === '/about/bhad.jpg';
   
   // Truncate description - increased to 80 chars since only 2 cards now
   const shortDescription = member.description.length > 80 
@@ -58,7 +59,12 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
               alt={`${member.name} - ${member.role}`}
               width={128}
               height={128}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover"
+              style={{
+                objectPosition: isBhadraImage ? 'center 34%' : 'center top',
+                transform: isBhadraImage ? 'scale(1.08)' : undefined,
+                transformOrigin: 'center center'
+              }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 const fallback = target.parentElement?.querySelector('.fallback-placeholder') as HTMLElement;
