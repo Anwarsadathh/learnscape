@@ -67,7 +67,11 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins =
   process.env.NODE_ENV === 'production'
-    ? ['https://learnscapeedu.com', 'https://www.learnscapeedu.com']
+    ? [
+        'https://learnscapeedu.com',
+        'https://www.learnscapeedu.com',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean)
     : ['http://localhost:3000', 'http://localhost:3001'];
 
 const corsOptions = {
