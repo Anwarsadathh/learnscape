@@ -17,8 +17,12 @@ const ensureUploadDirs = () => {
   ];
 
   dirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch (err) {
+      console.warn('Skipping upload dir (read-only filesystem?):', dir, err.message);
     }
   });
 };
@@ -68,8 +72,12 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = getUploadPathByField(file.fieldname);
 
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+    try {
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+    } catch (err) {
+      console.warn('Could not create upload dir (read-only filesystem?):', uploadPath, err.message);
     }
 
     cb(null, uploadPath);

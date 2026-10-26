@@ -8,7 +8,11 @@ const ensureUploadDirs = () => {
     'uploads/brochures', 'uploads/fee-structures', 'uploads/scholarships'
   ];
   dirs.forEach(dir => {
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    } catch (err) {
+      console.warn('Skipping upload dir (read-only filesystem?):', dir, err.message);
+    }
   });
 };
 ensureUploadDirs();

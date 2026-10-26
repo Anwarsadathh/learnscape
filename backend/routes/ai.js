@@ -5,7 +5,9 @@ const OpenAI = require('openai');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 // Config
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';

@@ -133,6 +133,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Ensure the database is connected before any route/middleware uses it
+// (serverless-safe: connects lazily on the first request, reused after).
+app.use(async (req, res, next) => {
+  try {
+    await db.ensureConnected();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err.message);
+    res.status(503).json({ success: false, message: 'Database temporarily unavailable' });
+  }
+});
+
 // PAGE VIEW TRACKING MIDDLEWARE
 app.use(trackPageView);
 
@@ -253,22 +265,25 @@ const logStartupStats = async () => {
   }
 };
 
-// Connect to database first, then start server
-db.connect((err) => {
-  if (err) {
-    console.error('❌ Database connection failed:', err);
-    process.exit(1);
-  } else {
-    console.log('✅ Connected to MongoDB');
-    
-    // Log startup statistics after database connection
-    setTimeout(logStartupStats, 1000);
-    
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
-  }
-});
+// Local/traditional server: connect then listen. On Vercel (serverless) this
+// block is skipped — the app is exported and the DB connects lazily per request.
+if (!process.env.VERCEL) {
+  db.connect((err) => {
+    if (err) {
+      console.error('❌ Database connection failed:', err);
+      process.exit(1);
+    } else {
+      console.log('✅ Connected to MongoDB');
+
+      // Log startup statistics after database connection
+      setTimeout(logStartupStats, 1000);
+
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+    }
+  });
+}
 
 module.exports = app;
